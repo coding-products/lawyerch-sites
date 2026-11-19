@@ -16,7 +16,7 @@
   --color-cta:       #2563eb;
 
   /* --- Typography --- */
-  --font-heading: 'Inter', sans-serif;
+  --font-heading: 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
   --font-body:    system-ui, -apple-system, sans-serif;
 }
 

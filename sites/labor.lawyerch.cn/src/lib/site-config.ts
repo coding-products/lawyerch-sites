@@ -13,7 +13,7 @@ export const SITE_NAME = '劳动法 · 陈恒律师';
 
 export const TAGLINE = '广州执业律师，专注劳动争议与企业用工合规';
 
-export const LOGO_SRC = '/favicon.svg';
+export const LOGO_SRC = '/logo.svg';
 
 // ---------------------------------------------------------------------------
 // 导航

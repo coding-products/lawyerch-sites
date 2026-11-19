@@ -26,8 +26,8 @@ export const CORPORATE: DesignTokens = {
     cta: '#2563eb',
   },
   fonts: {
-    heading: 'Inter',
-    body: 'system-ui, -apple-system, sans-serif',
+    heading: '"PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif',
+    body: '"PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif',
   },
   heroLayout: 'split',
   ctaStyle: 'rounded',

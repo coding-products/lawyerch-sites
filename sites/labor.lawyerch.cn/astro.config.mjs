@@ -1,4 +1,4 @@
-import { defineConfig, fontProviders } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import responsiveImages from '@astro-fleet/shared-ui/utils/responsive-images.mjs';
@@ -8,18 +8,4 @@ export default defineConfig({
   integrations: [sitemap(), responsiveImages()],
   vite: { plugins: [tailwindcss()] },
   output: 'static',
-  fonts: [
-    {
-      provider: fontProviders.google(),
-      name: 'Inter',
-      cssVariable: '--font-heading',
-      weights: [400, 500, 600, 700, 800, 900],
-    },
-    {
-      provider: fontProviders.google(),
-      name: 'Inter',
-      cssVariable: '--font-body',
-      weights: [400, 500, 600, 700],
-    },
-  ],
 });

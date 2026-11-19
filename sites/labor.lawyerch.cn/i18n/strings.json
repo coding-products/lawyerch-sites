@@ -64,19 +64,6 @@
       "/insights/contract-expiry-compensation/"
     ]
   },
-  "bce06414177f": {
-    "en": "Search",
-    "kind": "aria-label",
-    "count": 8,
-    "pages": [
-      "/",
-      "/404.html",
-      "/about/",
-      "/contact/",
-      "/insights/",
-      "/insights/contract-expiry-compensation/"
-    ]
-  },
   "8b66cdfcc0d3": {
     "en": "Search this site",
     "kind": "aria-label",

@@ -21,6 +21,21 @@ const trustItems = [
   { text: '可预约咨询' },
 ];
 
+
+const structuredData = {
+  '@type': 'LegalService',
+  name: '劳动法 · 陈恒律师',
+  description: '广州执业律师，专注劳动争议代理与企业用工合规。',
+  url: 'https://labor.lawyerch.cn',
+  areaServed: '广州',
+  provider: {
+    '@type': 'Person',
+    name: '陈恒律师',
+    jobTitle: '执业律师',
+  },
+  knowsAbout: ['劳动争议', '劳动合同', '经济补偿', '加班费', '工伤保险', '竞业限制', '企业用工合规'],
+};
+
 const features = [
   {
     title: '劳动争议代理',
@@ -63,6 +78,7 @@ const features = [
   ctaText="预约咨询"
   ctaHref="/contact/"
   designTokens={CORPORATE}
+  structuredData={structuredData}
 >
   <!-- Hero -->
   <section class="hero">
