@@ -1,0 +1,60 @@
+---
+import { getLangFromUrl } from '~/i18n/ui';
+import { headings } from '~/data/headings';
+
+const lang = getLangFromUrl(Astro.url);
+const h = headings[lang];
+import Icon from '../Icon.astro';
+import Button from '../Button.astro';
+import Signature from '../art/Signature.astro';
+import siteConfig from '~/config/site';
+
+interface Props {
+  /** `h1` when the About page renders this as its main heading. */
+  headingLevel?: 'h1' | 'h2';
+  id?: string;
+}
+
+const { headingLevel: Heading = 'h2', id = 'about' } = Astro.props;
+---
+
+<section class="wrap sec" id={id} aria-labelledby="about-h">
+  <div class="about-grid">
+    <div class="about-img rev">
+      <img
+        src={h.about.image.src}
+        alt={h.about.image.alt}
+        width={h.about.image.width}
+        height={h.about.image.height}
+        loading="lazy"
+        decoding="async"
+      />
+      <div class="about-badge">
+        <b>{h.about.badge.value}</b>
+        <span>{h.about.badge.label}</span>
+      </div>
+    </div>
+
+    <div class="rev rev-d1">
+      <p class="eyebrow">{h.about.eyebrow}</p>
+      <Heading class="d2 about-h" id="about-h">{h.about.title}</Heading>
+      <p class="lead">{h.about.body}</p>
+
+      <ul class="about-list">
+        {
+          h.about.points.map((point) => (
+            <li>
+              <i><Icon name="check" class="ic-xs" /></i>
+              <span>{point}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="about-sign">
+        <Signature label={`Signature of ${siteConfig.author}`} />
+        <Button href={h.about.ctaHref} variant="outline">{h.about.ctaLabel}</Button>
+      </div>
+    </div>
+  </div>
+</section>

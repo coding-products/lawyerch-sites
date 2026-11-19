@@ -1,0 +1,29 @@
+---
+import { getLangFromUrl } from '~/i18n/ui';
+const homeLabel = getLangFromUrl(Astro.url) === 'en' ? 'Home' : '首页';
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: Crumb[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb">
+  <ol class="crumbs">
+    <li><a href={getLangFromUrl(Astro.url) === 'en' ? '/en/' : '/'}>{homeLabel}</a></li>
+    {
+      items.map((item, i) =>
+        item.href && i < items.length - 1 ? (
+          <li><a href={item.href}>{item.label}</a></li>
+        ) : (
+          <li><span aria-current="page">{item.label}</span></li>
+        )
+      )
+    }
+  </ol>
+</nav>

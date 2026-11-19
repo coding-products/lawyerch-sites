@@ -47,6 +47,25 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  sites/lawyerch.cn:
+    dependencies:
+      '@astrojs/rss':
+        specifier: ^4.0.19
+        version: 4.0.19
+      '@astrojs/sitemap':
+        specifier: ^3.7.4
+        version: 3.7.6
+      astro:
+        specifier: ^7.3.3
+        version: 7.4.13(@types/node@26.6.6)(esbuild@0.27.7)(idb-keyval@6.3.0)(jiti@2.7.0)(yaml@2.9.1)
+    devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.10
+        version: 0.9.12(prettier@3.10.1)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   sites/starter:
     dependencies:
       '@astro-fleet/config':

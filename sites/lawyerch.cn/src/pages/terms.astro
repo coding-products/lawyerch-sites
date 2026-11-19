@@ -1,0 +1,58 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+import siteConfig from '~/config/site';
+
+const updated = '2026-11-19';
+---
+
+<PageLayout
+  title="使用条款"
+  heading="使用条款"
+  eyebrow="法律信息"
+  intro="本站内容的使用规则与免责说明。"
+  description={`${siteConfig.name} 的使用条款：内容性质、知识产权与责任说明。`}
+  crumbs={[{ label: '使用条款' }]}
+>
+  <section class="wrap sec" style="padding-top:0">
+    <div class="prose rev">
+      <p>最后更新：{updated}</p>
+
+      <h2>内容性质</h2>
+      <p>
+        本站文章、问答和案例复盘是一般信息，用于介绍劳动法实务中的常见问题和处理思路，
+        <strong>不构成针对具体案件的法律意见</strong>。阅读本站内容不会在你与本站作者之间
+        建立委托关系。
+      </p>
+
+      <h2>具体案件</h2>
+      <p>
+        劳动案件的结果取决于事实、证据、程序和地方裁判尺度。需要处理具体问题时，
+        请通过正式委托另行沟通，不要仅依据本站内容作出决定。
+      </p>
+
+      <h2>知识产权</h2>
+      <p>
+        本站原创文字和图片归作者所有。欢迎转载和引用，但需注明作者与原文链接，
+        且不得修改后用于误导性用途。未经许可，不得整站复制或用于商业培训材料。
+      </p>
+
+      <h2>外部链接</h2>
+      <p>
+        本站可能链接到法规、裁判文书或其他网站。链接不代表对其内容背书，
+        其准确性和时效性由原网站负责。
+      </p>
+
+      <h2>责任限制</h2>
+      <p>
+        本站会尽量保持内容准确和更新，但不对因使用本站内容产生的直接或间接损失承担责任。
+        法律法规发生变化时，以现行有效的规定为准。
+      </p>
+
+      <h2>联系</h2>
+      <p>
+        对本站内容有疑问，可发邮件至
+        <a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a>。
+      </p>
+    </div>
+  </section>
+</PageLayout>

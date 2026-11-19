@@ -1,0 +1,106 @@
+---
+import Button from './Button.astro';
+import siteConfig from '~/config/site';
+import { getLangFromUrl } from '~/i18n/ui';
+
+const lang = getLangFromUrl(Astro.url);
+const endpoint = siteConfig.contact.formEndpoint.trim();
+const connected = endpoint.length > 0;
+
+const copy =
+  lang === 'en'
+    ? {
+        name: 'Your name',
+        email: 'Email',
+        company: 'Company',
+        optional: '(optional)',
+        topic: 'What is this about?',
+        message: 'The situation',
+        hint: 'Type of dispute, current stage, documents you have. Do not include ID or bank card numbers.',
+        placeholder: 'A paragraph is plenty to start with.',
+        submit: 'Send',
+        notConnected: 'This form is not connected yet. Add a form endpoint in site config.',
+        options: [
+          ['legal', 'Legal matter'],
+          ['tools', 'Tool / open source'],
+          ['writing', 'Writing / talk'],
+          ['other', 'Something else'],
+        ],
+      }
+    : {
+        name: '称呼',
+        email: '邮箱',
+        company: '公司',
+        optional: '（选填）',
+        topic: '咨询类型',
+        message: '情况描述',
+        hint: '争议类型、目前阶段、已有材料。请勿填写身份证号、银行卡号等敏感信息。',
+        placeholder: '一段话描述即可。',
+        submit: '提交',
+        notConnected: '表单尚未接入提交地址，请在站点配置中填写 formEndpoint。',
+        options: [
+          ['legal', '法律咨询'],
+          ['tools', '工具 / 开源合作'],
+          ['writing', '内容 / 分享'],
+          ['other', '其他'],
+        ],
+      };
+---
+
+<form
+  class="form"
+  method="post"
+  action={connected ? endpoint : undefined}
+  name="contact"
+  novalidate={false}
+>
+  <input type="hidden" name="form-name" value="contact" />
+
+  <div class="form-row">
+    <div class="field">
+      <label for="cf-name">{copy.name}</label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" required />
+    </div>
+    <div class="field">
+      <label for="cf-email">{copy.email}</label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" required />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="cf-company">{copy.company} <span class="hint">{copy.optional}</span></label>
+    <input id="cf-company" name="company" type="text" autocomplete="organization" />
+  </div>
+
+  <div class="field">
+    <label for="cf-type">{copy.topic}</label>
+    <select id="cf-type" name="project_type">
+      {copy.options.map(([value, label], i) => (
+        <option value={value} selected={i === 0}>{label}</option>
+      ))}
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="cf-message">{copy.message}</label>
+    <p class="hint" id="cf-message-hint">{copy.hint}</p>
+    <textarea
+      id="cf-message"
+      name="message"
+      rows="7"
+      required
+      aria-describedby="cf-message-hint"
+      placeholder={copy.placeholder}></textarea>
+  </div>
+
+  <div class="hp" aria-hidden="true">
+    <label for="cf-website">Leave this field empty</label>
+    <input id="cf-website" name="_gotcha" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  {!connected && <p class="form-note">{copy.notConnected}</p>}
+
+  <div>
+    <Button type="submit" variant="ink" icon="mail" disabled={!connected}>{copy.submit}</Button>
+  </div>
+</form>

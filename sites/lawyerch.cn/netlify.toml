@@ -1,0 +1,13 @@
+[build]
+  base = "sites/lawyerch.cn"
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# 单页/静态站：404 交给 404.html
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404

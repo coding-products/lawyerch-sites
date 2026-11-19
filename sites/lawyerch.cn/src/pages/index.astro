@@ -1,0 +1,224 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Button from '~/components/Button.astro';
+import Icon from '~/components/Icon.astro';
+
+const areas = [
+  {
+    name: 'law-products',
+    href: 'https://github.com/law-products',
+    eyebrow: '法律科技',
+    title: '把法律经验变成可复用的工具',
+    body: '知识资产、AI 技能、文档工具。面向法律人，也面向做法律产品的开发者。',
+    links: [
+      { label: 'skills-for-legal', note: '中国法实务 AI 技能集', href: 'https://github.com/law-products/skills-for-legal' },
+      { label: 'doc-anonymizer', note: '本地文档脱敏', href: 'https://github.com/law-products/doc-anonymizer' },
+      { label: 'doc-flip-video', note: '文档翻页视频', href: 'https://github.com/law-products/doc-flip-video' },
+    ],
+  },
+  {
+    name: 'lawyerch-dev',
+    href: 'https://github.com/lawyerch-dev',
+    eyebrow: 'AI 开发',
+    title: '做能跑、能交付的东西',
+    body: '文档处理、桌面应用、Agent 工具链，以及一份持续更新的开发资源索引。',
+    links: [
+      { label: 'dev-resources', note: '动效 / 音效 / 图标 / UI', href: 'https://github.com/lawyerch-dev/dev-resources' },
+      { label: 'cc-ai-tools', note: '可扩展启动器', href: 'https://github.com/lawyerch-dev/cc-ai-tools' },
+      { label: 'cc-md-editor', note: 'Markdown 编辑器', href: 'https://github.com/lawyerch-dev/cc-md-editor' },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="陈恒律师 — 执业律师 · AI 独立开发者"
+  description="广州执业律师，用代码做法律工具。法律科技与 AI 开发两条线：知识资产、法律工具、开源项目。"
+  appendSiteName={false}
+>
+  <!-- Hero -->
+  <section class="wrap home-hero">
+    <p class="eyebrow">你好，我是</p>
+    <h1 class="d1 home-name">陈恒<em>律师</em></h1>
+    <p class="home-role">执业律师 · AI 独立开发者</p>
+    <p class="home-intro">
+      用代码把法律工作里重复的部分交给机器，把判断留给人。白天做法律，晚上写工具。
+    </p>
+    <div class="home-actions">
+      <Button href="#areas" variant="lime">看两条线</Button>
+      <Button href="/contact/" variant="outline">联系我</Button>
+    </div>
+  </section>
+
+  <!-- 两条线 -->
+  <section class="wrap sec" id="areas">
+    <div class="areas">
+      {areas.map((area) => (
+        <article class="area">
+          <p class="eyebrow">{area.eyebrow}</p>
+          <h2 class="d2 area-title">{area.title}</h2>
+          <p class="area-body">{area.body}</p>
+          <ul class="area-links">
+            {area.links.map((link) => (
+              <li>
+                <a href={link.href} target="_blank" rel="noopener">
+                  <span class="area-link-name">{link.label}</span>
+                  <span class="area-link-note">{link.note}</span>
+                  <Icon name="arrow" class="ic-sm" />
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a class="area-more" href={area.href} target="_blank" rel="noopener">
+            在 GitHub 查看 {area.name}
+            <Icon name="arrow" class="ic-sm" />
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- 子站 -->
+  <section class="wrap sec">
+    <div class="subsite">
+      <div>
+        <p class="eyebrow">领域站</p>
+        <h2 class="d2">劳动法</h2>
+        <p class="subsite-body">
+          劳动争议、用工合规、规章制度与裁员方案。独立的领域站点，持续更新实务文章。
+        </p>
+      </div>
+      <Button href="https://labor.lawyerch.cn" variant="ink">访问 labor.lawyerch.cn</Button>
+    </div>
+  </section>
+
+  <!-- 联系 -->
+  <section class="wrap sec home-contact">
+    <p class="eyebrow">联系</p>
+    <h2 class="d2">有法律问题，或想聊工具？</h2>
+    <p class="subsite-body">法律问题请走正式委托；工具、开源、合作可以直接发邮件。</p>
+    <div class="home-actions">
+      <Button href="/contact/" variant="lime">联系我</Button>
+      <Button href="mailto:lawyerch@foxmail.com" variant="outline">lawyerch@foxmail.com</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .home-hero {
+    padding-top: clamp(56px, 9vw, 120px);
+    padding-bottom: clamp(40px, 6vw, 80px);
+  }
+  .home-name {
+    margin: 12px 0 20px;
+    font-size: clamp(56px, 11vw, 132px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+  .home-name em {
+    display: block;
+    color: var(--swp-lime-deep);
+    font-style: normal;
+  }
+  .home-role {
+    font-size: clamp(18px, 2vw, 24px);
+    font-weight: 600;
+    color: var(--swp-ink);
+    margin: 0 0 16px;
+  }
+  .home-intro {
+    max-width: 620px;
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--swp-slate);
+    margin: 0 0 32px;
+  }
+  .home-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .areas {
+    display: grid;
+    gap: 24px;
+  }
+  @media (min-width: 900px) {
+    .areas {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .area {
+    border: 1px solid var(--swp-line);
+    border-radius: var(--r-lg);
+    padding: clamp(24px, 3vw, 40px);
+    background: var(--swp-shell);
+  }
+  .area-title {
+    margin: 10px 0 12px;
+    font-size: clamp(24px, 3vw, 34px);
+    line-height: 1.2;
+  }
+  .area-body {
+    color: var(--swp-slate);
+    line-height: 1.75;
+    margin: 0 0 20px;
+  }
+  .area-links {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px;
+    display: grid;
+    gap: 8px;
+  }
+  .area-links a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--r-sm);
+    background: var(--swp-mist);
+    color: var(--swp-ink);
+    text-decoration: none;
+  }
+  .area-links a:hover {
+    background: var(--swp-line);
+  }
+  .area-link-name {
+    font-weight: 600;
+  }
+  .area-link-note {
+    color: var(--swp-slate);
+    font-size: 0.875rem;
+    margin-left: auto;
+  }
+  .area-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--swp-ink);
+    text-decoration: none;
+    border-bottom: 2px solid var(--swp-lime);
+    padding-bottom: 4px;
+  }
+  .subsite {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--swp-line);
+    border-radius: var(--r-lg);
+    padding: clamp(24px, 3vw, 40px);
+    background: var(--swp-mist);
+  }
+  .subsite-body {
+    color: var(--swp-slate);
+    line-height: 1.75;
+    max-width: 560px;
+    margin: 12px 0 0;
+  }
+  .home-contact {
+    padding-bottom: clamp(64px, 8vw, 120px);
+  }
+</style>

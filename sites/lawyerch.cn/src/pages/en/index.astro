@@ -1,0 +1,124 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Button from '~/components/Button.astro';
+import Icon from '~/components/Icon.astro';
+
+const areas = [
+  {
+    name: 'law-products',
+    href: 'https://github.com/law-products',
+    eyebrow: 'Legal tech',
+    title: 'Turning legal experience into reusable tools',
+    body: 'Knowledge assets, AI skills and document tools — for lawyers and for developers building legal products.',
+    links: [
+      { label: 'skills-for-legal', note: 'Chinese legal AI skills', href: 'https://github.com/law-products/skills-for-legal' },
+      { label: 'doc-anonymizer', note: 'Local document anonymisation', href: 'https://github.com/law-products/doc-anonymizer' },
+      { label: 'doc-flip-video', note: 'Document flip videos', href: 'https://github.com/law-products/doc-flip-video' },
+    ],
+  },
+  {
+    name: 'lawyerch-dev',
+    href: 'https://github.com/lawyerch-dev',
+    eyebrow: 'AI development',
+    title: 'Build things that run and ship',
+    body: 'Document processing, desktop apps, agent tooling, and a continuously updated resource index.',
+    links: [
+      { label: 'dev-resources', note: 'Motion / sound / icons / UI', href: 'https://github.com/lawyerch-dev/dev-resources' },
+      { label: 'cc-ai-tools', note: 'Extensible launcher', href: 'https://github.com/lawyerch-dev/cc-ai-tools' },
+      { label: 'cc-md-editor', note: 'Markdown editor', href: 'https://github.com/lawyerch-dev/cc-md-editor' },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Chen Heng — Lawyer & Independent Developer"
+  description="Guangzhou-based lawyer who writes code. Legal tech and AI development: knowledge assets, legal tools, open-source projects."
+  appendSiteName={false}
+>
+  <section class="wrap home-hero">
+    <p class="eyebrow">Hello, I am</p>
+    <h1 class="d1 home-name">Chen Heng<em>Lawyer</em></h1>
+    <p class="home-role">Lawyer · Independent developer</p>
+    <p class="home-intro">
+      I hand the repetitive parts of legal work to tools, and keep the judgement human. Law by day, code by night.
+    </p>
+    <div class="home-actions">
+      <Button href="#areas" variant="lime">Two tracks</Button>
+      <Button href="/en/contact/" variant="outline">Contact</Button>
+    </div>
+  </section>
+
+  <section class="wrap sec" id="areas">
+    <div class="areas">
+      {areas.map((area) => (
+        <article class="area">
+          <p class="eyebrow">{area.eyebrow}</p>
+          <h2 class="d2 area-title">{area.title}</h2>
+          <p class="area-body">{area.body}</p>
+          <ul class="area-links">
+            {area.links.map((link) => (
+              <li>
+                <a href={link.href} target="_blank" rel="noopener">
+                  <span class="area-link-name">{link.label}</span>
+                  <span class="area-link-note">{link.note}</span>
+                  <Icon name="arrow" class="ic-sm" />
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a class="area-more" href={area.href} target="_blank" rel="noopener">
+            View {area.name} on GitHub
+            <Icon name="arrow" class="ic-sm" />
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="wrap sec">
+    <div class="subsite">
+      <div>
+        <p class="eyebrow">Practice site</p>
+        <h2 class="d2">Labour law</h2>
+        <p class="subsite-body">
+          Labour disputes, employment compliance, policy review and restructuring — a dedicated practice site.
+        </p>
+      </div>
+      <Button href="https://labor.lawyerch.cn" variant="ink">Visit labor.lawyerch.cn</Button>
+    </div>
+  </section>
+
+  <section class="wrap sec home-contact">
+    <p class="eyebrow">Contact</p>
+    <h2 class="d2">A legal question, or a tool to discuss?</h2>
+    <p class="subsite-body">Legal matters need a formal engagement. Tools, open source and collaboration: just email.</p>
+    <div class="home-actions">
+      <Button href="/en/contact/" variant="lime">Contact me</Button>
+      <Button href="mailto:lawyerch@foxmail.com" variant="outline">lawyerch@foxmail.com</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .home-hero { padding-top: clamp(56px, 9vw, 120px); padding-bottom: clamp(40px, 6vw, 80px); }
+  .home-name { margin: 12px 0 20px; font-size: clamp(56px, 11vw, 132px); line-height: 0.95; letter-spacing: -0.04em; }
+  .home-name em { display: block; color: var(--swp-lime-deep); font-style: normal; }
+  .home-role { font-size: clamp(18px, 2vw, 24px); font-weight: 600; color: var(--swp-ink); margin: 0 0 16px; }
+  .home-intro { max-width: 620px; font-size: 1.0625rem; line-height: 1.8; color: var(--swp-slate); margin: 0 0 32px; }
+  .home-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .areas { display: grid; gap: 24px; }
+  @media (min-width: 900px) { .areas { grid-template-columns: 1fr 1fr; } }
+  .area { border: 1px solid var(--swp-line); border-radius: var(--r-lg); padding: clamp(24px, 3vw, 40px); background: var(--swp-shell); }
+  .area-title { margin: 10px 0 12px; font-size: clamp(24px, 3vw, 34px); line-height: 1.2; }
+  .area-body { color: var(--swp-slate); line-height: 1.75; margin: 0 0 20px; }
+  .area-links { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 8px; }
+  .area-links a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--swp-mist); color: var(--swp-ink); text-decoration: none; }
+  .area-links a:hover { background: var(--swp-line); }
+  .area-link-name { font-weight: 600; }
+  .area-link-note { color: var(--swp-slate); font-size: 0.875rem; margin-left: auto; }
+  .area-more { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--swp-ink); text-decoration: none; border-bottom: 2px solid var(--swp-lime); padding-bottom: 4px; }
+  .subsite { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; border: 1px solid var(--swp-line); border-radius: var(--r-lg); padding: clamp(24px, 3vw, 40px); background: var(--swp-mist); }
+  .subsite-body { color: var(--swp-slate); line-height: 1.75; max-width: 560px; margin: 12px 0 0; }
+  .home-contact { padding-bottom: clamp(64px, 8vw, 120px); }
+</style>

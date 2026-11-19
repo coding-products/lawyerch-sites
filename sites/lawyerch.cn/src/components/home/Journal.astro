@@ -1,0 +1,31 @@
+---
+import { getLangFromUrl } from '~/i18n/ui';
+import { headings } from '~/data/headings';
+
+const lang = getLangFromUrl(Astro.url);
+const h = headings[lang];
+import Button from '../Button.astro';
+import SectionHeading from '../SectionHeading.astro';
+import PostCard from '../cards/PostCard.astro';
+import { getCollection } from 'astro:content';
+import { isVisible } from '~/lib/utils';
+
+const posts = (await getCollection('blog', ({ data }) => data.lang === lang))
+  .filter(isVisible)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+<section class="wrap sec" id="journal" aria-labelledby="jrn-h">
+  <SectionHeading class="rev" eyebrow={h.journalHeading.eyebrow} title={h.journalHeading.title} id="jrn-h">
+    <Button href={h.journalHeading.ctaHref} variant="outline">{h.journalHeading.ctaLabel}</Button>
+  </SectionHeading>
+
+  <div class="posts">
+    {
+      posts.map((post, i) => (
+        <PostCard post={post} class:list={['rev', i % 3 > 0 && `rev-d${i % 3}`]} />
+      ))
+    }
+  </div>
+</section>
