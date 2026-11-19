@@ -6,15 +6,16 @@ import { getLangFromUrl, useTranslations } from '~/i18n/ui';
 import { getCollection } from 'astro:content';
 import { isVisible } from '~/lib/utils';
 
-const services = (await getCollection('services'))
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const base = lang === 'en' ? '/en' : '';
+
+const services = (await getCollection('services', ({ data }) => data.lang === lang))
   .filter(isVisible)
   .sort((a, b) => a.data.order - b.data.order)
   .slice(0, 5);
 
 const year = new Date().getFullYear();
-const lang = getLangFromUrl(Astro.url);
-const t = useTranslations(lang);
-const base = lang === 'en' ? '/en' : '';
 ---
 
 <footer class="ftr">

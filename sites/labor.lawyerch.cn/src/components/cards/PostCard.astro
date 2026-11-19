@@ -1,4 +1,6 @@
 ---
+import { getLangFromUrl, useTranslations } from '~/i18n/ui';
+const t = useTranslations(getLangFromUrl(Astro.url));
 import Icon from '../Icon.astro';
 import { formatDate, isoDate } from '~/lib/utils';
 import type { CollectionEntry } from 'astro:content';
@@ -36,6 +38,6 @@ const href = `/journal/${post.id}/`;
   <Heading><a href={href}>{title}</a></Heading>
   <p>{description}</p>
   <a class="post-link" href={href} tabindex="-1" aria-hidden="true">
-    阅读全文 <Icon name="arrow" class="ic-sm" />
+    {t.common.readMore} <Icon name="arrow" class="ic-sm" />
   </a>
 </article>

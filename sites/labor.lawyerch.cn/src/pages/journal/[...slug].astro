@@ -10,12 +10,12 @@ import { isVisible, formatDate, isoDate, absoluteUrl } from '~/lib/utils';
 import { graph, blogPostingSchema, breadcrumbSchema, personSchema } from '~/lib/jsonld';
 
 export const getStaticPaths = (async () => {
-  const posts = (await getCollection('blog'))
+  const posts = (await getCollection('blog', ({ data }) => data.lang === 'zh'))
     .filter(isVisible)
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
   return posts.map((post, i) => ({
-    params: { slug: post.id },
+    params: { slug: post.id.replace(/^zh\//, '') },
     props: {
       post,
       related: posts.filter((p) => p.id !== post.id).slice(0, 3),

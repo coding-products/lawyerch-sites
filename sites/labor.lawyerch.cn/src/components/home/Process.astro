@@ -1,6 +1,9 @@
 ---
+import { getLangFromUrl } from '~/i18n/ui';
+import { processByLang } from '~/data/process';
 import SectionHeading from '../SectionHeading.astro';
-import { process, processHeading } from '~/data/process';
+
+const { process, processHeading } = processByLang[getLangFromUrl(Astro.url)];
 ---
 
 <section class="wrap sec sec-top" id="process" aria-labelledby="proc-h">

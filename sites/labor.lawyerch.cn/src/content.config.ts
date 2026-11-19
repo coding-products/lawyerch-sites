@@ -17,6 +17,7 @@ const imageRef = z.object({
 const services = defineCollection({
   loader: glob({ base: './src/content/services', pattern: '**/*.md' }),
   schema: z.object({
+    lang: z.enum(['zh', 'en']).default('zh'),
     title: z.string(),
     /** Icon id from `src/components/icons/IconSprite.astro`. */
     icon: z.enum(['grid', 'layers', 'pen', 'code', 'chart', 'spark', 'device', 'type', 'motion', 'flag']),
@@ -37,6 +38,7 @@ const services = defineCollection({
 const blog = defineCollection({
   loader: glob({ base: './src/content/blog', pattern: '**/*.md' }),
   schema: z.object({
+    lang: z.enum(['zh', 'en']).default('zh'),
     title: z.string(),
     description: z.string(),
     pubDate: z.coerce.date(),

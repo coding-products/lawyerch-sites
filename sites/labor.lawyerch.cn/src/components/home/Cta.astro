@@ -1,8 +1,12 @@
 ---
+import { getLangFromUrl } from '~/i18n/ui';
+import { headings } from '~/data/headings';
+
+const lang = getLangFromUrl(Astro.url);
+const h = headings[lang];
 import Icon from '../Icon.astro';
 import Button from '../Button.astro';
 import siteConfig from '~/config/site';
-import { cta } from '~/data/highlights';
 
 interface Props {
   id?: string;
@@ -17,11 +21,11 @@ const { id = 'cta' } = Astro.props;
     <span class="cta-ring b" aria-hidden="true"></span>
 
     <p class="eyebrow">{siteConfig.contact.availability}</p>
-    <h2 class="d2" id="cta-h">{cta.title}</h2>
-    <p>{cta.body}</p>
+    <h2 class="d2" id="cta-h">{h.cta.title}</h2>
+    <p>{h.cta.body}</p>
 
     <div class="cta-actions">
-      <Button href="/contact/" variant="ink">{cta.primaryLabel}</Button>
+      <Button href="/contact/" variant="ink">{h.cta.primaryLabel}</Button>
       <a class="btn btn-outline-ink" href={`tel:${siteConfig.contact.phoneHref}`}>
         <span>{siteConfig.contact.phone}</span>
         <i><Icon name="phone" class="ic-sm" /></i>

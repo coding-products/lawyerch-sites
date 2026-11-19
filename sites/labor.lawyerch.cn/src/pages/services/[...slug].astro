@@ -11,12 +11,12 @@ import { isVisible } from '~/lib/utils';
 import { graph, breadcrumbSchema, personSchema } from '~/lib/jsonld';
 
 export const getStaticPaths = (async () => {
-  const services = (await getCollection('services'))
+  const services = (await getCollection('services', ({ data }) => data.lang === 'zh'))
     .filter(isVisible)
     .sort((a, b) => a.data.order - b.data.order);
 
   return services.map((service, i) => ({
-    params: { slug: service.id },
+    params: { slug: service.id.replace(/^zh\//, '') },
     props: { service, next: services[(i + 1) % services.length]! },
   }));
 }) satisfies GetStaticPaths;

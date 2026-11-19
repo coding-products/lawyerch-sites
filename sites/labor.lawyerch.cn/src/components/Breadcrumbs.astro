@@ -1,4 +1,6 @@
 ---
+import { getLangFromUrl } from '~/i18n/ui';
+const homeLabel = getLangFromUrl(Astro.url) === 'en' ? 'Home' : '首页';
 interface Crumb {
   label: string;
   href?: string;
@@ -13,7 +15,7 @@ const { items } = Astro.props;
 
 <nav aria-label="Breadcrumb">
   <ol class="crumbs">
-    <li><a href="/">首页</a></li>
+    <li><a href={getLangFromUrl(Astro.url) === 'en' ? '/en/' : '/'}>{homeLabel}</a></li>
     {
       items.map((item, i) =>
         item.href && i < items.length - 1 ? (

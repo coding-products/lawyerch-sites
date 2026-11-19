@@ -7,7 +7,7 @@ import { getCollection } from 'astro:content';
 import { isVisible } from '~/lib/utils';
 import { graph, breadcrumbSchema, personSchema } from '~/lib/jsonld';
 
-const posts = (await getCollection('blog'))
+const posts = (await getCollection('blog', ({ data }) => data.lang === 'zh'))
   .filter(isVisible)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 

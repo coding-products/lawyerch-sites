@@ -9,7 +9,7 @@ import { getCollection } from 'astro:content';
 import { isVisible } from '~/lib/utils';
 import { graph, breadcrumbSchema, personSchema } from '~/lib/jsonld';
 
-const services = (await getCollection('services'))
+const services = (await getCollection('services', ({ data }) => data.lang === 'zh'))
   .filter(isVisible)
   .sort((a, b) => a.data.order - b.data.order);
 
