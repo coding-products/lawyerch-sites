@@ -1,0 +1,93 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build, check and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.34.6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all sites
+        run: pnpm build
+
+      - name: Content compliance
+        run: python3 scripts/check-content --all
+
+      - name: Links and canonical
+        run: |
+          for site in $(python3 scripts/list-sites); do
+            [ -d "$site/dist" ] && python3 scripts/check-links "$site"
+          done
+
+      - name: Design check
+        run: |
+          if [ ! -x scripts/design-check ]; then
+            echo "::error::缺少 scripts/design-check，在工作区运行 ./scripts/sync-standard"
+            exit 1
+          fi
+          for site in $(python3 scripts/list-sites); do
+            [ -d "$site/dist" ] && ./scripts/design-check "$site"
+          done
+
+      - name: Setup Aliyun CLI
+        run: |
+          curl -sL https://aliyuncli.alicdn.com/aliyun-cli-linux-latest-amd64.tgz -o /tmp/aliyun.tgz
+          sudo tar -xzf /tmp/aliyun.tgz -C /usr/local/bin
+          mkdir -p ~/.aliyun
+          python3 - <<'PY'
+          import json, os
+          cfg = {
+              "current": "default",
+              "profiles": [{
+                  "name": "default",
+                  "mode": "AK",
+                  "access_key_id": os.environ["ALIYUN_ACCESS_KEY_ID"],
+                  "access_key_secret": os.environ["ALIYUN_ACCESS_KEY_SECRET"],
+                  "region_id": "cn-guangzhou",
+                  "output_format": "json",
+              }],
+          }
+          os.makedirs(os.path.expanduser("~/.aliyun"), exist_ok=True)
+          with open(os.path.expanduser("~/.aliyun/config.json"), "w") as f:
+              json.dump(cfg, f)
+          PY
+        env:
+          ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
+          ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+
+      - name: Upload to OSS
+        run: |
+          for site in $(python3 scripts/list-sites); do
+            ./scripts/deploy-oss "$site"
+          done
+
+      # HTML 的 CDN 缓存已设为 0，部署后无需刷新；带哈希的静态资源长期缓存。

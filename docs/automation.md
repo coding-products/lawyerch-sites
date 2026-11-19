@@ -19,9 +19,12 @@
 | 文件 | 触发 | 内容 |
 |---|---|---|
 | `.github/workflows/ci.yml` | push / PR | 构建 → 单测 → 合规 → 死链 → 设计检查，任一失败阻断合并 |
+| `.github/workflows/deploy.yml` | push 到 main / 手动 | 构建 → 合规 → 死链 → 设计检查 → 上传 OSS |
 | `.github/workflows/automation.yml` | 每天 01:00 UTC（北京 09:00）/ 手动 | 构建 → 增量提交收录 → 健康报告 → 异常开 issue，恢复后自动关闭 |
 
 `scripts/design-check` 由工作区 `./scripts/sync-standard` 分发，CI 直接运行；缺文件时 job 报错并提示重新分发。
+
+站点清单由 `python3 scripts/list-sites` 从 `site.facts.yml` 读出，模板目录不会被构建或部署。
 
 ## 需要的 Secrets
 
@@ -29,6 +32,8 @@
 |---|---|---|
 | `INDEXNOW_KEY` | 是 | 值等于 `sites/<domain>/public/<key>.txt` 的文件名 |
 | `BAIDU_PUSH_TOKEN` | 否 | 百度搜索资源平台 → 普通收录 → API 提交 |
+| `ALIYUN_ACCESS_KEY_ID` | 是 | RAM 子账号 `deploy-oss`，只有两个 bucket 的读写权限 |
+| `ALIYUN_ACCESS_KEY_SECRET` | 是 | 同上 |
 
 没配的渠道在日志里显示 `skipped`，不会让任务失败，也不会丢 URL——下次配好会补提交。
 

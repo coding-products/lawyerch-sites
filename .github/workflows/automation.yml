@@ -59,10 +59,8 @@ jobs:
           BAIDU_PUSH_TOKEN: ${{ secrets.BAIDU_PUSH_TOKEN }}
         run: |
           failed=0
-          for site in $(ls -d sites/*/ | sed 's:/$::'); do
-            if [ -f "$site/netlify.toml" ] && [ -d "$site/dist" ]; then
-              python3 scripts/submit-urls "$site" || failed=1
-            fi
+          for site in $(python3 scripts/list-sites); do
+            python3 scripts/submit-urls "$site" || failed=1
           done
           exit $failed
 

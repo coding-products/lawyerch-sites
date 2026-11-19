@@ -1,5 +1,5 @@
 ---
-version: 2026-11-19.2
+version: 2026-11-20.1
 applies-to: 所有 Astro 站点项目
 ---
 
@@ -48,21 +48,20 @@ SITE_URL=https://<domain> pnpm build
 
 ## 部署
 
-Netlify 主用，Cloudflare 备用。
+阿里云 OSS + CDN 为主。构建产物上传到站点对应的 bucket，CDN 负责域名、HTTPS 与国内加速。
 
 ```bash
-netlify deploy --dir=$(pwd)/dist --prod --site=<netlify-site> --no-build
+pnpm build
+./scripts/deploy-oss sites/<domain>
 ```
 
-必须用 `--dir=$(pwd)/dist` 绝对路径。monorepo 里用相对路径会被解析到仓库根，报 `deploy directory not found`。
+- bucket 命名：域名里的点换成横线（`labor.lawyerch.cn` → `labor-lawyerch-cn`）
+- bucket 要开静态网站托管：默认首页 `index.html`、错误页 `404.html`、`SupportSubDir=true`
+- 账号若开了「阻止公共访问」，需在 bucket 上关掉，否则匿名访问返回 403
+- CDN 缓存：`html` 设为 0，发布即时生效；`css`/`js` 长缓存
+- push 到 main 后 `.github/workflows/deploy.yml` 自动跑构建、检查、上传
 
-Cloudflare：
-
-```bash
-wrangler deploy
-```
-
-`*.workers.dev` 国内直连不通，只作海外备用或绑定自定义域名后使用。
+Netlify / Cloudflare 只在迁移前的旧站使用，新站不再接。
 
 详细步骤见工作区技能 `deploy`。
 
@@ -75,7 +74,7 @@ DNS 用工作区脚本操作，不手点控制台：
 ./scripts/dns check <domain> <rr>
 ```
 
-绑定流程：加 DNS → Netlify 后台加 Custom domain → 等 Let's Encrypt 证书 → `dns check` 验证。
+绑定流程：加 DNS → CDN 添加加速域名（源站选 OSS bucket）→ 上传证书并开启 HTTPS → `dns check` 验证。
 
 ## SEO
 

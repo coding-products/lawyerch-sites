@@ -1,6 +1,6 @@
 # lawyerch-sites
 
-本站点遵循通用规范 [`.agents/standard.md`](.agents/standard.md)（version 2026-11-19.2）。
+本站点遵循通用规范 [`.agents/standard.md`](.agents/standard.md)（version 2026-11-20.1）。
 
 > 本文件由 `scripts/sync-standard` 生成，不要手改。
 > 站点信息改 `site.facts.yml`，规范改工作区的 `.agents/standards/site-standard.md`。
@@ -23,9 +23,8 @@ Astro 7 + Tailwind CSS 4 + pnpm workspace + Turborepo
 pnpm install
 pnpm dev --filter=lawyerch.cn
 
-cd sites/lawyerch.cn
-SITE_URL=https://lawyerch.cn pnpm build
-netlify deploy --dir=$(pwd)/dist --prod --site=lawyerch-cn --no-build
+pnpm build
+./scripts/deploy-oss sites/lawyerch.cn
 ```
 
 ## 启用的扩展

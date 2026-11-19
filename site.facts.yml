@@ -7,7 +7,7 @@ extensions:
 sites:
   - domain: lawyerch.cn
     path: sites/lawyerch.cn
-    netlify: lawyerch-cn
+    oss: lawyerch-cn
   - domain: labor.lawyerch.cn
     path: sites/labor.lawyerch.cn
-    netlify: labor-lawyerch-cn
+    oss: labor-lawyerch-cn

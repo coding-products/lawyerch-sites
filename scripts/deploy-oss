@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+##
+## 把站点构建产物上传到对应的 OSS bucket。
+##
+## 用法：
+##   ./scripts/deploy-oss sites/lawyerch.cn
+##   ./scripts/deploy-oss sites/labor.lawyerch.cn
+##
+## bucket 命名规则：域名里的点换成横线（labor.lawyerch.cn → labor-lawyerch-cn）。
+## 只上传变化过的文件（-u），不会删除 OSS 上多出来的旧文件。
+set -euo pipefail
+
+site="${1:?用法: ./scripts/deploy-oss sites/<domain>}"
+name="$(basename "$site")"
+dist="$site/dist"
+region="${OSS_REGION:-cn-guangzhou}"
+
+if [ ! -d "$dist" ]; then
+  echo "✖ $dist 不存在，先构建：pnpm build" >&2
+  exit 1
+fi
+
+bucket="$(printf '%s' "$name" | tr '.' '-')"
+count="$(find "$dist" -type f | wc -l | tr -d ' ')"
+
+echo "→ ${name} 共 ${count} 个文件"
+aliyun oss cp --recursive "$dist" "oss://$bucket/" --region "$region" -u >/dev/null
+
+echo "✔ 已上传到 oss://$bucket/"

@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""
+列出需要构建/检查/部署的真实站点目录，一行一个。
+
+站点清单来自 site.facts.yml 的 sites[].path，模板目录（如 sites/starter）不会出现。
+
+用法：
+  python3 scripts/list-sites
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _common import sites_from_facts  # noqa: E402
+
+for site in sites_from_facts(Path(__file__).resolve().parent.parent):
+    print(site.relative_to(Path(__file__).resolve().parent.parent))

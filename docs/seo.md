@@ -27,7 +27,7 @@ INDEXNOW_KEY=<key> ./scripts/submit-urls sites/labor.lawyerch.cn
 ### 1. 验证站点
 
 1. 打开 https://ziyuan.baidu.com/
-2. 添加站点 `https://labor-lawyerch-cn.netlify.app`（绑域名后用新域名）
+2. 添加站点 `https://labor.lawyerch.cn`（绑域名后用新域名）
 3. 选择「HTML 标签验证」或「文件验证」
 4. 标签验证：把 meta 标签加到 `src/layouts/BaseLayout.astro` 的 `<head>`
 5. 文件验证：把百度给的文件放到 `public/`
@@ -37,7 +37,7 @@ INDEXNOW_KEY=<key> ./scripts/submit-urls sites/labor.lawyerch.cn
 资源提交 → sitemap → 填写：
 
 ```
-https://labor-lawyerch-cn.netlify.app/sitemap-index.xml
+https://labor.lawyerch.cn/sitemap-index.xml
 ```
 
 ### 3. 主动推送（普通收录）
@@ -45,7 +45,7 @@ https://labor-lawyerch-cn.netlify.app/sitemap-index.xml
 获取 token 后执行：
 
 ```bash
-BAIDU_TOKEN=你的token SITE_URL=https://labor-lawyerch-cn.netlify.app node scripts/seo-push.mjs
+BAIDU_TOKEN=你的token SITE_URL=https://labor.lawyerch.cn node scripts/seo-push.mjs
 ```
 
 每天可推送一次，优先推新文章和服务页。
@@ -86,17 +86,16 @@ Google Indexing API 主要面向招聘和直播内容，普通文章用 Search C
 
 ## 绑域名后的切换
 
-1. 阿里云 DNS 加 CNAME：`labor` → `labor-lawyerch-cn.netlify.app`
-2. Netlify 添加 Custom domain，开启 HTTPS
-3. 重新构建：
+1. 阿里云 DNS 把域名 CNAME 到 CDN 的加速域名
+2. CDN 添加加速域名，源站指向对应 OSS bucket，上传证书并开启 HTTPS
+3. 重新构建并上传：
 
 ```bash
-SITE_URL=https://labor.lawyerch.cn pnpm build
-netlify deploy --dir=dist --prod --site=labor-lawyerch-cn --no-build
+pnpm build
+./scripts/deploy-oss sites/labor.lawyerch.cn
 ```
 
 4. 在百度和 Google 重新提交新域名的 sitemap
-5. 旧 Netlify 地址会 301 到新域名（Netlify 自动处理）
 
 ## 收录检查清单
 
@@ -105,6 +104,6 @@ netlify deploy --dir=dist --prod --site=labor-lawyerch-cn --no-build
 - [ ] Google 验证通过
 - [ ] Google sitemap 已提交
 - [ ] IndexNow 已提交
-- [ ] 百度搜「site:labor-lawyerch-cn.netlify.app」有结果
-- [ ] Google 搜「site:labor-lawyerch-cn.netlify.app」有结果
+- [ ] 百度搜「site:labor.lawyerch.cn」有结果
+- [ ] Google 搜「site:labor.lawyerch.cn」有结果
 - [ ] 绑域名后重复以上步骤
