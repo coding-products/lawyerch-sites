@@ -31,7 +31,7 @@ const year = new Date().getFullYear();
           decoding="async"
         />
       </a>
-      <p class="ftr-about">{siteConfig.about}</p>
+      <p class="ftr-about">{lang === 'en' ? siteConfig.aboutEn : siteConfig.about}</p>
       <div class="ftr-soc">
         {
           siteConfig.social.map((s) => (

@@ -2,60 +2,57 @@
 import PageLayout from '~/layouts/PageLayout.astro';
 import siteConfig from '~/config/site';
 
-const updated = 'This template has not been dated yet.';
+const updated = '2026-11-19';
 ---
 
 <PageLayout
-  title="Privacy"
-  heading="Privacy"
-  eyebrow="Legal"
-  intro="What this site collects, which is close to nothing."
-  description={`How ${siteConfig.name} handles visitor data.`}
-  crumbs={[{ label: 'Privacy' }]}
+  title="隐私政策"
+  heading="隐私政策"
+  eyebrow="法律信息"
+  intro="本站收集什么，以及不收集什么。"
+  description={`${siteConfig.name} 的隐私政策：联系表单、服务器日志与数据使用说明。`}
+  crumbs={[{ label: '隐私政策' }]}
 >
   <section class="wrap sec" style="padding-top:0">
     <div class="prose rev">
-      <p class="form-note">
-        <strong>Template — replace before you publish.</strong> This page is a starting
-        point written for the demo site, not legal advice. Edit it in
-        <code>src/pages/privacy.astro</code> to describe what your deployment actually
-        does, and have it reviewed if your jurisdiction requires it.
-      </p>
+      <p>最后更新：{updated}</p>
 
-      <h2>What this site collects</h2>
+      <h2>站点性质</h2>
       <p>
-        As shipped, this theme is a static site. It sets no cookies, runs no analytics and
-        loads no third-party scripts. Fonts are served from this domain rather than from a
-        font CDN, so no font provider sees your visit.
+        本站是静态网站，用于介绍执业领域、发布劳动法实务文章，并提供咨询联系方式。
+        除联系表单外，不设置账号系统，不提供在线支付。
       </p>
 
-      <h2>Server logs</h2>
+      <h2>我们收集的信息</h2>
       <p>
-        Whoever hosts the site will keep standard access logs — IP address, user agent,
-        requested URL and timestamp. Those are the host's records, kept under the host's
-        retention policy. Name your host here and link to their privacy policy.
+        当你通过联系表单提交咨询时，我们接收你填写的称呼、邮箱、公司（可选）、
+        咨询类型和情况描述。这些信息仅用于回复你的咨询、判断是否需要进一步沟通，
+        不会用于营销，也不会出售或提供给无关第三方。
       </p>
 
-      <h2>The contact form</h2>
+      <h2>服务器日志</h2>
       <p>
-        The contact form is not connected to anything by default. If you connect it to a
-        form provider, that provider receives whatever the form submits — typically a name,
-        an email address and a message — and processes it under their own terms. Name the
-        provider here and link to their policy.
+        托管服务商通常会记录访问日志，包括 IP 地址、浏览器信息、访问路径和时间。
+        这些日志由托管商按其保留政策保存，用于安全和故障排查。
       </p>
 
-      <h2>Anything you add</h2>
+      <h2>Cookie 与统计</h2>
       <p>
-        Analytics, embedded video, a comment system, a newsletter widget or a chat bubble
-        each introduce their own data collection. If you add one, describe it here.
+        本站默认不设置跟踪 Cookie，不加载广告或第三方分析脚本。字体由本站域名提供，
+        不从字体 CDN 加载。如果后续接入统计工具，会在此处更新说明。
       </p>
 
-      <h2>Getting in touch</h2>
+      <h2>数据保留与删除</h2>
       <p>
-        Questions about any of this can go to <a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a>.
+        咨询信息在完成沟通后保留必要期限，随后删除。你可以随时发邮件要求查阅或删除
+        你提交的信息，联系方式见
+        <a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a>。
       </p>
 
-      <p class="mini muted">{updated}</p>
+      <h2>外部链接</h2>
+      <p>
+        本站可能链接到其他网站。那些网站的数据处理方式由其自身政策决定，本站不承担责任。
+      </p>
     </div>
   </section>
 </PageLayout>

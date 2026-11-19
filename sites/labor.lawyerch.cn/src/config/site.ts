@@ -43,6 +43,8 @@ export const siteConfig: SiteConfig = {
 
   about:
     '长期处理劳动争议案件，代理劳动者与用人单位两侧，熟悉仲裁与诉讼的裁判尺度；同时为企业提供用工合规、规章制度审查与裁员方案设计。',
+  aboutEn:
+    'I handle labour disputes for both employees and employers, and advise companies on employment compliance, policy review and restructuring.',
 
   copyrightHolder: '陈恒律师',
 };
