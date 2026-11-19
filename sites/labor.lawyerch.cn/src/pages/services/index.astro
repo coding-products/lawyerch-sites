@@ -17,7 +17,7 @@ const jsonLd = graph([
   personSchema(siteConfig),
   breadcrumbSchema([
     { name: 'Home', url: `${siteConfig.url}/` },
-    { name: 'Services', url: `${siteConfig.url}/services/` },
+    { name: '服务', url: `${siteConfig.url}/services/` },
   ]),
 ]);
 ---
@@ -25,14 +25,14 @@ const jsonLd = graph([
 <PageLayout
   title="服务"
   heading="六个服务方向。"
-  eyebrow="Engagements"
-  intro="Fixed scope, fixed price, weekly demos. Each of these is a different size of commitment — the one-week review exists precisely so you do not have to start with the six-week one."
-  description="Art direction, interface design, design systems, identity, site build and one-week reviews."
-  crumbs={[{ label: 'Services' }]}
+  eyebrow="服务"
+  intro="劳动争议、用工合规、制度审查、裁员方案、竞业限制与培训。可以只做一件，也可以组合成常年顾问。"
+  description="劳动争议代理、企业用工合规、规章制度审查、裁员与人员优化、竞业限制与保密、劳动法培训。"
+  crumbs={[{ label: '服务' }]}
   jsonLd={jsonLd}
 >
   <section class="wrap sec" style="padding-top:0" aria-labelledby="svc-list-h">
-    <h2 class="sr-only" id="svc-list-h">All services</h2>
+    <h2 class="sr-only" id="svc-list-h">全部服务</h2>
     <div class="svc">
       {
         services.map((service, i) => (

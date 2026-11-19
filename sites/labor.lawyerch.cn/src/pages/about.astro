@@ -1,10 +1,8 @@
 ---
 import PageLayout from '~/layouts/PageLayout.astro';
 import About from '~/components/home/About.astro';
-import Toolkit from '~/components/home/Toolkit.astro';
 import Process from '~/components/home/Process.astro';
 import Awards from '~/components/home/Awards.astro';
-import Testimonials from '~/components/home/Testimonials.astro';
 import StatsBand from '~/components/home/StatsBand.astro';
 import Cta from '~/components/home/Cta.astro';
 import siteConfig from '~/config/site';
@@ -14,25 +12,23 @@ const jsonLd = graph([
   personSchema(siteConfig),
   breadcrumbSchema([
     { name: 'Home', url: `${siteConfig.url}/` },
-    { name: 'About', url: `${siteConfig.url}/about/` },
+    { name: '关于', url: `${siteConfig.url}/about/` },
   ]),
 ]);
 ---
 
 <PageLayout
-  title="About"
+  title="关于"
   heading={`Fifteen years, and the same lesson keeps turning up.`}
-  eyebrow="About"
+  eyebrow="关于"
   intro={`${siteConfig.author} is an independent art director and interface designer. Fewer clients, harder questions in week one, and a handover that does not quietly depend on one person.`}
-  description={`About ${siteConfig.author} — an independent art director and interface designer working with small product teams.`}
-  crumbs={[{ label: 'About' }]}
+  description={`关于${siteConfig.author}：广州执业律师，专注劳动争议与企业用工合规。`}
+  crumbs={[{ label: '关于' }]}
   jsonLd={jsonLd}
 >
   <About headingLevel="h2" id="background" />
   <StatsBand />
-  <Toolkit />
   <Process />
   <Awards />
-  <Testimonials />
   <Cta />
 </PageLayout>

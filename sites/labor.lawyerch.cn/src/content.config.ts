@@ -13,41 +13,6 @@ const imageRef = z.object({
   height: z.number().int().positive(),
 });
 
-/**
- * Case studies.
- *
- * A project shows either a photograph (`image`) or one of the inline SVG
- * artworks registered in `src/components/art/registry.ts` (`artwork`).
- */
-const projects = defineCollection({
-  loader: glob({ base: './src/content/projects', pattern: '**/*.md' }),
-  schema: z.object({
-    title: z.string(),
-    /** Shown on the card and in the case-study header. */
-    client: z.string(),
-    year: z.string(),
-    /** Drives the filter chips on /work. */
-    category: z.enum(['Product', 'Brand', 'Web']),
-    /** One line under the title on cards. */
-    excerpt: z.string(),
-    /** Meta description for the case-study page. */
-    description: z.string(),
-    image: imageRef.optional(),
-    artwork: z.enum(['identity', 'dashboard', 'app-screens']).optional(),
-    services: z.array(z.string()).default([]),
-    technologies: z.array(z.string()).default([]),
-    results: z
-      .array(z.object({ value: z.string(), label: z.string() }))
-      .default([]),
-    externalUrl: z.url().optional(),
-    /** Featured projects appear on the homepage. */
-    featured: z.boolean().default(false),
-    /** Lower numbers sort first. */
-    order: z.number().default(0),
-    draft: z.boolean().default(false),
-  }),
-});
-
 /** Service / engagement pages. */
 const services = defineCollection({
   loader: glob({ base: './src/content/services', pattern: '**/*.md' }),
@@ -87,4 +52,4 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { projects, services, blog };
+export const collections = { services, blog };

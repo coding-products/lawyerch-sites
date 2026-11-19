@@ -39,7 +39,7 @@ const year = new Date().getFullYear();
     </div>
 
     <nav aria-labelledby="ftr-explore">
-      <h2 id="ftr-explore">Explore</h2>
+      <h2 id="ftr-explore">浏览</h2>
       <ul class="ftr-links">
         {footerNav.explore.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
       </ul>
@@ -71,7 +71,7 @@ const year = new Date().getFullYear();
 
   <div class="wrap ftr-bot">
     <p>&copy; {year} {siteConfig.copyrightHolder} &mdash; an Astro portfolio theme.</p>
-    <nav aria-label="Legal">
+    <nav aria-label="法律信息">
       {footerNav.legal.map((l) => <a href={l.href}>{l.label}</a>)}
     </nav>
   </div>

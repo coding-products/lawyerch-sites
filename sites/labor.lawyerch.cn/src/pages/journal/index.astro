@@ -15,7 +15,7 @@ const jsonLd = graph([
   personSchema(siteConfig),
   breadcrumbSchema([
     { name: 'Home', url: `${siteConfig.url}/` },
-    { name: 'Journal', url: `${siteConfig.url}/journal/` },
+    { name: '专栏', url: `${siteConfig.url}/journal/` },
   ]),
 ]);
 ---
@@ -23,14 +23,14 @@ const jsonLd = graph([
 <PageLayout
   title="专栏"
   heading="劳动法实务笔记。"
-  eyebrow="Notebook"
-  intro="Notes on interface design, design systems and running a practice — mostly written because I had explained the same thing for the fourth time."
-  description="Notes on interface design, design systems and running an independent design practice."
-  crumbs={[{ label: 'Journal' }]}
+  eyebrow="专栏"
+  intro="劳动法实务中的常见问题、判断依据和处理路径。多数文章来自被反复问到的同一个问题。"
+  description="劳动法实务笔记：劳动合同、经济补偿、加班费、工伤、竞业限制与企业用工合规。"
+  crumbs={[{ label: '专栏' }]}
   jsonLd={jsonLd}
 >
   <section class="wrap sec" style="padding-top:0" aria-labelledby="posts-h">
-    <h2 class="sr-only" id="posts-h">All articles</h2>
+    <h2 class="sr-only" id="posts-h">全部文章</h2>
     {
       posts.length > 0 ? (
         <div class="posts">
