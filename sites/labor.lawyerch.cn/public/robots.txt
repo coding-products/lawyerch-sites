@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://labor.lawyerch.cn/sitemap-index.xml

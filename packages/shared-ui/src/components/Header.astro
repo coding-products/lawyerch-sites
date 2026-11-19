@@ -1,0 +1,660 @@
+---
+export interface MenuItem {
+  label: string;
+  href: string;
+  children?: MenuItem[];
+  /**
+   * Optional heading this child sits under. Give any child a `group` and the
+   * dropdown becomes a multi-column panel with headings. Leave it off and the
+   * dropdown renders as a single column, exactly as before.
+   *
+   * Opt-in on purpose. A menu long enough to need columns is one site's
+   * problem, and a site that does not use `group` sees no change at all.
+   */
+  group?: string;
+}
+
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import SiteSearch from './SiteSearch.astro';
+
+/**
+ * Children in declaration order, bucketed by `group`. Groups appear in the
+ * order they are first mentioned, so a site controls the column order by the
+ * order it lists its items rather than by sorting here.
+ *
+ * Children with no group sort last and render as one full-width row at the
+ * foot of the panel, so a couple of general links ("All services", "Pricing")
+ * do not cost a whole column.
+ */
+function groupChildren(children: MenuItem[]): [string, MenuItem[]][] {
+  const out: [string, MenuItem[]][] = [];
+  for (const child of children) {
+    const key = child.group ?? '';
+    const bucket = out.find(([k]) => k === key);
+    if (bucket) bucket[1].push(child);
+    else out.push([key, [child]]);
+  }
+  return out.sort(([a], [b]) => (a === '' ? 1 : 0) - (b === '' ? 1 : 0));
+}
+
+export interface Props {
+  navigation: MenuItem[];
+  logoSrc?: string;
+  logoAlt?: string;
+  siteName: string;
+  ctaText?: string;
+  ctaHref?: string;
+  /**
+   * Site-wide search. Off by default, because it needs an index: add
+   * `node ../../packages/shared-ui/scripts/search-index.mjs` to the site's
+   * build script after `astro build`, then set this. A search box with no
+   * index silently returns nothing, which is worse than no search box.
+   */
+  search?: boolean;
+  /** Name three things this site actually covers. Generic placeholders teach nobody what to type. */
+  searchPlaceholder?: string;
+  /**
+   * Show the language switcher. Off by default, because translation is opt-in:
+   * see docs/i18n.md. The control ships hidden and `i18n-build.mjs` unhides it
+   * only on pages that really have a second language, so turning this on
+   * without the i18n build step shows nothing rather than an empty menu.
+   */
+  showLanguages?: boolean;
+}
+
+const {
+  navigation,
+  logoSrc,
+  logoAlt = 'Company Logo',
+  siteName,
+  ctaText = 'Get Started',
+  ctaHref = '/contact',
+  search = false,
+  searchPlaceholder = 'Search this site',
+  showLanguages = false,
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="header" role="banner">
+  <nav class="header__nav" aria-label="Main navigation">
+    <div class="header__container">
+      <!-- Logo -->
+      <a href="/" class="header__logo" aria-label={`${siteName} - Home`}>
+        {logoSrc ? (
+          <img src={logoSrc} alt={logoAlt} class="header__logo-img" width="180" height="48" />
+        ) : (
+          <span class="header__logo-text">{siteName}</span>
+        )}
+      </a>
+
+      <!-- Desktop Navigation -->
+      <ul class="header__menu" role="menubar">
+        {navigation.map((item) => (
+          <li
+            class:list={['header__menu-item', { 'has-dropdown': item.children?.length }]}
+            role="none"
+          >
+            <a
+              href={item.href}
+              class:list={['header__menu-link', { 'is-active': currentPath === item.href || currentPath.startsWith(item.href + '/') }]}
+              role="menuitem"
+              aria-haspopup={item.children?.length ? 'true' : undefined}
+              aria-expanded={item.children?.length ? 'false' : undefined}
+            >
+              {item.label}
+              {item.children?.length && (
+                <svg class="header__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              )}
+            </a>
+            {item.children?.length && !item.children.some((c) => c.group) && (
+              <ul class="header__dropdown" role="menu" aria-label={`${item.label} submenu`}>
+                {item.children.map((child) => (
+                  <li role="none">
+                    <a
+                      href={child.href}
+                      class:list={['header__dropdown-link', { 'is-active': currentPath === child.href }]}
+                      role="menuitem"
+                    >
+                      {child.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {item.children?.length && item.children.some((c) => c.group) && (
+              <ul
+                class="header__dropdown header__dropdown--mega"
+                role="menu"
+                aria-label={`${item.label} submenu`}
+                style={`--mega-cols:${Math.min(4, Math.max(1, groupChildren(item.children).filter(([h]) => h).length))}`}
+              >
+                {groupChildren(item.children).map(([heading, kids]) => (
+                  <li role="none" class:list={['header__dropdown-group', { 'header__dropdown-group--wide': !heading }]}>
+                    {heading && <span class="header__dropdown-heading">{heading}</span>}
+                    <ul class="header__dropdown-sublist" role="none">
+                      {kids.map((child) => (
+                        <li role="none">
+                          <a
+                            href={child.href}
+                            class:list={['header__dropdown-link', { 'is-active': currentPath === child.href }]}
+                            role="menuitem"
+                          >
+                            {child.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <!-- CTA Button (Desktop) -->
+      {search && <SiteSearch placeholder={searchPlaceholder} class="header__search" />}
+
+      {showLanguages && <LanguageSwitcher class="header__lang" />}
+
+      <a href={ctaHref} class="header__cta">{ctaText}</a>
+
+      <!-- Mobile Menu Toggle (CSS checkbox hack) -->
+      <input type="checkbox" id="mobile-menu-toggle" class="header__toggle-input" aria-hidden="true" />
+      <label for="mobile-menu-toggle" class="header__toggle" aria-label="Toggle mobile menu">
+        <span class="header__toggle-bar"></span>
+        <span class="header__toggle-bar"></span>
+        <span class="header__toggle-bar"></span>
+      </label>
+
+      <!-- Mobile Menu -->
+      <div class="header__mobile-menu" role="dialog" aria-label="Mobile navigation">
+        <ul class="header__mobile-list">
+          {navigation.map((item, idx) => (
+            <li class="header__mobile-item">
+              {item.children?.length ? (
+                <>
+                  <input
+                    type="checkbox"
+                    id={`mobile-sub-${idx}`}
+                    class="header__sub-toggle-input"
+                    aria-hidden="true"
+                  />
+                  <label for={`mobile-sub-${idx}`} class="header__mobile-link header__mobile-link--parent">
+                    {item.label}
+                    <svg class="header__mobile-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </label>
+                  <ul class="header__mobile-sublist">
+                    <li>
+                      <a href={item.href} class="header__mobile-sublink">
+                        All {item.label}
+                      </a>
+                    </li>
+                    {item.children.map((child, i) => (
+                      <li>
+                        {child.group && child.group !== item.children?.[i - 1]?.group && (
+                          <span class="header__mobile-subheading">{child.group}</span>
+                        )}
+                        <a href={child.href} class="header__mobile-sublink">
+                          {child.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <a
+                  href={item.href}
+                  class:list={['header__mobile-link', { 'is-active': currentPath === item.href }]}
+                >
+                  {item.label}
+                </a>
+              )}
+            </li>
+          ))}
+          <li class="header__mobile-item header__mobile-item--cta">
+            <a href={ctaHref} class="header__cta header__cta--mobile">{ctaText}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<style>
+  /* ===== Header Base ===== */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .header__nav {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .header__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0 1.25rem;
+    height: 4.5rem;
+    position: relative;
+  }
+
+  /* ===== Logo ===== */
+  .header__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+    z-index: 1010;
+  }
+
+  .header__logo-img {
+    height: 2.5rem;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .header__logo-text {
+    font-family: var(--font-heading, 'Inter', sans-serif);
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-primary, #0a0f1a);
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+
+  /* A text logo may wrap. A long company name set as text is wider than a
+     phone header once the search and menu buttons sit beside it, and with
+     flex-shrink: 0 it pushed the menu button off screen. Image logos keep
+     their size. */
+  .header__logo:has(.header__logo-text) {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  /* ===== Desktop Menu ===== */
+  .header__menu {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0.125rem;
+  }
+
+  .header__menu-item {
+    position: relative;
+  }
+
+  .header__menu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-body, system-ui, sans-serif);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #334155;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: color 0.15s ease, background-color 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .header__menu-link:hover {
+    color: var(--color-accent, #00d4ff);
+    background-color: #f1f5f9;
+  }
+
+  .header__menu-link.is-active {
+    color: var(--color-accent, #00d4ff);
+    font-weight: 600;
+  }
+
+  .header__chevron {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  /* ===== Dropdown ===== */
+  .header__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 0.625rem;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+    z-index: 1020;
+  }
+
+  .header__menu-item.has-dropdown:hover .header__dropdown,
+  .header__menu-item.has-dropdown:focus-within .header__dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .header__menu-item.has-dropdown:hover .header__chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Multi-column panel, used only when children declare a `group`.
+     Three things here were each a bug first, found by measuring the rendered
+     panel at 1440 rather than by reading the code:
+       - the column count comes from the data. `auto-fit` with a max-width let
+         three groups render as six columns, 1302px wide;
+       - the panel is anchored to the item's RIGHT edge. Left-anchored, a wide
+         panel on a nav item near the end of the bar ended 175px past the
+         viewport;
+       - columns are bounded, so the panel is exactly as wide as it needs. */
+  .header__dropdown--mega {
+    display: grid;
+    grid-template-columns: repeat(var(--mega-cols, 3), minmax(190px, 228px));
+    gap: 0.25rem 1.5rem;
+    left: auto;
+    right: 0;
+    max-width: calc(100vw - 2rem);
+    padding: 1rem 1.25rem 0.875rem;
+    align-items: start;
+  }
+  .header__dropdown-group {
+    min-width: 0;
+  }
+  .header__dropdown-group--wide {
+    grid-column: 1 / -1;
+    border-top: 1px solid rgba(0, 0, 0, 0.07);
+    margin-top: 0.375rem;
+    padding-top: 0.375rem;
+  }
+  .header__dropdown-group--wide .header__dropdown-sublist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.5rem;
+    margin-bottom: 0;
+  }
+  .header__dropdown-heading {
+    display: block;
+    padding: 0.375rem 0.5rem 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    white-space: nowrap;
+  }
+  .header__dropdown-sublist {
+    list-style: none;
+    margin: 0 0 0.5rem;
+    padding: 0;
+  }
+  .header__mobile-subheading {
+    display: block;
+    padding: 0.75rem 0 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.55;
+  }
+
+  .header__dropdown-link {
+    display: block;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .header__dropdown-link:hover {
+    color: var(--color-accent, #00d4ff);
+    background-color: #f1f5f9;
+  }
+
+  .header__dropdown-link.is-active {
+    color: var(--color-accent, #00d4ff);
+    font-weight: 500;
+    background-color: rgba(0, 212, 255, 0.06);
+  }
+
+  /* ===== CTA Button ===== */
+  /* The switcher sits between search and the CTA. With a nav of six or seven
+     items, a search box, a language control and a CTA all sharing 1280px, the
+     row overflowed and flex crushed the zero-width SVG icons to nothing. The
+     trim above (link padding 1rem to 0.75rem, menu gap halved, container
+     padding 1.5rem to 1.25rem plus a 0.5rem gap) buys the room back. */
+  .header__lang {
+    flex: none;
+  }
+
+  .header__cta {
+    display: none;
+    padding: 0.625rem 1.5rem;
+    font-family: var(--font-heading, 'Inter', sans-serif);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-primary, #0a0f1a);
+    background: linear-gradient(135deg, var(--color-accent, #00d4ff), var(--color-accent-hover, #00b8d9));
+    border-radius: var(--cta-radius, 0.5rem);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(0, 212, 255, 0.3);
+  }
+
+  .header__cta:hover {
+    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.45);
+    transform: translateY(-1px);
+  }
+
+  /* ===== Mobile Toggle (Hamburger) ===== */
+  .header__toggle-input {
+    display: none;
+  }
+
+  .header__toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 2.75rem;
+    height: 2.75rem;
+    cursor: pointer;
+    z-index: 1010;
+    border-radius: 0.375rem;
+    transition: background-color 0.15s ease;
+  }
+
+  .header__toggle:hover {
+    background-color: #f1f5f9;
+  }
+
+  .header__toggle-bar {
+    display: block;
+    width: 1.375rem;
+    height: 2px;
+    background-color: #334155;
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Hamburger -> X animation */
+  .header__toggle-input:checked ~ .header__toggle .header__toggle-bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .header__toggle-input:checked ~ .header__toggle .header__toggle-bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .header__toggle-input:checked ~ .header__toggle .header__toggle-bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* ===== Mobile Menu ===== */
+  .header__mobile-menu {
+    position: fixed;
+    top: 4.5rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ffffff;
+    overflow-y: auto;
+    /* Closed: faded and hidden, not parked off screen. A menu held at
+       translateX(100%) widens the page to roughly twice the viewport on a
+       phone, so the whole page can be panned sideways, and its links stay
+       in the tab order while invisible. visibility removes them from focus;
+       the small upward nudge cannot overflow. */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+    z-index: 1000;
+    padding: 1.5rem;
+  }
+
+  .header__toggle-input:checked ~ .header__mobile-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header__mobile-menu,
+    .header__toggle-input:checked ~ .header__mobile-menu {
+      transition: none;
+    }
+  }
+
+  .header__mobile-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header__mobile-item {
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .header__mobile-item--cta {
+    border-bottom: none;
+    padding-top: 1.5rem;
+  }
+
+  .header__mobile-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    font-family: var(--font-body, system-ui, sans-serif);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: #334155;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .header__mobile-link:hover,
+  .header__mobile-link.is-active {
+    color: var(--color-accent, #00d4ff);
+  }
+
+  .header__mobile-link--parent {
+    cursor: pointer;
+  }
+
+  .header__mobile-chevron {
+    transition: transform 0.2s ease;
+  }
+
+  /* ===== Mobile Submenu Toggle ===== */
+  .header__sub-toggle-input {
+    display: none;
+  }
+
+  .header__mobile-sublist {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0.5rem 1rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .header__sub-toggle-input:checked ~ .header__mobile-sublist {
+    max-height: 500px;
+  }
+
+  .header__sub-toggle-input:checked ~ .header__mobile-link--parent .header__mobile-chevron {
+    transform: rotate(180deg);
+  }
+
+  .header__mobile-sublink {
+    display: block;
+    padding: 0.625rem 0;
+    font-size: 0.9375rem;
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .header__mobile-sublink:hover {
+    color: var(--color-accent, #00d4ff);
+  }
+
+  .header__cta--mobile {
+    display: block;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* ===== Desktop breakpoint ===== */
+  @media (min-width: 1024px) {
+    .header__menu {
+      display: flex;
+    }
+
+    .header__cta {
+      display: inline-flex;
+    }
+
+    .header__toggle {
+      display: none;
+    }
+
+    .header__mobile-menu {
+      display: none;
+    }
+  }
+</style>
