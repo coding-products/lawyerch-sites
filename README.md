@@ -52,14 +52,42 @@ packages/
 
 ## 部署
 
-每个站点独立构建、独立部署。以 Cloudflare Pages 为例：
+每个站点独立构建、独立部署，两套配置都已就绪。
 
-- Build command：`pnpm build --filter=labor.lawyerch.cn`
-- Output directory：`sites/labor.lawyerch.cn/dist`
-- 环境变量：无（纯静态）
-- 绑定独立域名，开启自动 HTTPS
+### Netlify（国内访问更稳）
 
-Vercel / Netlify 同理，构建命令和输出目录一致。
+站点：`labor-lawyerch-cn` → https://labor-lawyerch-cn.netlify.app
+
+```bash
+cd sites/labor.lawyerch.cn
+pnpm build
+netlify deploy --dir=dist --prod --site=labor-lawyerch-cn --no-build
+```
+
+`netlify.toml` 已配置 `base`、`publish` 和 404 规则。
+
+### Cloudflare Workers
+
+站点：`labor-lawyerch-cn`
+
+```bash
+cd sites/labor.lawyerch.cn
+pnpm build
+wrangler deploy
+```
+
+`wrangler.jsonc` 已配置静态资产目录和 404 处理。
+
+> 注意：`*.workers.dev` 在国内直连不通，需要绑定自定义域名或仅作海外备用。
+
+### 绑定自定义域名
+
+以 `labor.lawyerch.cn` 为例（DNS 在阿里云）：
+
+- **Netlify**：在 Netlify 后台添加 Custom domain，阿里云 DNS 加 CNAME 指向 `<site>.netlify.app`
+- **Cloudflare**：域名需托管在 Cloudflare，或在阿里云加 CNAME 并在 Cloudflare 配置 Custom Hostname
+
+两套都支持，最终选一个主用即可。
 
 ## 内容规范
 
