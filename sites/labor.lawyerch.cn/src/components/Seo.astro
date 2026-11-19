@@ -38,11 +38,23 @@ const {
 const fullTitle = appendSiteName ? `${title} — ${siteConfig.name}` : title;
 const href = canonical ?? canonicalUrl(Astro.url, Astro.site);
 const ogImage = image.startsWith('http') ? image : absoluteUrl(image, Astro.site);
+const path = Astro.url.pathname;
+const isEn = path.startsWith('/en');
+const basePath = isEn ? path.replace(/^\/en/, '') : path;
+const zhHref = `${siteConfig.url}${basePath}`;
+const enHref = `${siteConfig.url}/en${basePath}`;
 ---
 
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
 {noindex ? <meta name="robots" content="noindex, nofollow" /> : <link rel="canonical" href={href} />}
+{!noindex && (
+  <>
+    <link rel="alternate" hreflang="zh-CN" href={zhHref} />
+    <link rel="alternate" hreflang="en" href={enHref} />
+    <link rel="alternate" hreflang="x-default" href={zhHref} />
+  </>
+)}
 
 <meta property="og:type" content={type} />
 <meta property="og:site_name" content={siteConfig.name} />

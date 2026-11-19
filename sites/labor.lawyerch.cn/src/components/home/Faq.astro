@@ -42,4 +42,13 @@ const { faq, faqHeading } = faqByLang[lang];
       }
     </div>
   </div>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  })} />
 </section>

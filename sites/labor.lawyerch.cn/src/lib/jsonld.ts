@@ -79,3 +79,29 @@ export function breadcrumbSchema(items: { name: string; url: string }[]): Json {
 export function graph(nodes: Json[]): string {
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': nodes });
 }
+
+
+export function legalServiceSchema(site: SiteConfig): Json {
+  return {
+    '@type': 'LegalService',
+    '@id': `${site.url}/#legalservice`,
+    name: site.name,
+    description: site.description,
+    url: site.url,
+    areaServed: { '@type': 'City', name: 'Guangzhou' },
+    provider: {
+      '@type': 'Person',
+      name: site.author,
+      jobTitle: 'Lawyer',
+      url: site.url,
+    },
+    knowsAbout: [
+      'Labour disputes',
+      'Employment contracts',
+      'Severance',
+      'Overtime',
+      'Non-compete',
+      'Employment compliance',
+    ],
+  };
+}
