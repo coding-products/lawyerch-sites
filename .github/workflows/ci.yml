@@ -55,12 +55,12 @@ jobs:
 
       - name: Design check
         run: |
-          if [ -x scripts/design-check ]; then
-            for site in $(ls -d sites/*/ | sed 's:/$::'); do
-              if [ -f "$site/netlify.toml" ] && [ -d "$site/dist" ]; then
-                ./scripts/design-check "$site"
-              fi
-            done
-          else
-            echo "跳过：design-check 不在项目仓库，请在工作区根目录运行 ./scripts/design-check"
+          if [ ! -x scripts/design-check ]; then
+            echo "::error::缺少 scripts/design-check，在工作区运行 ./scripts/sync-standard 重新分发"
+            exit 1
           fi
+          for site in $(ls -d sites/*/ | sed 's:/$::'); do
+            if [ -f "$site/netlify.toml" ] && [ -d "$site/dist" ]; then
+              ./scripts/design-check "$site"
+            fi
+          done

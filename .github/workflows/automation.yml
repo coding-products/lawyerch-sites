@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
@@ -41,14 +41,15 @@ jobs:
       - name: Build all sites
         run: pnpm build
 
-      # 提交状态存在 Actions 缓存里，不写仓库、不产生 main 上的自动 commit。
+      # 提交状态存在 automation/state 分支：可追溯、不依赖缓存、不碰 main。
       - name: Restore submit state
-        uses: actions/cache@v4
-        with:
-          path: .automation
-          key: automation-state-${{ github.run_id }}
-          restore-keys: |
-            automation-state-
+        run: |
+          mkdir -p .automation
+          if git fetch --depth=1 origin automation/state 2>/dev/null; then
+            git show FETCH_HEAD:.automation/submitted.json > .automation/submitted.json 2>/dev/null || true
+          fi
+          [ -s .automation/submitted.json ] || echo '{}' > .automation/submitted.json
+          cat .automation/submitted.json
 
       - name: Submit URLs
         id: submit
@@ -64,6 +65,38 @@ jobs:
             fi
           done
           exit $failed
+
+      - name: Persist submit state
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          [ -s .automation/submitted.json ] || exit 0
+          if [ "$(tr -d '[:space:]' < .automation/submitted.json)" = "{}" ]; then
+            echo "无状态可保存"
+            exit 0
+          fi
+          url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          tmp="$(mktemp -d)"
+          if git ls-remote --exit-code --heads "$url" automation/state >/dev/null 2>&1; then
+            git clone -q --depth=1 --branch automation/state "$url" "$tmp"
+          else
+            git -C "$tmp" init -q
+            git -C "$tmp" remote add origin "$url"
+            git -C "$tmp" checkout -q -b automation/state
+          fi
+          mkdir -p "$tmp/.automation"
+          cp .automation/submitted.json "$tmp/.automation/submitted.json"
+          git -C "$tmp" add -A
+          if git -C "$tmp" diff --cached --quiet; then
+            echo "状态未变化"
+            exit 0
+          fi
+          git -C "$tmp" -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "chore: 更新收录提交状态 [skip ci]"
+          git -C "$tmp" push -q origin HEAD:automation/state
 
       - name: Build report
         id: report

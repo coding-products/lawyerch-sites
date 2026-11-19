@@ -32,6 +32,12 @@ netlify deploy --dir=$(pwd)/dist --prod --site=lawyerch-cn --no-build
 
 - `content-legal` → [`.agents/extensions/content-legal.md`](.agents/extensions/content-legal.md)
 
+## 分发的工具脚本
+
+由工作区 `scripts/` 分发，不要手改：
+
+- `scripts/design-check`
+
 ## 通用流程
 
 部署、DNS、SEO 的详细步骤见工作区 `.agents/skills/`。

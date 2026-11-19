@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+"""
+设计底线检查。扫描构建产物，卡住可访问性和排版的最低标准。
+
+用法：
+  ./scripts/design-check <站点目录>          # 检查 dist/
+  ./scripts/design-check <站点目录> --json   # 机器可读
+
+退出码：0 通过，1 有硬性错误，2 只有警告。
+"""
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+OK = "\033[32m✔\033[0m"
+WARN = "\033[33m⚠\033[0m"
+FAIL = "\033[31m✖\033[0m"
+
+# WCAG 对比度阈值
+CONTRAST_BODY = 4.5
+CONTRAST_LARGE = 3.0
+
+
+def hex_to_rgb(h: str) -> tuple[int, int, int] | None:
+    h = h.lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    if len(h) != 6:
+        return None
+    try:
+        return tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))  # type: ignore[return-value]
+    except ValueError:
+        return None
+
+
+def rel_luminance(rgb: tuple[int, int, int]) -> float:
+    def ch(c: int) -> float:
+        s = c / 255
+        return s / 12.92 if s <= 0.03928 else ((s + 0.055) / 1.055) ** 2.4
+
+    r, g, b = (ch(c) for c in rgb)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def contrast_ratio(fg: str, bg: str) -> float | None:
+    a, b = hex_to_rgb(fg), hex_to_rgb(bg)
+    if not a or not b:
+        return None
+    la, lb = rel_luminance(a), rel_luminance(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def check_theme_tokens(site: Path, issues: list, warns: list) -> None:
+    """检查 theme.ts 里的前景/背景对比度。"""
+    theme = site / "src" / "config" / "theme.ts"
+    if not theme.exists():
+        warns.append("未找到 src/config/theme.ts，跳过配色检查")
+        return
+
+    text = theme.read_text(encoding="utf-8")
+    colors = dict(re.findall(r"['\"]?([a-z-]+)['\"]?\s*:\s*['\"](#[0-9a-fA-F]{3,8})['\"]", text))
+    if not colors:
+        warns.append("theme.ts 中未解析到颜色")
+        return
+
+    bg = colors.get("mist") or colors.get("shell") or "#ffffff"
+    fg_candidates = {k: v for k, v in colors.items() if k in ("ink", "slate", "graphite", "faint")}
+
+    for name, color in fg_candidates.items():
+        ratio = contrast_ratio(color, bg)
+        if ratio is None:
+            continue
+        if name in ("ink", "graphite"):
+            need = CONTRAST_BODY
+        else:
+            need = CONTRAST_BODY
+        if ratio < need:
+            issues.append(f"对比度不足：{name} {color} 在 {bg} 上为 {ratio:.2f}:1，需 ≥ {need}")
+        elif ratio < need + 1:
+            warns.append(f"对比度偏低：{name} {color} 为 {ratio:.2f}:1（勉强达标）")
+
+    # 强调色（lime）按设计只用于深色底或按钮背景，不作为浅底正文色。
+    # 这里不做自动判断，避免误报；规则写在 .agents/skills/design-review 里人工把关。
+
+def check_html(site: Path, issues: list, warns: list) -> None:
+    dist = site / "dist"
+    if not dist.exists():
+        issues.append(f"未找到构建产物 {dist}，先跑 pnpm build")
+        return
+
+    pages = list(dist.rglob("*.html"))
+    if not pages:
+        issues.append("dist 中没有 HTML")
+        return
+
+    emoji_icon = re.compile(r"<a[^>]*>\s*[\U0001F300-\U0001FAFF\u2600-\u27BF]\s*</a>")
+    img_no_size = re.compile(r"<img(?![^>]*(width=|height=|aspect-ratio))[^>]*>", re.I)
+    h1_count = re.compile(r"<h1\b", re.I)
+
+    total_img = 0
+    total_img_no_size = 0
+    total_emoji = 0
+    multi_h1 = []
+    missing_meta = []
+
+    for page in pages:
+        html = page.read_text(encoding="utf-8", errors="ignore")
+        rel = page.relative_to(dist)
+
+        # 图片尺寸
+        imgs = re.findall(r"<img[^>]*>", html, re.I)
+        total_img += len(imgs)
+        for img in imgs:
+            if not re.search(r"(width|height|aspect-ratio)\s*=", img, re.I):
+                total_img_no_size += 1
+
+        # emoji 当图标
+        total_emoji += len(emoji_icon.findall(html))
+
+        # h1 数量
+        if len(h1_count.findall(html)) > 1:
+            multi_h1.append(str(rel))
+
+        # meta
+        if 'name="viewport"' not in html:
+            missing_meta.append(f"{rel}: 缺 viewport")
+        if 'name="description"' not in html:
+            missing_meta.append(f"{rel}: 缺 description")
+
+    if total_img_no_size:
+        pct = total_img_no_size / max(total_img, 1) * 100
+        msg = f"{total_img_no_size}/{total_img} 张图片缺 width/height（{pct:.0f}%），会造成 CLS"
+        (issues if pct > 20 else warns).append(msg)
+
+    if total_emoji:
+        issues.append(f"发现 {total_emoji} 处 emoji 用作图标")
+
+    if multi_h1:
+        issues.append(f"{len(multi_h1)} 个页面有多个 h1：{', '.join(multi_h1[:3])}")
+
+    if missing_meta:
+        for m in missing_meta[:5]:
+            issues.append(m)
+
+    print(f"{OK if not issues else WARN} 扫描 {len(pages)} 个页面，{total_img} 张图片")
+
+
+def check_css(site: Path, issues: list, warns: list) -> None:
+    dist = site / "dist"
+    if not dist.exists():
+        return
+    css_files = list(dist.rglob("*.css"))
+    if not css_files:
+        return
+
+    tiny_font = re.compile(r"font-size\s*:\s*(\d+(?:\.\d+)?)px", re.I)
+    tiny_count = 0
+    for f in css_files:
+        css = f.read_text(encoding="utf-8", errors="ignore")
+        for m in tiny_font.finditer(css):
+            if float(m.group(1)) < 12:
+                tiny_count += 1
+    if tiny_count:
+        warns.append(f"CSS 中有 {tiny_count} 处 font-size < 12px")
+    else:
+        print(f"{OK} 字号检查通过")
+
+
+def main() -> None:
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    as_json = "--json" in sys.argv
+
+    if not args:
+        sys.exit("用法: ./scripts/design-check <站点目录> [--json]")
+
+    site = Path(args[0]).expanduser().resolve()
+    if not site.exists():
+        sys.exit(f"目录不存在：{site}")
+
+    issues: list[str] = []
+    warns: list[str] = []
+
+    print(f"== 设计检查：{site.name} ==\n")
+    check_theme_tokens(site, issues, warns)
+    check_html(site, issues, warns)
+    check_css(site, issues, warns)
+
+    if as_json:
+        print(json.dumps({"issues": issues, "warnings": warns}, ensure_ascii=False, indent=2))
+    else:
+        print()
+        if issues:
+            print("== 必须修复 ==")
+            for i in issues:
+                print(f"{FAIL} {i}")
+        if warns:
+            print("\n== 建议改进 ==")
+            for w in warns:
+                print(f"{WARN} {w}")
+        if not issues and not warns:
+            print(f"{OK} 全部通过")
+
+    sys.exit(1 if issues else (2 if warns else 0))
+
+
+if __name__ == "__main__":
+    main()
