@@ -6,6 +6,7 @@ import Header from '~/components/Header.astro';
 import Footer from '~/components/Footer.astro';
 import BackToTop from '~/components/BackToTop.astro';
 import siteConfig from '~/config/site';
+import { theme } from '~/config/theme';
 
 interface Props {
   title: string;
@@ -23,6 +24,9 @@ interface Props {
 }
 
 const { bodyClass, ...seo } = Astro.props;
+const themeCss = Object.entries(theme)
+  .map(([key, value]) => `--swp-${key}: ${value};`)
+  .join(' ');
 ---
 
 <!doctype html>
@@ -32,6 +36,7 @@ const { bodyClass, ...seo } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content={siteConfig.themeColor} />
+    <style is:inline set:html={`:root{${themeCss}}`}></style>
     <meta name="author" content={siteConfig.author} />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

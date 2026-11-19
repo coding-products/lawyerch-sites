@@ -3,17 +3,21 @@ import Icon from '../Icon.astro';
 import Button from '../Button.astro';
 import siteConfig from '~/config/site';
 import { hero } from '~/data/highlights';
+import { getLangFromUrl, useTranslations } from '~/i18n/ui';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
 
 <section class="wrap hero" aria-labelledby="hero-h">
   <div class="hero-grid">
     <div class="hero-l rev">
-      <p class="hero-hi">{hero.greeting}</p>
+      <p class="hero-hi">{t.hero.greeting}</p>
       <h1 class="d1 hero-name" id="hero-h">
-        {hero.nameLines.map((line) => <em>{line}</em>)}
+        {t.hero.name.map((line) => <em>{line}</em>)}
       </h1>
-      <p class="hero-copy">{hero.intro}</p>
-      <Button href={hero.ctaHref} variant="lime">{hero.ctaLabel}</Button>
+      <p class="hero-copy">{t.hero.intro}</p>
+      <Button href={hero.ctaHref} variant="lime">{t.hero.cta}</Button>
     </div>
 
     <div class="hero-card rev rev-d1">
@@ -38,16 +42,16 @@ import { hero } from '~/data/highlights';
       </div>
       <p class="hero-avail">
         <span class="dot-live" aria-hidden="true"></span>
-        {siteConfig.contact.availability}
+        {t.hero.available}
       </p>
     </div>
 
     <div class="hero-right rev rev-d2">
       <p class="hero-role">
-        {hero.aside.roleLine[0]}<br />{hero.aside.roleLine[1]}
+        {t.hero.asideRole[0]}<br />{t.hero.asideRole[1]}
       </p>
       <h2 class="d2 hero-title2">
-        {hero.aside.title[0]}<br />{hero.aside.title[1]}
+        {t.hero.asideTitle[0]}<br />{t.hero.asideTitle[1]}
       </h2>
       {hero.aside.stack.length > 0 && (
         <div class="hero-proof">
@@ -59,8 +63,8 @@ import { hero } from '~/data/highlights';
           </div>
         </div>
       )}
-      <p class="hero-kpi">{hero.aside.kpi} <span>{hero.aside.kpiLabel}</span></p>
-      <p class="hero-note">{hero.aside.note}</p>
+      <p class="hero-kpi">{hero.aside.kpi} <span>{t.hero.kpiLabel}</span></p>
+      <p class="hero-note">{t.hero.note}</p>
     </div>
   </div>
 

@@ -2,10 +2,24 @@
 import Icon from './Icon.astro';
 import Button from './Button.astro';
 import siteConfig from '~/config/site';
-import { primaryNav, mobileExtraNav } from '~/data/navigation';
+import { getLangFromUrl, useTranslations } from '~/i18n/ui';
 
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const base = lang === 'en' ? '/en' : '';
+const primaryNav = [
+  { label: t.nav.home, href: `${base}/` },
+  { label: t.nav.about, href: `${base}/about/`, anchor: '#about' },
+  { label: t.nav.services, href: `${base}/services/`, anchor: '#services' },
+  { label: t.nav.journal, href: `${base}/journal/`, anchor: '#journal' },
+  { label: t.nav.contact, href: `${base}/contact/` },
+];
+const mobileExtraNav = [
+  { label: t.nav.services, href: `${base}/services/` },
+  { label: t.nav.contact, href: `${base}/contact/` },
+];
 const path = Astro.url.pathname;
-const isHome = path === '/' || path === '';
+const isHome = path === '/' || path === '' || path === '/en/' || path === '/en';
 
 /** Exact match gets `aria-current="page"`; an ancestor section is only styled. */
 function state(href: string) {
@@ -50,7 +64,8 @@ function target(href: string, anchor?: string) {
       }
     </nav>
 
-    <Button href="/contact/" variant="ink" class="hdr-cta">预约咨询</Button>
+    <a class="lang-switch" href={lang === 'zh' ? '/en/' : '/'}>{t.common.switchTo}</a>
+    <Button href={`${base}/contact/`} variant="ink" class="hdr-cta">{t.cta}</Button>
 
     <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mnav">
       <Icon name="menu" />
@@ -70,7 +85,7 @@ function target(href: string, anchor?: string) {
         })
       }
     </nav>
-    <Button href="/contact/" variant="ink">Send the brief</Button>
+    <Button href={`${base}/contact/`} variant="ink">{t.mobileCta}</Button>
   </div>
 </header>
 
