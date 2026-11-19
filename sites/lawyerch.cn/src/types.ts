@@ -121,6 +121,8 @@ export interface SiteConfig {
   about: string;
   /** Legal owner shown in the footer copyright line. */
   copyrightHolder: string;
+  /** ICP 备案号，必须是主体已备案的号，页面底部并链接到 beian.miit.gov.cn。 */
+  icp: string;
 }
 
 export interface Client {

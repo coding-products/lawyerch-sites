@@ -75,7 +75,15 @@ const year = new Date().getFullYear();
   </div>
 
   <div class="wrap ftr-bot">
-    <p>&copy; {year} {siteConfig.copyrightHolder} &mdash; an Astro portfolio theme.</p>
+    <p>
+      &copy; {year} {siteConfig.copyrightHolder}
+      <a
+        class="ftr-icp"
+        href="https://beian.miit.gov.cn"
+        target="_blank"
+        rel="noopener noreferrer">{siteConfig.icp}</a
+      >
+    </p>
     <nav aria-label="法律信息">
       {footerNav.legal.map((l) => <a href={l.href}>{l.label}</a>)}
     </nav>

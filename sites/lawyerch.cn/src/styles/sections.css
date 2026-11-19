@@ -1000,6 +1000,7 @@
 .ftr-bot nav { display: flex; gap: 20px; flex-wrap: wrap; }
 .ftr-bot a { transition: color 0.25s var(--ease); }
 .ftr-bot a:hover { color: var(--swp-lime); }
+.ftr-icp { margin-left: 12px; }
 
 @media (max-width: 900px) { .ftr-top { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .ftr-top { grid-template-columns: 1fr; } }

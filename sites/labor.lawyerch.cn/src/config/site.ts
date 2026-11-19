@@ -47,6 +47,7 @@ export const siteConfig: SiteConfig = {
     'I handle labour disputes for both employees and employers, and advise companies on employment compliance, policy review and restructuring.',
 
   copyrightHolder: '陈恒律师',
+  icp: '粤ICP备2024267441号-1',
 };
 
 export default siteConfig;

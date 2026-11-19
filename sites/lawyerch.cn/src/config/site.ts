@@ -47,6 +47,7 @@ export const siteConfig: SiteConfig = {
     'Lawyer by profession, developer by habit. I turn repetitive legal work into tools, and keep the judgement human.',
 
   copyrightHolder: '陈恒律师',
+  icp: '粤ICP备2024267441号-1',
 };
 
 export default siteConfig;
