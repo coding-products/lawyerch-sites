@@ -1,105 +1,79 @@
 # lawyerch-sites
 
-多领域站点集合。一个 Astro monorepo，多站点独立域名、独立 SEO，共用组件与构建流程。
+多站点 Astro monorepo。一套主题，多个领域站，各自独立域名与部署。
 
 基于 [astro-fleet](https://github.com/Indivar/astro-fleet)（MIT）。
 
 ## 站点
 
-| 站点 | 域名 | 定位 |
-|---|---|---|
-| 劳动法 | `labor.lawyerch.cn` | 劳动争议、用工合规、规章制度、裁员方案 |
+| 站点 | 域名 | 定位 | Netlify 项目 |
+|---|---|---|---|
+| `sites/lawyerch.cn` | lawyerch.cn | 个人品牌首页 | `lawyerch-cn` |
+| `sites/labor.lawyerch.cn` | labor.lawyerch.cn | 劳动法领域站 | `labor-lawyerch-cn` |
+| `sites/starter` | — | 新站点模板，不部署 | — |
 
-## 开发
+## 快速开始
 
 ```bash
 pnpm install
-pnpm dev --filter=labor.lawyerch.cn
+
+# 开发单个站
+pnpm dev --filter=lawyerch.cn
+
+# 构建（必须带正式域名）
+cd sites/lawyerch.cn
+SITE_URL=https://lawyerch.cn pnpm build
+
+# 部署
+netlify deploy --dir=$(pwd)/dist --prod --site=lawyerch-cn --no-build
 ```
 
-构建单个站点：
+## 结构
 
-```bash
-pnpm build --filter=labor.lawyerch.cn
+```
+sites/
+├── lawyerch.cn/          主站
+├── labor.lawyerch.cn/    劳动法站
+└── starter/              新站模板
+packages/
+├── shared-ui/            共用布局、组件、设计 tokens
+└── config/               共用 Astro/TS 配置
+```
+
+每个站点：
+
+```
+src/
+├── config/site.ts        站名、描述、联系方式
+├── config/theme.ts       品牌色
+├── i18n/ui.ts            中英字典
+├── content/              services/、blog/（按语言分目录）
+├── data/                 首页数据
+└── pages/                路由（中文根路径，英文 /en/）
 ```
 
 ## 新增站点
 
 ```bash
-./scripts/new-site.sh <domain> [corporate|saas|warm]
+./scripts/new-site.sh <domain> corporate
 pnpm install
 ```
 
-然后修改三处：
-
-1. `sites/<domain>/src/lib/site-config.ts` — 站名、导航、页脚、联系方式
-2. `sites/<domain>/astro.config.mjs` — `site` 域名
-3. `sites/<domain>/public/robots.txt` — sitemap 地址
-
-## 目录
-
-```
-sites/
-├── labor.lawyerch.cn/      # 劳动法站
-│   ├── src/content/insights/   # 文章（Markdown）
-│   ├── src/lib/site-config.ts  # 品牌与导航
-│   └── astro.config.mjs
-└── starter/                # 新站点模板，勿直接部署
-packages/
-├── shared-ui/              # 共用布局、组件、设计 tokens
-└── config/                 # 共用 Astro/TS 配置
-```
+然后改 `site.ts`、`theme.ts`、`astro.config.mjs`、`i18n/ui.ts`。
 
 ## 部署
 
-每个站点独立构建、独立部署，两套配置都已就绪。
+两个平台配置都已就绪：
 
-### Netlify（国内访问更稳）
+- **Netlify**（主用）：`netlify.toml`，国内访问稳定
+- **Cloudflare Workers**（备用）：`wrangler.jsonc`，`workers.dev` 国内不通，需绑域名
 
-站点：`labor-lawyerch-cn` → https://labor-lawyerch-cn.netlify.app
+## 详细文档
 
-```bash
-cd sites/labor.lawyerch.cn
-pnpm build
-netlify deploy --dir=dist --prod --site=labor-lawyerch-cn --no-build
-```
+- `AGENTS.md` — Agent 工作手册（结构、命令、纪律）
+- `.agents/skills/` — site-dev / site-deploy / site-seo 技能
+- `docs/` — 上游 astro-fleet 的组件、i18n、图片、SEO 文档
 
-`netlify.toml` 已配置 `base`、`publish` 和 404 规则。
+## 许可
 
-### Cloudflare Workers
-
-站点：`labor-lawyerch-cn`
-
-```bash
-cd sites/labor.lawyerch.cn
-pnpm build
-wrangler deploy
-```
-
-`wrangler.jsonc` 已配置静态资产目录和 404 处理。
-
-> 注意：`*.workers.dev` 在国内直连不通，需要绑定自定义域名或仅作海外备用。
-
-### 绑定自定义域名
-
-以 `labor.lawyerch.cn` 为例（DNS 在阿里云）：
-
-- **Netlify**：在 Netlify 后台添加 Custom domain，阿里云 DNS 加 CNAME 指向 `<site>.netlify.app`
-- **Cloudflare**：域名需托管在 Cloudflare，或在阿里云加 CNAME 并在 Cloudflare 配置 Custom Hostname
-
-两套都支持，最终选一个主用即可。
-
-## 内容规范
-
-- 文章放在 `sites/<domain>/src/content/insights/`
-- frontmatter：`title`、`description`、`date`、`tags`、`draft`
-- 标题用真实提问句，方便搜索与 AI 检索
-- 每篇结尾注明「一般信息，不构成法律意见」
-- 客户信息必须脱敏
-
-## 原则
-
-- 每个站点只做一个领域，信息架构独立
-- 共用组件，不共用品牌
-- 跨站内容不重复；重复内容必须设 canonical
-- 公开内容不等于法律意见
+代码 MIT。站点内容版权归作者。
