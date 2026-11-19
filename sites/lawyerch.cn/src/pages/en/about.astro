@@ -1,34 +1,88 @@
 ---
 import PageLayout from '~/layouts/PageLayout.astro';
 import About from '~/components/home/About.astro';
-import Process from '~/components/home/Process.astro';
-import Awards from '~/components/home/Awards.astro';
-import StatsBand from '~/components/home/StatsBand.astro';
 import Cta from '~/components/home/Cta.astro';
+import Icon from '~/components/Icon.astro';
+import Button from '~/components/Button.astro';
 import siteConfig from '~/config/site';
 import { graph, personSchema, breadcrumbSchema } from '~/lib/jsonld';
+
+const tracks = [
+  {
+    icon: 'scale',
+    title: 'Law',
+    body: 'Litigation and advisory: contracts, companies, employment disputes, enforcement. Client material never appears in public content.',
+    href: '/en/contact/',
+    label: 'Get in touch',
+  },
+  {
+    icon: 'code',
+    title: 'Code',
+    body: 'Tools, skills and resources. Turning the repetitive parts of legal work into things that run, published on GitHub.',
+    href: 'https://github.com/lawyerch-dev',
+    label: 'Open source',
+  },
+];
 
 const jsonLd = graph([
   personSchema(siteConfig),
   breadcrumbSchema([
-    { name: 'Home', url: `${siteConfig.url}/` },
-    { name: 'About', url: `${siteConfig.url}/about/` },
+    { name: 'Home', url: `${siteConfig.url}/en/` },
+    { name: 'About', url: `${siteConfig.url}/en/about/` },
   ]),
 ]);
 ---
 
 <PageLayout
   title="About"
-  heading={`Fifteen years, and the same lesson keeps turning up.`}
+  heading="A lawyer who writes code, not a career change"
   eyebrow="About"
-  intro={`${siteConfig.author} is an independent art director and interface designer. Fewer clients, harder questions in week one, and a handover that does not quietly depend on one person.`}
-  description={`About ${siteConfig.author}: Guangzhou-based lawyer focused on labour disputes and employment compliance.`}
+  intro="Chen Heng, based in Guangzhou. I practise law — litigation and advisory — and I write tools. Legal work raises the questions; code answers them."
+  description={`About ${siteConfig.author}: Guangzhou-based lawyer working on litigation, advisory, and open-source legal tooling.`}
   crumbs={[{ label: 'About' }]}
   jsonLd={jsonLd}
 >
   <About headingLevel="h2" id="background" />
-  <StatsBand />
-  <Process />
-  <Awards />
+
+  <section class="wrap sec" aria-labelledby="tracks-h">
+    <p class="eyebrow">Two tracks</p>
+    <h2 class="d2 track-h" id="tracks-h">Two sides of one thing</h2>
+    <div class="tracks">
+      {tracks.map((track) => (
+        <article class="track">
+          <span class="track-icon"><Icon name={track.icon} class="ic-lg" /></span>
+          <h3>{track.title}</h3>
+          <p>{track.body}</p>
+          <Button href={track.href} variant="outline">{track.label}</Button>
+        </article>
+      ))}
+    </div>
+  </section>
+
   <Cta />
 </PageLayout>
+
+<style>
+  .track-h { margin: 10px 0 28px; }
+  .tracks { display: grid; gap: 20px; }
+  @media (min-width: 820px) { .tracks { grid-template-columns: 1fr 1fr; } }
+  .track {
+    border: 1px solid var(--swp-line);
+    border-radius: var(--r-lg);
+    padding: clamp(22px, 3vw, 34px);
+    background: var(--swp-shell);
+  }
+  .track-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--swp-mist);
+    color: var(--swp-accent-ink);
+    margin-bottom: 14px;
+  }
+  .track h3 { margin: 0 0 10px; font-size: 1.375rem; font-weight: 700; }
+  .track p { color: var(--swp-slate); line-height: 1.75; margin: 0 0 20px; }
+</style>

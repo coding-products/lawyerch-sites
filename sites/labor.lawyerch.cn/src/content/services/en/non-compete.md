@@ -1,7 +1,7 @@
 ---
 lang: en
 title: Non-compete & confidentiality
-icon: spark
+icon: briefcase
 number: S/05
 excerpt: Non-compete design, compensation, termination and breach, plus trade-secret protection.
 description: Design non-compete and confidentiality arrangements for employers and employees.

@@ -1,7 +1,7 @@
 ---
 lang: en
 title: Policy review
-icon: grid
+icon: file-text
 number: S/03
 excerpt: Legality, democratic procedure and publication of handbooks and internal policies.
 description: Review handbooks, attendance, reward and confidentiality policies for content and procedure.

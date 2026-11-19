@@ -1,7 +1,7 @@
 ---
 lang: en
 title: Layoffs & restructuring
-icon: chart
+icon: users
 number: S/04
 excerpt: Legal conditions for economic layoffs, headcount planning, severance calculations, negotiation and filing.
 description: Design restructuring and layoff plans that control legal risk and execution cost.

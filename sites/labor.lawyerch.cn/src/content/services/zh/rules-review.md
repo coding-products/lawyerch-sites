@@ -1,6 +1,6 @@
 ---
 title: 规章制度审查
-icon: grid
+icon: file-text
 number: S/03
 excerpt: 员工手册与内部制度的合法性、民主程序与公示流程，确保制度在仲裁中真正可用。
 description: 审查员工手册、考勤、奖惩、保密等内部制度，兼顾内容合法与程序合规。

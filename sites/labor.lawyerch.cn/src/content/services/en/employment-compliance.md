@@ -1,7 +1,7 @@
 ---
 lang: en
 title: Employment compliance
-icon: layers
+icon: shield
 number: S/02
 excerpt: Contracts, handbooks, attendance, overtime, social insurance. Put the risk down before it becomes a dispute.
 description: End-to-end compliance review for hiring, onboarding, management, transfer and exit.

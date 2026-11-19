@@ -1,7 +1,7 @@
 ---
 lang: en
 title: Labour law training
-icon: type
+icon: book-open
 number: S/06
 excerpt: "Practical training for HR and managers: hiring, onboarding, transfer, exit and evidence."
 description: Tailored labour law training that changes day-to-day practice, not just knowledge.

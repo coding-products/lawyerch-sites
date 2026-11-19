@@ -1,6 +1,6 @@
 ---
 title: 裁员与人员优化
-icon: chart
+icon: users
 number: S/04
 excerpt: 经济性裁员的法定条件、人员方案、补偿测算、协商谈判与报备，兼顾成本与合规。
 description: 为企业设计裁员与人员优化方案，控制法律风险与执行成本。

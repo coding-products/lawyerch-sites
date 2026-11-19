@@ -5,83 +5,81 @@ export const faqByLang: Record<Lang, { faq: FaqItem[]; faqHeading: { eyebrow: st
   zh: {
     faq: [
       {
-        question: '劳动仲裁要多久？',
+        question: '你主要做什么？',
         answer:
-          '一般 45 日内结案，复杂案件可延长 15 日。实践中从立案到开庭通常 1–2 个月，具体看当地仲裁委排期和案件复杂度。',
+          '执业律师，做诉讼与非诉。同时长期写代码，把法律工作里重复的部分做成工具和开源项目。',
       },
       {
-        question: '没有签劳动合同，还能主张权利吗？',
+        question: '法律问题可以直接问你吗？',
         answer:
-          '可以。未签书面劳动合同的，用工满一个月起可主张双倍工资，最长 11 个月。关键是用工资记录、考勤、工作群、社保记录等证明劳动关系存在。',
+          '可以，但需要走正式委托。本站文章是一般信息，不构成针对具体案件的法律意见。',
       },
       {
-        question: '被违法解除，能拿多少赔偿？',
+        question: '工具和开源项目能商用吗？',
         answer:
-          '违法解除的赔偿金是经济补偿标准的二倍。经济补偿按工作年限计算，每满一年一个月工资；六个月以上不满一年按一年算，不满六个月半个月。',
+          '公开仓库多数是 MIT 或 Apache-2.0，可以商用，保留署名即可。具体看各仓库的 LICENSE。',
       },
       {
-        question: '加班费怎么举证？',
+        question: '为什么要把法律工作做成工具？',
         answer:
-          '劳动者先证明存在加班事实；考勤记录由单位掌握却不提供的，单位承担不利后果。打卡记录、工作群消息、邮件时间、排班表都可以作为初步证据。',
+          '因为大量时间花在重复劳动上：格式转换、文书套模板、检索、核对。这些适合交给代码，判断留给人。',
       },
       {
-        question: '竞业限制没有补偿还有效吗？',
+        question: '会分享客户案例吗？',
         answer:
-          '并不当然无效。单位三个月未支付经济补偿的，劳动者可以请求解除竞业限制；解除前已履行的期间，仍可主张补偿。',
+          '不会。客户信息、案件细节、金额都不进公开内容。文章里的例子都做过脱敏或来自公开裁判文书。',
       },
       {
-        question: '企业怎么做用工合规？',
+        question: '怎么联系？',
         answer:
-          '从劳动合同、员工手册、考勤与加班制度、社保公积金四个基础项开始。制度不仅要内容合法，还要走完民主程序和公示，否则在仲裁中很难作为依据。',
+          '邮件最快。法律事务请说明争议类型、目前阶段和已有材料，工具和合作直接说需求即可。',
       },
     ],
     faqHeading: {
       eyebrow: '常见问题',
-      title: '劳动法里最常被问到的几个问题。',
+      title: '关于我，以及这个站。',
       asideTitle: '还有别的？',
-      asideBody:
-        '用一段话描述你的情况：争议类型、目前阶段、已有材料。我会先判断问题性质，再告诉你下一步怎么走。',
+      asideBody: '直接发邮件。法律事务请走正式委托，工具和合作随时聊。',
     },
   },
   en: {
     faq: [
       {
-        question: 'How long does labour arbitration take?',
+        question: 'What do you do?',
         answer:
-          'Generally 45 days, extendable by 15 for complex cases. In practice, filing to hearing usually takes one to two months depending on the local commission.',
+          'I practise law — litigation and advisory — and write code. Most of my tooling comes from turning repetitive legal work into something a machine can do.',
       },
       {
-        question: 'Can I claim without a written contract?',
+        question: 'Can I ask you a legal question directly?',
         answer:
-          'Yes. From one month of employment, double wages can be claimed for the missing written contract, up to 11 months. Payroll, attendance, work-group messages and social insurance records help prove the relationship.',
+          'You can, but it needs a formal engagement. Articles here are general information, not legal advice for a specific case.',
       },
       {
-        question: 'How much compensation for unlawful dismissal?',
+        question: 'Can I use your tools commercially?',
         answer:
-          'Damages are twice the statutory severance. Severance is one month’s pay per full year of service; six months or more counts as a year, less than six months as half a month.',
+          'Most public repositories are MIT or Apache-2.0, so yes, with attribution. Check each repository LICENSE.',
       },
       {
-        question: 'How do I prove overtime?',
+        question: 'Why build tools for legal work?',
         answer:
-          'The employee proves overtime first. If the employer holds attendance records and refuses to produce them, it bears the adverse consequence. Clock-in records, messages, email timestamps and schedules can be initial evidence.',
+          'Because a lot of time goes into repetition: format conversion, document templates, research, cross-checking. That belongs to code. Judgement stays with the lawyer.',
       },
       {
-        question: 'Is a non-compete valid without compensation?',
+        question: 'Do you share client cases?',
         answer:
-          'Not automatically invalid. If the employer pays no compensation for three months, the employee may request termination; compensation for the period already performed can still be claimed.',
+          'No. Client names, case details and amounts never appear in public content. Examples are anonymised or drawn from published judgments.',
       },
       {
-        question: 'How should a company approach employment compliance?',
+        question: 'How do I get in touch?',
         answer:
-          'Start with contracts, handbooks, attendance and overtime policies, and social insurance. Policies must also follow the democratic procedure and publication requirements to be usable in arbitration.',
+          'Email is fastest. For legal matters, include the type of dispute, current stage and documents you have. For tools and collaboration, just describe what you need.',
       },
     ],
     faqHeading: {
       eyebrow: 'FAQ',
-      title: 'Questions I hear most often.',
+      title: 'About me, and this site.',
       asideTitle: 'Something else?',
-      asideBody:
-        'Describe the situation in a paragraph: type of dispute, current stage, documents you have. I will tell you what to do next.',
+      asideBody: 'Email me. Legal matters need a formal engagement; tools and collaboration are always open.',
     },
   },
 };

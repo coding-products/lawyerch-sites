@@ -1,6 +1,6 @@
 ---
 title: 企业用工合规
-icon: layers
+icon: shield
 number: S/02
 excerpt: 劳动合同、员工手册、考勤与加班、社保公积金。把风险挡在争议发生之前。
 description: 为企业提供用工全流程合规审查，覆盖招聘、入职、在职管理、调岗与离职。

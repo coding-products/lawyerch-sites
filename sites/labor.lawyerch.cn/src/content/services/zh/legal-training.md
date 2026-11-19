@@ -1,6 +1,6 @@
 ---
 title: 劳动法培训
-icon: type
+icon: book-open
 number: S/06
 excerpt: 面向 HR 与管理者的用工风险培训：招聘、入职、调岗、解除、证据留存。
 description: 按企业场景定制的劳动法培训，帮助 HR 和管理者建立可执行的用工流程。

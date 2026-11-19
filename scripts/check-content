@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+"""
+内容合规检查。按 .agents/extensions/content-legal.md 里可机械化的规则扫描 markdown。
+
+用法：
+  ./scripts/check-content <站点目录>
+  ./scripts/check-content --all
+  ./scripts/check-content --all --json
+
+退出码：0 通过，1 有硬性错误，2 只有警告。
+
+规则口径（与 content-legal.md 的差异已注明）：
+  博客（src/content/blog/）
+    - 必须含严格免责声明：「不构成针对具体案件的法律意见」/「not legal advice for a specific case」
+    - 必须含「法律依据」/「The rule」与「实务提示」/「Practical notes」两级标题
+    - 法条必须写《》全称，允许「本法/该法/本条例/本办法/本规定」等指代
+    - 中间章节（常见情形）不强制，实际内容里存在「举证顺序」等替代写法
+  服务页（src/content/services/）
+    - 不强制免责声明：现有服务页以实务提示收尾，不是文章体裁
+    - 只查禁用表述、绝对化表述、个人信息、frontmatter
+  全站 markdown
+    - 禁用表述、绝对化表述、个人信息
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+OK = "\033[32m✔\033[0m"
+WARN = "\033[33m⚠\033[0m"
+FAIL = "\033[31m✖\033[0m"
+
+STRICT_ZH = "不构成针对具体案件的法律意见"
+STRICT_EN = "not legal advice for a specific case"
+WEAK_ZH = "本页为一般介绍"
+WEAK_EN = "general introduction"
+
+FORBIDDEN = ["保证胜诉", "一定拿回", "包赢", "不成功不收费", "胜诉率", "最低价", "免费咨询"]
+ABSOLUTE = ["100%", "百分之百", "绝对能", "肯定能赢"]
+
+PII = [
+    ("手机号", re.compile(r"(?<!\d)1[3-9]\d{9}(?!\d)")),
+    ("身份证号", re.compile(r"(?<!\d)\d{17}[\dXx](?!\d)")),
+    ("邮箱", re.compile(r"[\w.+-]+@[\w-]+\.[\w.]{2,}")),
+    ("微信号", re.compile(r"微信号[：:]\s*\S+")),
+]
+
+ARTICLE = re.compile(r"第[一二三四五六七八九十百千零〇]+条")
+REFERENTIAL = ("本法", "该法", "此条", "本条例", "本办法", "本规定", "前述")
+
+REQUIRED_ZH = ["法律依据", "实务提示"]
+REQUIRED_EN = ["The rule", "Practical notes"]
+
+
+@dataclass
+class Issue:
+    file: str
+    line: int
+    level: str  # error | warn
+    message: str
+
+
+def split_frontmatter(text: str) -> tuple[str, str]:
+    if not text.startswith("---"):
+        return "", text
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return "", text
+    return parts[1], parts[2]
+
+
+def lang_of(path: Path) -> str:
+    parts = path.parts
+    if "en" in parts:
+        return "en"
+    return "zh"
+
+
+def check_disclaimer(path: Path, body: str) -> list[Issue]:
+    strict = STRICT_EN if lang_of(path) == "en" else STRICT_ZH
+    weak = WEAK_EN if lang_of(path) == "en" else WEAK_ZH
+    if strict in body:
+        return []
+    if weak in body:
+        return [Issue(str(path), 0, "warn", f"免责声明被弱化，建议使用「{strict}」")]
+    return [Issue(str(path), 0, "error", f"缺少免责声明（应含「{strict}」）")]
+
+
+def check_headings(path: Path, text: str) -> list[Issue]:
+    headings = [m.group(1).strip() for m in re.finditer(r"^##\s+(.+)$", text, re.M)]
+    required = REQUIRED_EN if lang_of(path) == "en" else REQUIRED_ZH
+    issues = []
+    for need in required:
+        if not any(h.startswith(need) for h in headings):
+            issues.append(Issue(str(path), 0, "error", f"缺少章节：{need}"))
+    return issues
+
+
+def check_law_citations(path: Path, lines: list[str]) -> list[Issue]:
+    issues = []
+    for i, line in enumerate(lines, 1):
+        for m in ARTICLE.finditer(line):
+            window = line[max(0, m.start() - 40) : m.start()]
+            if "》" in window or any(w in window for w in REFERENTIAL):
+                continue
+            snippet = line[max(0, m.start() - 8) : m.end()]
+            issues.append(Issue(str(path), i, "error", f"法条缺少《》全称：{snippet}"))
+    return issues
+
+
+def check_text(path: Path, lines: list[str]) -> list[Issue]:
+    issues = []
+    for i, line in enumerate(lines, 1):
+        for word in FORBIDDEN:
+            if word in line:
+                issues.append(Issue(str(path), i, "error", f"禁用表述：{word}"))
+        for word in ABSOLUTE:
+            if word in line:
+                issues.append(Issue(str(path), i, "warn", f"绝对化表述：{word}"))
+        for name, pattern in PII:
+            if pattern.search(line):
+                issues.append(Issue(str(path), i, "error", f"疑似{name}，请脱敏"))
+    return issues
+
+
+def check_frontmatter(path: Path, front: str) -> list[Issue]:
+    issues = []
+    for key in ("title", "description"):
+        if not re.search(rf"^{key}\s*:", front, re.M):
+            issues.append(Issue(str(path), 0, "error", f"frontmatter 缺少 {key}"))
+    return issues
+
+
+def check_file(path: Path) -> list[Issue]:
+    text = path.read_text(encoding="utf-8")
+    front, body = split_frontmatter(text)
+    lines = body.splitlines()
+    issues = check_frontmatter(path, front) + check_text(path, lines)
+    posix = path.as_posix()
+    if "content/blog" in posix:
+        issues += check_disclaimer(path, body)
+        issues += check_headings(path, body)
+        issues += check_law_citations(path, lines)
+    return issues
+
+
+def site_dirs(targets: list[str], all_sites: bool) -> list[Path]:
+    if all_sites:
+        base = ROOT / "sites"
+        return sorted(p for p in base.iterdir() if p.is_dir() and (p / "src").is_dir())
+    return [Path(t).resolve() for t in targets]
+
+
+def display(path: str) -> str:
+    p = Path(path)
+    try:
+        return str(p.relative_to(ROOT))
+    except ValueError:
+        return str(p)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="内容合规检查")
+    parser.add_argument("sites", nargs="*", help="站点目录")
+    parser.add_argument("--all", action="store_true", help="检查所有站点")
+    parser.add_argument("--json", action="store_true", help="输出 JSON")
+    args = parser.parse_args()
+
+    targets = site_dirs(args.sites, args.all)
+    if not targets:
+        parser.error("需要站点目录或 --all")
+
+    issues: list[Issue] = []
+    for site in targets:
+        for md in sorted((site / "src").rglob("*.md")):
+            issues += check_file(md)
+
+    errors = [i for i in issues if i.level == "error"]
+    warns = [i for i in issues if i.level == "warn"]
+
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "sites": [display(str(s)) for s in targets],
+                    "errors": len(errors),
+                    "warnings": len(warns),
+                    "issues": [i.__dict__ | {"file": display(i.file)} for i in issues],
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+    else:
+        for issue in issues:
+            icon = FAIL if issue.level == "error" else WARN
+            where = f"第 {issue.line} 行 " if issue.line else ""
+            print(f"{icon} {display(issue.file)}")
+            print(f"   {where}{issue.message}")
+        if not issues:
+            for site in targets:
+                print(f"{OK} {display(str(site))}")
+
+    if errors:
+        return 1
+    if warns:
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

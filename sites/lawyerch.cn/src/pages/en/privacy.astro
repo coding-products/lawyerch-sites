@@ -1,0 +1,58 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+import siteConfig from '~/config/site';
+
+const updated = '2026-11-19';
+---
+
+<PageLayout
+  title="Privacy"
+  heading="Privacy"
+  eyebrow="Legal"
+  intro="What this site collects, and what it does not."
+  description={`Privacy policy for ${siteConfig.name}.`}
+  crumbs={[{ label: 'Privacy' }]}
+>
+  <section class="wrap sec" style="padding-top:0">
+    <div class="prose rev">
+      <p>Last updated: {updated}</p>
+
+      <h2>What this site is</h2>
+      <p>
+        A static site introducing my practice, writing and open-source work. There is no
+        account system and no online payment.
+      </p>
+
+      <h2>What we collect</h2>
+      <p>
+        If you submit the contact form, we receive the name, email, company (optional),
+        topic and message you enter. It is used only to reply to you and is never sold or
+        shared with unrelated third parties.
+      </p>
+
+      <h2>Server logs</h2>
+      <p>
+        The hosting provider keeps standard access logs — IP address, user agent, requested
+        URL and timestamp — for security and troubleshooting, under its own retention policy.
+      </p>
+
+      <h2>Cookies and analytics</h2>
+      <p>
+        No tracking cookies, no advertising scripts, no third-party analytics. Fonts are
+        served from this domain.
+      </p>
+
+      <h2>Retention and deletion</h2>
+      <p>
+        Enquiries are kept only as long as needed to handle them. You can email
+        <a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a>
+        to request access or deletion.
+      </p>
+
+      <h2>External links</h2>
+      <p>
+        Links to other sites are governed by those sites' own policies.
+      </p>
+    </div>
+  </section>
+</PageLayout>

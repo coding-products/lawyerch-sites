@@ -9,10 +9,10 @@ export const theme = {
   'lime-deep': '#b08a1e',
   ink: '#0f1b2d',
   graphite: '#1c2e4a',
-  slate: '#5b6472',
+  slate: '#47505e',
   mist: '#f5f2ea',
   line: '#e5e0d3',
-  faint: '#8b8778',
+  faint: '#5f5b4d',
 } as const;
 
 export type Theme = typeof theme;

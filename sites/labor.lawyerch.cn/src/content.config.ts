@@ -20,7 +20,7 @@ const services = defineCollection({
     lang: z.enum(['zh', 'en']).default('zh'),
     title: z.string(),
     /** Icon id from `src/components/icons/IconSprite.astro`. */
-    icon: z.enum(['grid', 'layers', 'pen', 'code', 'chart', 'spark', 'device', 'type', 'motion', 'flag']),
+    icon: z.enum(['grid', 'layers', 'pen', 'code', 'chart', 'spark', 'device', 'type', 'motion', 'flag', 'scale', 'gavel', 'briefcase', 'file-text', 'users', 'shield', 'building', 'book-open', 'lightbulb', 'target', 'trending-up', 'award', 'handshake', 'clock', 'calendar', 'search', 'external-link', 'chevron-right']),
     /** Label in the card corner, e.g. `S/01`. */
     number: z.string(),
     excerpt: z.string(),

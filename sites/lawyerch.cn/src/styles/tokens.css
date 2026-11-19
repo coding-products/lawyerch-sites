@@ -8,13 +8,14 @@
   /* Brand palette */
   --swp-lime: #c9a227;
   --swp-lime-deep: #b08a1e;
+  --swp-accent-ink: #7d6014;
   --swp-ink: #0f1b2d;
   --swp-graphite: #1c2e4a;
-  --swp-slate: #5b6472; /* nudged 2 points darker than #6e7269 for AA on --swp-mist */
+  --swp-slate: #47505e; /* 7.28:1 on mist */
   --swp-mist: #f5f2ea;
   --swp-line: #e5e0d3;
-  /* Faded client-logo grey: 3.2:1 on white, which clears AA for the 19px bold wordmarks. */
-  --swp-faint: #8b8778;
+  /* 次要文字，6.07:1 on mist */
+  --swp-faint: #5f5b4d;
   --swp-shell: #ffffff;
 
   /* Status */

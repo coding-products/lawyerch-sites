@@ -1,12 +1,28 @@
 ---
 import PageLayout from '~/layouts/PageLayout.astro';
 import About from '~/components/home/About.astro';
-import Process from '~/components/home/Process.astro';
-import Awards from '~/components/home/Awards.astro';
-import StatsBand from '~/components/home/StatsBand.astro';
 import Cta from '~/components/home/Cta.astro';
+import Icon from '~/components/Icon.astro';
+import Button from '~/components/Button.astro';
 import siteConfig from '~/config/site';
 import { graph, personSchema, breadcrumbSchema } from '~/lib/jsonld';
+
+const tracks = [
+  {
+    icon: 'scale',
+    title: '法律',
+    body: '做诉讼与非诉。合同、公司、劳动争议、执行。客户材料不出现在任何公开内容里。',
+    href: '/contact/',
+    label: '联系咨询',
+  },
+  {
+    icon: 'code',
+    title: '开发',
+    body: '写工具、做技能、整理资源。把办案里重复的部分变成能跑的代码，公开在 GitHub。',
+    href: 'https://github.com/lawyerch-dev',
+    label: '看开源项目',
+  },
+];
 
 const jsonLd = graph([
   personSchema(siteConfig),
@@ -19,16 +35,71 @@ const jsonLd = graph([
 
 <PageLayout
   title="关于"
-  heading={`Fifteen years, and the same lesson keeps turning up.`}
+  heading="律师写代码，不是转行"
   eyebrow="关于"
-  intro={`${siteConfig.author} is an independent art director and interface designer. Fewer clients, harder questions in week one, and a handover that does not quietly depend on one person.`}
-  description={`关于${siteConfig.author}：广州执业律师，专注劳动争议与企业用工合规。`}
+  intro="陈恒律师，广州执业。做诉讼与非诉，也长期写工具。法律工作提出问题，代码给出解法。"
+  description={`关于${siteConfig.author}：广州执业律师，做诉讼与非诉，同时开发法律工具与开源项目。`}
   crumbs={[{ label: '关于' }]}
   jsonLd={jsonLd}
 >
   <About headingLevel="h2" id="background" />
-  <StatsBand />
-  <Process />
-  <Awards />
+
+  <section class="wrap sec" aria-labelledby="tracks-h">
+    <p class="eyebrow">两条线</p>
+    <h2 class="d2 track-h" id="tracks-h">同一件事的两面</h2>
+    <div class="tracks">
+      {tracks.map((track) => (
+        <article class="track">
+          <span class="track-icon"><Icon name={track.icon} class="ic-lg" /></span>
+          <h3>{track.title}</h3>
+          <p>{track.body}</p>
+          <Button href={track.href} variant="outline">{track.label}</Button>
+        </article>
+      ))}
+    </div>
+  </section>
+
   <Cta />
 </PageLayout>
+
+<style>
+  .track-h {
+    margin: 10px 0 28px;
+  }
+  .tracks {
+    display: grid;
+    gap: 20px;
+  }
+  @media (min-width: 820px) {
+    .tracks {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .track {
+    border: 1px solid var(--swp-line);
+    border-radius: var(--r-lg);
+    padding: clamp(22px, 3vw, 34px);
+    background: var(--swp-shell);
+  }
+  .track-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--swp-mist);
+    color: var(--swp-accent-ink);
+    margin-bottom: 14px;
+  }
+  .track h3 {
+    margin: 0 0 10px;
+    font-size: 1.375rem;
+    font-weight: 700;
+  }
+  .track p {
+    color: var(--swp-slate);
+    line-height: 1.75;
+    margin: 0 0 20px;
+  }
+</style>

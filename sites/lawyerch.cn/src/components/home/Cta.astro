@@ -26,10 +26,17 @@ const { id = 'cta' } = Astro.props;
 
     <div class="cta-actions">
       <Button href="/contact/" variant="ink">{h.cta.primaryLabel}</Button>
-      <a class="btn btn-outline-ink" href={`tel:${siteConfig.contact.phoneHref}`}>
-        <span>{siteConfig.contact.phone}</span>
-        <i><Icon name="phone" class="ic-sm" /></i>
-      </a>
+      {siteConfig.contact.phone ? (
+        <a class="btn btn-outline-ink" href={`tel:${siteConfig.contact.phoneHref}`}>
+          <span>{siteConfig.contact.phone}</span>
+          <i><Icon name="phone" class="ic-sm" /></i>
+        </a>
+      ) : (
+        <a class="btn btn-outline-ink" href={`mailto:${siteConfig.contact.email}`}>
+          <span>邮件</span>
+          <i><Icon name="mail" class="ic-sm" /></i>
+        </a>
+      )}
     </div>
   </div>
 </section>

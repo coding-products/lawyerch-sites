@@ -1,0 +1,59 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+import siteConfig from '~/config/site';
+
+const updated = '2026-11-19';
+---
+
+<PageLayout
+  title="Terms"
+  heading="Terms of use"
+  eyebrow="Legal"
+  intro="Rules for using this site, and what the content is not."
+  description={`Terms of use for ${siteConfig.name}.`}
+  crumbs={[{ label: 'Terms' }]}
+>
+  <section class="wrap sec" style="padding-top:0">
+    <div class="prose rev">
+      <p>Last updated: {updated}</p>
+
+      <h2>What the content is</h2>
+      <p>
+        Articles and notes here are general information. They are
+        <strong>not legal advice on any specific matter</strong>. Reading them does not
+        create a lawyer–client relationship.
+      </p>
+
+      <h2>Specific matters</h2>
+      <p>
+        Outcomes depend on facts, evidence, procedure and the local tribunal. For a real
+        matter, engage formally rather than relying on what is published here.
+      </p>
+
+      <h2>Intellectual property</h2>
+      <p>
+        Original text and images belong to the author. Quoting with attribution and a link
+        is welcome. Republishing whole pages, or reusing content in misleading or commercial
+        training material, is not.
+      </p>
+
+      <h2>External links</h2>
+      <p>
+        Links to statutes, judgments or other sites do not imply endorsement. Accuracy and
+        currency are the responsibility of the source.
+      </p>
+
+      <h2>Limitation of liability</h2>
+      <p>
+        Content is kept as accurate and current as practical, but no liability is accepted
+        for loss arising from its use. Where the law changes, the version in force applies.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this site:
+        <a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a>
+      </p>
+    </div>
+  </section>
+</PageLayout>

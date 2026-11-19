@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""
+站内一致性检查。扫描构建产物，找死链、canonical 域名错误、sitemap 与实际页面不一致。
+
+用法：
+  ./scripts/check-links <站点目录>
+  ./scripts/check-links <站点目录> --json
+
+退出码：0 通过，1 有硬性错误，2 只有警告。
+
+检查项：
+  - 内部链接指向的文件必须存在于 dist/
+  - <link rel="canonical"> 的 origin 必须等于 astro.config.mjs 的 DEFAULT_SITE
+  - sitemap 中的每个 URL 必须在 dist/ 有对应页面
+
+中英配对检查未启用：中文独有页面属正常情况，避免误报。
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from urllib.parse import unquote, urlparse
+
+ROOT = Path(__file__).resolve().parent.parent
+OK = "\033[32m✔\033[0m"
+WARN = "\033[33m⚠\033[0m"
+FAIL = "\033[31m✖\033[0m"
+
+SKIP_PREFIX = ("http://", "https://", "//", "mailto:", "tel:", "javascript:", "#", "data:")
+HREF = re.compile(r"""<a\b[^>]*?\bhref\s*=\s*["']([^"']+)["']""", re.I)
+CANONICAL = re.compile(r"""<link\b[^>]*?\brel\s*=\s*["']canonical["'][^>]*>""", re.I)
+LOC = re.compile(r"<loc>\s*([^<\s]+)\s*</loc>")
+DEFAULT_SITE = re.compile(r"""DEFAULT_SITE\s*=\s*['"]([^'"]+)['"]""")
+
+
+@dataclass
+class Issue:
+    file: str
+    level: str
+    message: str
+
+
+def expected_origin(config: Path) -> str | None:
+    if not config.is_file():
+        return None
+    m = DEFAULT_SITE.search(config.read_text(encoding="utf-8"))
+    return m.group(1).rstrip("/") if m else None
+
+
+def resolve(target: str, dist: Path) -> bool:
+    """内部路径在 dist/ 是否有对应文件。"""
+    path = unquote(target.split("#")[0].split("?")[0])
+    if not path.startswith("/"):
+        return True
+    rel = path.lstrip("/")
+    candidates = []
+    if rel == "" or path.endswith("/"):
+        candidates.append(dist / rel / "index.html")
+    else:
+        candidates.append(dist / rel)
+        candidates.append(dist / rel / "index.html")
+        candidates.append(dist / (rel + ".html"))
+    return any(c.is_file() for c in candidates)
+
+
+def check_html(html: Path, dist: Path, origin: str | None) -> list[Issue]:
+    text = html.read_text(encoding="utf-8", errors="replace")
+    rel = str(html.relative_to(dist))
+    issues: list[Issue] = []
+
+    for m in HREF.finditer(text):
+        href = m.group(1).strip()
+        if not href or href.lower().startswith(SKIP_PREFIX):
+            continue
+        if href.startswith("http"):
+            continue
+        if not resolve(href, dist):
+            issues.append(Issue(rel, "error", f"死链：{href}"))
+
+    if origin:
+        tag = CANONICAL.search(text)
+        if tag:
+            href = re.search(r"""href\s*=\s*["']([^"']+)["']""", tag.group(0), re.I)
+            if href:
+                got = f"{urlparse(href.group(1)).scheme}://{urlparse(href.group(1)).netloc}"
+                if got != origin:
+                    issues.append(
+                        Issue(rel, "error", f"canonical 域名不符：{got}，应为 {origin}")
+                    )
+        else:
+            issues.append(Issue(rel, "warn", "缺少 canonical"))
+    return issues
+
+
+def check_sitemap(dist: Path, origin: str | None) -> list[Issue]:
+    issues: list[Issue] = []
+    files = sorted(dist.glob("sitemap*.xml"))
+    if not files:
+        return [Issue("dist", "error", "没有 sitemap，检查 @astrojs/sitemap 配置")]
+    for xml in files:
+        text = xml.read_text(encoding="utf-8", errors="replace")
+        for url in LOC.findall(text):
+            if url.endswith(".xml"):
+                continue
+            if origin and origin not in url:
+                issues.append(Issue(xml.name, "error", f"sitemap 含非本站 URL：{url}"))
+                continue
+            path = urlparse(url).path or "/"
+            if not resolve(path, dist):
+                issues.append(Issue(xml.name, "error", f"sitemap 有页面不存在：{path}"))
+    return issues
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="站内一致性检查")
+    parser.add_argument("site", help="站点目录，例如 sites/labor.lawyerch.cn")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+
+    site = Path(args.site).resolve()
+    dist = site / "dist"
+    if not dist.is_dir():
+        print(f"{FAIL} {args.site} 没有 dist/，先构建：pnpm build", file=sys.stderr)
+        return 1
+
+    origin = expected_origin(site / "astro.config.mjs")
+    issues: list[Issue] = []
+    for html in sorted(dist.rglob("*.html")):
+        issues += check_html(html, dist, origin)
+    issues += check_sitemap(dist, origin)
+
+    if args.json:
+        print(json.dumps([i.__dict__ for i in issues], ensure_ascii=False, indent=2))
+    else:
+        for issue in issues:
+            icon = FAIL if issue.level == "error" else WARN
+            print(f"{icon} {issue.file}")
+            print(f"   {issue.message}")
+        if not issues:
+            print(f"{OK} {args.site}")
+
+    if any(i.level == "error" for i in issues):
+        return 1
+    if issues:
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

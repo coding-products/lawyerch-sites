@@ -1,7 +1,7 @@
 ---
 lang: en
 title: Labour dispute representation
-icon: flag
+icon: gavel
 number: S/01
 excerpt: Unlawful dismissal, severance, overtime, workplace injury and non-compete disputes. Arbitration and litigation, end to end.
 description: Representation for employees and employers in labour arbitration and litigation.

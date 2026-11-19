@@ -1,6 +1,6 @@
 ---
 title: 竞业限制与保密
-icon: spark
+icon: briefcase
 number: S/05
 excerpt: 竞业限制协议设计、补偿标准、解除与违约处理，以及商业秘密保护的配套安排。
 description: 为企业与员工设计竞业限制和保密方案，处理违约与解除争议。
