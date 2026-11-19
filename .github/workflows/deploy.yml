@@ -90,4 +90,10 @@ jobs:
             ./scripts/deploy-oss "$site"
           done
 
-      # HTML 的 CDN 缓存已设为 0，部署后无需刷新；带哈希的静态资源长期缓存。
+      # HTML 即使设了 ttl=0 仍会被边缘短暂缓存，部署后主动刷新目录。
+      - name: Purge CDN cache
+        run: |
+          for domain in lawyerch.cn www.lawyerch.cn labor.lawyerch.cn; do
+            aliyun cdn RefreshObjectCaches --ObjectType Directory --ObjectPath "https://$domain/" >/dev/null
+            echo "已刷新 $domain"
+          done

@@ -58,8 +58,8 @@ pnpm build
 - bucket 命名：域名里的点换成横线（`labor.lawyerch.cn` → `labor-lawyerch-cn`）
 - bucket 要开静态网站托管：默认首页 `index.html`、错误页 `404.html`、`SupportSubDir=true`
 - 账号若开了「阻止公共访问」，需在 bucket 上关掉，否则匿名访问返回 403
-- CDN 缓存：`html` 设为 0，发布即时生效；`css`/`js` 长缓存
-- push 到 main 后 `.github/workflows/deploy.yml` 自动跑构建、检查、上传
+- CDN 缓存：`css`/`js` 长缓存；HTML 即便设了 `ttl=0` 仍会被边缘短暂缓存，所以部署后要刷新目录
+- push 到 main 后 `.github/workflows/deploy.yml` 自动跑构建、检查、上传、刷新
 
 Netlify / Cloudflare 只在迁移前的旧站使用，新站不再接。
 
