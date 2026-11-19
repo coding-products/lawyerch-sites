@@ -1,144 +1,68 @@
 ---
-import BaseLayout from '@astro-fleet/shared-ui/src/layouts/BaseLayout.astro';
-import Breadcrumb from '@astro-fleet/shared-ui/src/components/Breadcrumb.astro';
-import ContactForm from '@astro-fleet/shared-ui/src/components/ContactForm.astro';
-import { CORPORATE } from '@astro-fleet/config/tokens';
-import {
-  SITE_NAME,
-  TAGLINE,
-  LOGO_SRC,
-  navigation,
-  footerColumns,
-  contactInfo,
-  socialLinks,
-} from '../lib/site-config';
+import PageLayout from '~/layouts/PageLayout.astro';
+import ContactForm from '~/components/ContactForm.astro';
+import Icon from '~/components/Icon.astro';
+import Faq from '~/components/home/Faq.astro';
+import siteConfig from '~/config/site';
+import { graph, personSchema, breadcrumbSchema } from '~/lib/jsonld';
+
+const jsonLd = graph([
+  personSchema(siteConfig),
+  breadcrumbSchema([
+    { name: 'Home', url: `${siteConfig.url}/` },
+    { name: 'Contact', url: `${siteConfig.url}/contact/` },
+  ]),
+]);
 ---
 
-<BaseLayout
-  showLanguages
-  title={`联系 — ${SITE_NAME}`}
-  description="劳动法咨询与委托联系。请简要描述情况，我会在一個工作日内回复。"
-  keywords={['劳动法咨询', '律师咨询', '广州律师', '联系']}
-  {navigation}
-  footerColumns={footerColumns}
-  {contactInfo}
-  {socialLinks}
-  siteName={SITE_NAME}
-  search
-  searchPlaceholder="Services, pricing, contact"
-  tagline={TAGLINE}
-  logoSrc={LOGO_SRC}
-  ctaText="Get Started"
-  ctaHref="/contact/"
-  designTokens={CORPORATE}
+<PageLayout
+  title="Contact"
+  heading="Tell me what deserves doing properly."
+  eyebrow="Contact"
+  intro="What is broken, who it is breaking for, and what happens if it stays that way. That is enough to come back with a scope and a number."
+  description={`联系${siteConfig.author}，咨询劳动争议、用工合规、规章制度审查或裁员方案。`}
+  crumbs={[{ label: 'Contact' }]}
+  jsonLd={jsonLd}
 >
-  <div class="container">
-    <Breadcrumb
-      items={[
-        { label: '首页', href: '/' },
-        { label: '联系' },
-      ]}
-    />
-  </div>
+  <section class="wrap sec" style="padding-top:0" aria-labelledby="form-h">
+    <div class="contact-grid">
+      <div class="rev">
+        <h2 class="d3" id="form-h" style="margin-bottom:24px">Send the brief</h2>
+        <ContactForm />
+      </div>
 
-  <!-- Page hero -->
-  <section class="contact-hero section">
-    <div class="container">
-      <h1 class="contact-hero__title">联系我</h1>
-      <p class="contact-hero__sub">
-        请简要描述你的情况：争议类型、目前阶段、已有材料。
-        一般信息不构成法律意见；需要具体处理，再走正式委托。
-      </p>
+      <div class="contact-aside rev rev-d1">
+        <a class="contact-card" href={`mailto:${siteConfig.contact.email}`}>
+          <i><Icon name="mail" /></i>
+          <div>
+            <b>Email</b>
+            <span>{siteConfig.contact.email}</span>
+          </div>
+        </a>
+        <a class="contact-card" href={`tel:${siteConfig.contact.phoneHref}`}>
+          <i><Icon name="phone" /></i>
+          <div>
+            <b>Phone</b>
+            <span>{siteConfig.contact.phone}</span>
+          </div>
+        </a>
+        <div class="contact-card">
+          <i><Icon name="pin" /></i>
+          <div>
+            <b>Where</b>
+            <span>{siteConfig.contact.location}</span>
+          </div>
+        </div>
+        <div class="contact-card">
+          <i><Icon name="spark" /></i>
+          <div>
+            <b>Availability</b>
+            <span>{siteConfig.contact.availability}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Contact form -->
-  <ContactForm
-    formAction="#"
-    heading="描述你的情况"
-    description="请勿在表单中填写身份证号、银行卡号等敏感信息。"
-    successText="已收到。我会在一个工作日内回复。"
-    errorText="提交失败，请直接发邮件。"
-  />
-</BaseLayout>
-
-<script>
-  // The shared ContactForm is plain HTML; this page owns the submit.
-  // Pattern documented in docs/components.md, "A site-owned submit handler".
-  //
-  // Replace FORM_ENDPOINT with the URL that receives the enquiry (Formspree,
-  // Basin, your own API). Then add that origin to connect-src and form-action
-  // in public/_headers, or the browser blocks the request silently.
-  const FORM_ENDPOINT = 'https://example.com/api/enquiry'; // [REPLACE]
-
-  function initContactForm() {
-    const form = document.querySelector<HTMLFormElement>('#enquiry-form form');
-    if (!form || form.dataset.bound === '1') return;
-    form.dataset.bound = '1';
-
-    const field = (name: string) => {
-      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-      return el && 'value' in el ? el.value.trim() : '';
-    };
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!form.reportValidity()) return;
-      const button = form.querySelector<HTMLButtonElement>('.contact-form__submit');
-      const ok = form.querySelector<HTMLElement>('[data-cf-status="success"]');
-      const err = form.querySelector<HTMLElement>('[data-cf-status="error"]');
-      if (ok) ok.hidden = true;
-      if (err) err.hidden = true;
-      if (button) button.disabled = true;
-      try {
-        const res = await fetch(FORM_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            name: field('name'),
-            company: field('company'),
-            email: field('email'),
-            phone: field('phone'),
-            interest: field('machineInterest'),
-            message: field('message'),
-            _hp: field('_hp'), // honeypot; the endpoint should drop anything with a value here
-          }),
-        });
-        if (!res.ok) throw new Error(`form endpoint ${res.status}`);
-        if (ok) ok.hidden = false;
-        form.reset();
-        // Only after a 2xx: a lead that never arrived is not a lead.
-        (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag?.('event', 'generate_lead', { form: 'contact' });
-      } catch {
-        if (err) err.hidden = false;
-      } finally {
-        if (button) button.disabled = false;
-      }
-    });
-  }
-
-  initContactForm();
-  document.addEventListener('astro:page-load', initContactForm);
-</script>
-
-<style>
-  .contact-hero {
-    background: linear-gradient(160deg, #f0f4ff 0%, #ffffff 60%);
-    padding-bottom: 0;
-  }
-
-  .contact-hero__title {
-    font-size: clamp(2rem, 5vw, 3.25rem);
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    color: var(--color-primary, #1e3a5f);
-    margin-bottom: 1rem;
-  }
-
-  .contact-hero__sub {
-    font-size: 1.125rem;
-    color: #475569;
-    line-height: 1.7;
-    max-width: 520px;
-  }
-</style>
+  <Faq />
+</PageLayout>

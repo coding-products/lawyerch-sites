@@ -1,243 +1,31 @@
 ---
-import BaseLayout from '@astro-fleet/shared-ui/src/layouts/BaseLayout.astro';
-import ServiceCard from '@astro-fleet/shared-ui/src/components/ServiceCard.astro';
-import TrustBar from '@astro-fleet/shared-ui/src/components/TrustBar.astro';
-import CTABlock from '@astro-fleet/shared-ui/src/components/CTABlock.astro';
-import { CORPORATE } from '@astro-fleet/config/tokens';
-import {
-  SITE_NAME,
-  TAGLINE,
-  LOGO_SRC,
-  navigation,
-  footerColumns,
-  contactInfo,
-  socialLinks,
-} from '../lib/site-config';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Hero from '~/components/home/Hero.astro';
+import StatsBand from '~/components/home/StatsBand.astro';
+import About from '~/components/home/About.astro';
+import Services from '~/components/home/Services.astro';
+import Process from '~/components/home/Process.astro';
+import Journal from '~/components/home/Journal.astro';
+import Faq from '~/components/home/Faq.astro';
+import Cta from '~/components/home/Cta.astro';
+import siteConfig from '~/config/site';
+import { graph, personSchema, websiteSchema } from '~/lib/jsonld';
 
-const trustItems = [
-  { text: '执业律师 · 广州' },
-  { text: '专注劳动争议' },
-  { text: '企业用工合规' },
-  { text: '可预约咨询' },
-];
-
-
-const structuredData = {
-  '@type': 'LegalService',
-  name: '劳动法 · 陈恒律师',
-  description: '广州执业律师，专注劳动争议代理与企业用工合规。',
-  url: 'https://labor.lawyerch.cn',
-  areaServed: '广州',
-  provider: {
-    '@type': 'Person',
-    name: '陈恒律师',
-    jobTitle: '执业律师',
-  },
-  knowsAbout: ['劳动争议', '劳动合同', '经济补偿', '加班费', '工伤保险', '竞业限制', '企业用工合规'],
-};
-
-const features = [
-  {
-    title: '劳动争议代理',
-    description:
-      '违法解除、经济补偿、加班费、工伤待遇、竞业限制。从仲裁到诉讼，按证据和程序一步步推进。',
-    href: '/services/',
-    linkText: '了解代理服务',
-  },
-  {
-    title: '企业用工合规',
-    description:
-      '劳动合同、员工手册、考勤与加班制度、社保公积金。把风险挡在争议发生之前。',
-    href: '/services/',
-    linkText: '查看合规服务',
-  },
-  {
-    title: '裁员与人员优化',
-    description:
-      '经济性裁员的法定条件、方案设计、协商谈判与补偿测算，兼顾成本与合规。',
-    href: '/services/',
-    linkText: '了解裁员方案',
-  },
-];
+const jsonLd = graph([personSchema(siteConfig), websiteSchema(siteConfig)]);
 ---
 
 <BaseLayout
-  showLanguages
-  title={`${SITE_NAME} — 劳动争议与用工合规`}
-  description="广州执业律师，专注劳动争议代理与企业用工合规。劳动合同、解除赔偿、加班费、工伤、竞业限制，以及员工手册与规章制度的合规审查。"
-  keywords={['劳动法', '劳动争议', '劳动合同', '经济补偿', '加班费', '竞业限制', '广州律师']}
-  {navigation}
-  footerColumns={footerColumns}
-  {contactInfo}
-  {socialLinks}
-  siteName={SITE_NAME}
-  search
-  searchPlaceholder="搜索劳动法问题"
-  tagline={TAGLINE}
-  logoSrc={LOGO_SRC}
-  ctaText="预约咨询"
-  ctaHref="/contact/"
-  designTokens={CORPORATE}
-  structuredData={structuredData}
+  title={siteConfig.title}
+  description={siteConfig.description}
+  appendSiteName={false}
+  jsonLd={jsonLd}
 >
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero__container">
-      <div class="hero__badge">劳动法 · 广州</div>
-      <h1 class="hero__headline">
-        劳动争议与<br />
-        <span class="hero__headline--accent">用工合规</span>
-      </h1>
-      <p class="hero__sub">
-        从一份劳动合同的条款，到一次解除的补偿测算，再到一套员工手册的落地。
-        这里记录劳动法实务中的判断依据、常见争点和处理路径。
-      </p>
-      <div class="hero__actions">
-        <a href="/contact/" class="hero__cta-primary">预约咨询</a>
-        <a href="/insights/" class="hero__cta-secondary">阅读专栏</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Trust bar -->
-  <TrustBar items={trustItems} />
-
-  <!-- Features -->
-  <section class="section features">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-header__title">劳动法能帮你解决什么</h2>
-        <p class="section-header__description">
-          劳动争议只是结果。真正决定结果的，往往是合同怎么签、制度怎么定、
-          证据有没有留。
-        </p>
-      </div>
-      <div class="features__grid">
-        {features.map((f) => (
-          <ServiceCard
-            title={f.title}
-            description={f.description}
-            href={f.href}
-            linkText={f.linkText}
-          />
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <CTABlock
-    heading="遇到劳动法问题？"
-    description="先看专栏，判断问题属于哪一种；需要具体处理，再预约咨询。"
-    primaryButton={{ text: '预约咨询', href: '/contact/' }}
-    secondaryButton={{ text: '查看服务', href: '/services/' }}
-  />
+  <Hero />
+  <StatsBand />
+  <About />
+  <Services />
+  <Process />
+  <Journal />
+  <Faq />
+  <Cta id="contact" />
 </BaseLayout>
-
-<style>
-  /* ===== Hero ===== */
-  .hero {
-    background: linear-gradient(160deg, #f0f4ff 0%, #ffffff 60%);
-    padding: 5rem 1.5rem 4rem;
-    text-align: center;
-  }
-
-  .hero__container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .hero__badge {
-    display: inline-block;
-    padding: 0.375rem 1rem;
-    background: #eff6ff;
-    color: var(--color-accent, #2563eb);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    border-radius: 999px;
-    border: 1px solid #bfdbfe;
-    margin-bottom: 1.5rem;
-  }
-
-  .hero__headline {
-    font-size: clamp(2.25rem, 6vw, 3.75rem);
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    color: var(--color-primary, #1e3a5f);
-    margin-bottom: 1.25rem;
-  }
-
-  .hero__headline--accent {
-    color: var(--color-accent, #2563eb);
-  }
-
-  .hero__sub {
-    font-size: 1.125rem;
-    color: #475569;
-    line-height: 1.7;
-    max-width: 600px;
-    margin: 0 auto 2.5rem;
-  }
-
-  .hero__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-  }
-
-  .hero__cta-primary {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.875rem 2.25rem;
-    background: var(--color-accent, #2563eb);
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 1rem;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
-  }
-
-  .hero__cta-primary:hover {
-    background: #1d4ed8;
-    transform: translateY(-2px);
-    opacity: 1;
-  }
-
-  .hero__cta-secondary {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.875rem 2.25rem;
-    border: 2px solid #cbd5e1;
-    color: #334155;
-    font-weight: 600;
-    font-size: 1rem;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    transition: border-color 0.2s ease, color 0.2s ease;
-  }
-
-  .hero__cta-secondary:hover {
-    border-color: var(--color-accent, #2563eb);
-    color: var(--color-accent, #2563eb);
-    opacity: 1;
-  }
-
-  /* ===== Features grid ===== */
-  .features__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  @media (min-width: 768px) {
-    .features__grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-</style>

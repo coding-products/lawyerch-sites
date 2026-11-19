@@ -1,219 +1,38 @@
 ---
-import BaseLayout from '@astro-fleet/shared-ui/src/layouts/BaseLayout.astro';
-import Breadcrumb from '@astro-fleet/shared-ui/src/components/Breadcrumb.astro';
-import { CORPORATE } from '@astro-fleet/config/tokens';
-import {
-  SITE_NAME,
-  TAGLINE,
-  LOGO_SRC,
-  navigation,
-  footerColumns,
-  contactInfo,
-  socialLinks,
-} from '../lib/site-config';
+import PageLayout from '~/layouts/PageLayout.astro';
+import About from '~/components/home/About.astro';
+import Toolkit from '~/components/home/Toolkit.astro';
+import Process from '~/components/home/Process.astro';
+import Awards from '~/components/home/Awards.astro';
+import Testimonials from '~/components/home/Testimonials.astro';
+import StatsBand from '~/components/home/StatsBand.astro';
+import Cta from '~/components/home/Cta.astro';
+import siteConfig from '~/config/site';
+import { graph, personSchema, breadcrumbSchema } from '~/lib/jsonld';
+
+const jsonLd = graph([
+  personSchema(siteConfig),
+  breadcrumbSchema([
+    { name: 'Home', url: `${siteConfig.url}/` },
+    { name: 'About', url: `${siteConfig.url}/about/` },
+  ]),
+]);
 ---
 
-<BaseLayout
-  showLanguages
-  title={`关于 — ${SITE_NAME}`}
-  description="陈恒律师，广州执业律师，专注劳动争议与企业用工合规。介绍执业背景、办案方式与这个站点的用途。"
-  keywords={['陈恒律师', '广州律师', '劳动法', '劳动争议']}
-  {navigation}
-  footerColumns={footerColumns}
-  {contactInfo}
-  {socialLinks}
-  siteName={SITE_NAME}
-  search
-  searchPlaceholder="Services, pricing, contact"
-  tagline={TAGLINE}
-  logoSrc={LOGO_SRC}
-  ctaText="Get Started"
-  ctaHref="/contact/"
-  designTokens={CORPORATE}
+<PageLayout
+  title="About"
+  heading={`Fifteen years, and the same lesson keeps turning up.`}
+  eyebrow="About"
+  intro={`${siteConfig.author} is an independent art director and interface designer. Fewer clients, harder questions in week one, and a handover that does not quietly depend on one person.`}
+  description={`About ${siteConfig.author} — an independent art director and interface designer working with small product teams.`}
+  crumbs={[{ label: 'About' }]}
+  jsonLd={jsonLd}
 >
-  <div class="container">
-    <Breadcrumb
-      items={[
-        { label: '首页', href: '/' },
-        { label: '关于' },
-      ]}
-    />
-  </div>
-
-  <!-- Page hero -->
-  <section class="about-hero section">
-    <div class="container">
-      <h1 class="about-hero__title">关于我</h1>
-      <p class="about-hero__sub">
-        陈恒律师，广州执业。主要处理劳动争议、合同纠纷与企业用工合规，
-        也长期关注法律科技和 AI 在法律工作里的实际用法。
-      </p>
-    </div>
-  </section>
-
-  <!-- Story -->
-  <section class="section about-body">
-    <div class="container about-body__inner">
-      <!--
-        A plain <img> is all a page writes. After the build, responsiveImages()
-        (astro.config.mjs) turns it into <picture> with AVIF and WebP srcset,
-        width/height and lazy loading, using the renditions in public/images/_r/.
-        See docs/images.md. Replace this placeholder with a real photo.
-      -->
-      <img
-        src="/images/sample-photo.jpg"
-        alt="陈恒律师"
-        class="about-body__photo"
-        data-sizes="(max-width: 768px) 100vw, 800px"
-      />
-      <div class="about-body__prose">
-        <h2>执业背景</h2>
-        <p>
-          长期处理劳动争议案件，代理劳动者与用人单位两侧，熟悉仲裁与诉讼的裁判尺度。
-          同时为企业提供用工合规、规章制度审查、裁员方案设计等非诉服务。
-        </p>
-
-        <h2>我怎么工作</h2>
-        <p>
-          先判断问题的性质，再决定路径。能协商解决的不轻易进仲裁，该固定证据的不拖延。
-          劳动案件的结果，往往在合同签订和制度落地时就已经决定了一半。
-        </p>
-
-        <h2>关于这个站</h2>
-        <p>
-          这里记录劳动法实务中的常见问题、判断依据和处理路径。
-          内容是一般信息，不构成针对具体案件的法律意见。
-        </p>
-      </div>
-
-      <!-- Team placeholder -->
-      <aside class="about-body__team">
-        <h2>执业信息</h2>
-        <p class="about-body__team-note">
-          广东岭南律师事务所 · 广州<br/>
-          专注：劳动争议 · 用工合规 · 合同纠纷
-        </p>
-        <div class="team-placeholder">
-          <div class="team-placeholder__card">
-            <div class="team-placeholder__avatar"></div>
-            <span class="team-placeholder__name">陈恒律师</span>
-            <span class="team-placeholder__role">执业律师</span>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </section>
-</BaseLayout>
-
-<style>
-  .about-body__photo {
-    display: block;
-    width: 100%;
-    max-width: 800px;
-    height: auto;
-    border-radius: 0.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .about-hero {
-    background: linear-gradient(160deg, #f0f4ff 0%, #ffffff 60%);
-    padding-bottom: 2rem;
-  }
-
-  .about-hero__title {
-    font-size: clamp(2rem, 5vw, 3.25rem);
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    color: var(--color-primary, #1e3a5f);
-    margin-bottom: 1rem;
-  }
-
-  .about-hero__sub {
-    font-size: 1.125rem;
-    color: #475569;
-    line-height: 1.7;
-    max-width: 560px;
-  }
-
-  /* Body layout: prose + team sidebar */
-  .about-body__inner {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 3rem;
-  }
-
-  @media (min-width: 1024px) {
-    .about-body__inner {
-      grid-template-columns: 2fr 1fr;
-      align-items: start;
-    }
-  }
-
-  .about-body__prose h2 {
-    font-size: 1.375rem;
-    font-weight: 700;
-    color: var(--color-primary, #1e3a5f);
-    margin: 2rem 0 0.75rem;
-  }
-
-  .about-body__prose h2:first-child {
-    margin-top: 0;
-  }
-
-  .about-body__prose p {
-    color: #475569;
-    line-height: 1.75;
-    margin-bottom: 1rem;
-  }
-
-  .about-body__team h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--color-primary, #1e3a5f);
-    margin-bottom: 0.5rem;
-  }
-
-  .about-body__team-note {
-    font-size: 0.875rem;
-    color: #94a3b8;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-  }
-
-  .team-placeholder {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .team-placeholder__card {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    padding: 0.875rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.625rem;
-    background: #f8fafc;
-  }
-
-  .team-placeholder__avatar {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #bfdbfe, #93c5fd);
-    flex-shrink: 0;
-  }
-
-  .team-placeholder__name {
-    display: block;
-    font-weight: 600;
-    font-size: 0.9375rem;
-    color: #1e293b;
-  }
-
-  .team-placeholder__role {
-    display: block;
-    font-size: 0.8125rem;
-    color: #64748b;
-  }
-</style>
+  <About headingLevel="h2" id="background" />
+  <StatsBand />
+  <Toolkit />
+  <Process />
+  <Awards />
+  <Testimonials />
+  <Cta />
+</PageLayout>
