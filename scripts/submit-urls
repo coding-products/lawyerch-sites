@@ -12,7 +12,8 @@
 
 渠道：
   - IndexNow（覆盖 Bing / Yandex）：需要 INDEXNOW_KEY，且站点根目录有 /<key>.txt
-  - 百度主动推送：需要 BAIDU_PUSH_TOKEN
+  - 百度主动推送：需要 BAIDU_PUSH_TOKEN；日配额很小，超配额视为 quota（不算失败），
+    未提交的 URL 留到下次，按 --limit 分批推进
   - GSC：不做（service account 成本高），提交 sitemap 由 GSC 后台自动抓取
 
 状态文件默认 .automation/submitted.json，按渠道记录 URL 与内容哈希。
@@ -39,6 +40,7 @@ FAIL = "\033[31m✖\033[0m"
 LOC = re.compile(r"<loc>\s*([^<\s]+)\s*</loc>")
 DEFAULT_STATE = ROOT / ".automation" / "submitted.json"
 TIMEOUT = 20
+BAIDU_BATCH = 10
 
 
 def sitemap_urls(dist: Path) -> list[str]:
@@ -82,15 +84,22 @@ def save_state(path: Path, state: dict) -> None:
     path.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def post(url: str, body: bytes, headers: dict[str, str]) -> tuple[bool, str]:
+def post(url: str, body: bytes, headers: dict[str, str]) -> tuple[bool, str, str]:
+    """返回 (是否成功, 描述, 响应正文)。"""
     req = urllib.request.Request(url, data=body, headers=headers, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
-            return 200 <= resp.status < 300, f"HTTP {resp.status}"
+            payload = resp.read().decode("utf-8", "replace")
+            return 200 <= resp.status < 300, f"HTTP {resp.status}", payload
     except urllib.error.HTTPError as e:
-        return False, f"HTTP {e.code} {e.reason}"
+        try:
+            payload = e.read().decode("utf-8", "replace").strip()
+        except Exception:  # noqa: BLE001
+            payload = ""
+        detail = f"HTTP {e.code} {e.reason}" + (f"｜{payload[:300]}" if payload else "")
+        return False, detail, payload
     except Exception as e:  # noqa: BLE001
-        return False, str(e)
+        return False, str(e), ""
 
 
 def push_indexnow(urls: list[str], host: str, key: str) -> tuple[bool, str]:
@@ -102,14 +111,15 @@ def push_indexnow(urls: list[str], host: str, key: str) -> tuple[bool, str]:
             "urlList": urls,
         }
     ).encode()
-    return post(
+    ok, detail, _ = post(
         "https://api.indexnow.org/indexnow",
         payload,
         {"Content-Type": "application/json; charset=utf-8"},
     )
+    return ok, detail
 
 
-def push_baidu(urls: list[str], host: str, token: str) -> tuple[bool, str]:
+def push_baidu(urls: list[str], host: str, token: str) -> tuple[bool, str, str]:
     body = "\n".join(urls).encode()
     return post(
         f"http://data.zz.baidu.com/urls?site=https://{host}&token={token}",
@@ -118,12 +128,24 @@ def push_baidu(urls: list[str], host: str, token: str) -> tuple[bool, str]:
     )
 
 
+def baidu_note(ok: bool, payload: str) -> str:
+    """把百度返回的 {"success":n,"remain":m} 压成一句话。"""
+    try:
+        data = json.loads(payload)
+    except Exception:  # noqa: BLE001
+        return ""
+    if "success" in data:
+        return f"success={data['success']} remain={data.get('remain', '?')}"
+    return ""
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="增量提交 URL")
     parser.add_argument("site", help="站点目录，例如 sites/labor.lawyerch.cn")
     parser.add_argument("--all", action="store_true", help="忽略状态，全量提交")
     parser.add_argument("--dry-run", action="store_true", help="只打印，不推送不写状态")
     parser.add_argument("--state", default=str(DEFAULT_STATE), help="状态文件路径")
+    parser.add_argument("--limit", type=int, default=20, help="单次最多提交多少条（默认 20，受百度日配额限制）")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -166,12 +188,36 @@ def main() -> int:
             report["channels"][name] = {"pending": len(pending), "status": "dry-run", "urls": pending}
             continue
 
+        if name == "baidu":
+            batch_urls = pending[: args.limit]
+            sent = 0
+            quota = False
+            detail = ""
+            for i in range(0, len(batch_urls), BAIDU_BATCH):
+                batch = batch_urls[i : i + BAIDU_BATCH]
+                ok, detail, payload = push_baidu(batch, host, secret)
+                if ok:
+                    sent_map.update({u: hashes[u] for u in batch})
+                    sent += len(batch)
+                    detail = baidu_note(ok, payload) or detail
+                    continue
+                if "over quota" in detail:
+                    quota = True
+                    break
+                failed = True
+                break
+            if sent:
+                state[name] = sent_map
+            report["channels"][name] = {
+                "pending": len(pending),
+                "status": "sent" if sent else ("quota" if quota else "failed"),
+                "sent": sent,
+                "detail": detail,
+            }
+            continue
+
         batch = pending[:1000]
-        ok, detail = (
-            push_indexnow(batch, host, secret)
-            if name == "indexnow"
-            else push_baidu(batch, host, secret)
-        )
+        ok, detail = push_indexnow(batch, host, secret)
         report["channels"][name] = {
             "pending": len(pending),
             "status": "sent" if ok else "failed",
@@ -191,7 +237,7 @@ def main() -> int:
     else:
         print(f"{OK} {args.site}  共 {report['total']} 个 URL")
         for name, info in report["channels"].items():
-            icon = {"sent": OK, "failed": FAIL, "skipped": WARN}.get(info["status"], OK)
+            icon = {"sent": OK, "failed": FAIL, "skipped": WARN, "quota": WARN}.get(info["status"], OK)
             note = f"  {info.get('detail', '')}"
             print(f"  {icon} {name:9} {info['status']:9} 待提交 {info['pending']}{note}")
         if all(i["status"] == "skipped" for i in report["channels"].values()):
