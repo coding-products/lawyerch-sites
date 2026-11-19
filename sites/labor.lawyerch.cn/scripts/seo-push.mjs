@@ -55,10 +55,12 @@ async function baidu(urls, siteUrl) {
     {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: urls.join('\n'),
+      body: urls.slice(0, 10).join('\n'),
     }
   );
-  console.log(`百度: ${res.status} ${await res.text()}`);
+  const body = await res.text();
+  console.log(`百度: ${res.status} ${body}`);
+  if (body.includes('over quota')) console.log('百度: 今日配额已用完，明天再推剩余 URL');
 }
 
 async function main() {
