@@ -1,5 +1,5 @@
 ---
-version: 2026-11-19.1
+version: 2026-11-19.2
 applies-to: 所有 Astro 站点项目
 ---
 
@@ -120,6 +120,68 @@ tags: [标签]
 
 每个站点用 `src/config/theme.ts` 覆盖 CSS 变量，不改 `src/styles/tokens.css` 默认值。
 
+## 界面设计
+
+做任何界面（新页面、改版、调样式）必须走两步，不能直接写代码。
+
+### 第一步：读技能判断方向
+
+| 任务 | 读 |
+|---|---|
+| 落地页、品牌站、产品页整体 | `.agents/skills/design-taste/SKILL.md` |
+| 组件、配色、字体、间距、动效 | `.agents/skills/ui-ux-pro-max/SKILL.md` |
+| 动效库、图标库、组件库选型 | `.agents/skills/resources/SKILL.md` |
+
+`ui-ux-pro-max` 可查询：
+
+```bash
+cd .agents/skills/ui-ux-pro-max
+python3 scripts/search.py "<关键词>" --domain style|color|typography|ux|landing|icons
+```
+
+### 第二步：跑脚本卡底线
+
+```bash
+cd <工作区根>
+./scripts/design-check <站点目录>
+```
+
+检查对比度、字号、图片尺寸、emoji 图标、h1 数量、meta 完整性。有硬性错误不许上线。
+
+### 硬性规则
+
+1. 正文对比度 ≥ 4.5:1，大字 ≥ 3:1
+2. 正文字号 ≥ 16px，不使用 < 12px
+3. 触控目标 ≥ 44×44px
+4. 图片必须有 width/height 或 aspect-ratio
+5. 不用 emoji 当图标
+6. 每页只有一个 h1，标题不跳级
+7. 尊重 `prefers-reduced-motion`
+8. 不引入第二套设计系统
+
+### 反模板脸
+
+- 一屏一节，不要把所有内容挤在首屏
+- 留白节奏要有变化，不要均匀网格到底
+- 真实内容优先于占位图和 lorem ipsum
+- 动效全站 2–3 处足够，时长 200–400ms
+- 圆角收敛到 2 种，阴影 1 套
+
+## 资源选型
+
+完整索引：https://github.com/lawyerch-dev/dev-resources
+
+本站点已定的选择：
+
+| 类别 | 默认 | 说明 |
+|---|---|---|
+| 动效 | 原生 CSS 优先 | 复杂序列才用 `motion` |
+| 图标 | `lucide` | 品牌图标用 `simple-icons` |
+| 音效 | 默认不加 | 专业服务站点加音效显得不专业 |
+| 组件 | 本站 `packages/shared-ui` | 不引入整套组件库 |
+
+引入新依赖前确认：许可证友好、近半年有提交、体积可接受、有 TS 类型。
+
 ## 纪律
 
 1. **先构建后部署**：`pnpm build` 通过再发
@@ -129,3 +191,4 @@ tags: [标签]
 5. **客户信息不入库**：公开仓库必须脱敏
 6. **改内容不改主题**：新增站点只动配置和内容
 7. **发布后推送收录**
+8. **界面先读设计技能，再跑 design-check**
