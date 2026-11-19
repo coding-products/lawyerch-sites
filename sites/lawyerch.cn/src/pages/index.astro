@@ -7,6 +7,7 @@ const areas = [
   {
     name: 'law-products',
     href: 'https://github.com/law-products',
+    icon: 'scale',
     eyebrow: '法律科技',
     title: '把法律经验变成可复用的工具',
     body: '知识资产、AI 技能、文档工具。面向法律人，也面向做法律产品的开发者。',
@@ -19,6 +20,7 @@ const areas = [
   {
     name: 'lawyerch-dev',
     href: 'https://github.com/lawyerch-dev',
+    icon: 'code',
     eyebrow: 'AI 开发',
     title: '做能跑、能交付的东西',
     body: '文档处理、桌面应用、Agent 工具链，以及一份持续更新的开发资源索引。',
@@ -55,6 +57,7 @@ const areas = [
     <div class="areas">
       {areas.map((area) => (
         <article class="area">
+          <span class="area-icon"><Icon name={area.icon} class="ic-lg" /></span>
           <p class="eyebrow">{area.eyebrow}</p>
           <h2 class="d2 area-title">{area.title}</h2>
           <p class="area-body">{area.body}</p>
@@ -152,6 +155,17 @@ const areas = [
     border-radius: var(--r-lg);
     padding: clamp(24px, 3vw, 40px);
     background: var(--swp-shell);
+  }
+  .area-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--swp-mist);
+    color: var(--swp-lime-deep);
+    margin-bottom: 16px;
   }
   .area-title {
     margin: 10px 0 12px;

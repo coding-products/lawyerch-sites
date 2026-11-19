@@ -36,7 +36,25 @@ export type IconName =
   | 'spark'
   | 'star'
   | 'type'
-  | 'up';
+  | 'up'
+  | 'scale'
+  | 'gavel'
+  | 'briefcase'
+  | 'file-text'
+  | 'users'
+  | 'shield'
+  | 'building'
+  | 'book-open'
+  | 'lightbulb'
+  | 'target'
+  | 'trending-up'
+  | 'award'
+  | 'handshake'
+  | 'clock'
+  | 'calendar'
+  | 'search'
+  | 'external-link'
+  | 'chevron-right';
 
 export interface NavItem {
   /** Visible link text. */
