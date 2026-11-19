@@ -208,9 +208,17 @@ def main() -> int:
                 break
             if sent:
                 state[name] = sent_map
+            if sent and quota:
+                status, detail = "partial", f"已提交 {sent}，配额用尽"
+            elif sent:
+                status = "sent"
+            elif quota:
+                status = "quota"
+            else:
+                status = "failed"
             report["channels"][name] = {
                 "pending": len(pending),
-                "status": "sent" if sent else ("quota" if quota else "failed"),
+                "status": status,
                 "sent": sent,
                 "detail": detail,
             }
@@ -237,7 +245,13 @@ def main() -> int:
     else:
         print(f"{OK} {args.site}  共 {report['total']} 个 URL")
         for name, info in report["channels"].items():
-            icon = {"sent": OK, "failed": FAIL, "skipped": WARN, "quota": WARN}.get(info["status"], OK)
+            icon = {
+                "sent": OK,
+                "failed": FAIL,
+                "skipped": WARN,
+                "quota": WARN,
+                "partial": WARN,
+            }.get(info["status"], OK)
             note = f"  {info.get('detail', '')}"
             print(f"  {icon} {name:9} {info['status']:9} 待提交 {info['pending']}{note}")
         if all(i["status"] == "skipped" for i in report["channels"].values()):
