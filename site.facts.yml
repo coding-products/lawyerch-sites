@@ -1,0 +1,13 @@
+name: lawyerch-sites
+standard: 2026-11-19.1
+stack: Astro 7 + Tailwind CSS 4 + pnpm workspace + Turborepo
+extensions:
+  - content-legal
+
+sites:
+  - domain: lawyerch.cn
+    path: sites/lawyerch.cn
+    netlify: lawyerch-cn
+  - domain: labor.lawyerch.cn
+    path: sites/labor.lawyerch.cn
+    netlify: labor-lawyerch-cn
