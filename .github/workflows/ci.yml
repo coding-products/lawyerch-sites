@@ -12,26 +12,55 @@ concurrency:
 
 jobs:
   build:
-    name: Build all sites
+    name: Build and check
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.6
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+          node-version: '24'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build all sites
-        run: bun run build
+        run: pnpm build
+
+      - name: Script unit tests
+        run: python3 -m unittest discover -s scripts/tests
+
+      - name: Content compliance
+        run: python3 scripts/check-content --all
+
+      - name: Links and canonical
+        run: |
+          for site in $(ls -d sites/*/ | sed 's:/$::'); do
+            if [ -f "$site/netlify.toml" ] && [ -d "$site/dist" ]; then
+              echo "::group::$site"
+              python3 scripts/check-links "$site"
+              echo "::endgroup::"
+            fi
+          done
+
+      - name: Design check
+        run: |
+          if [ -x scripts/design-check ]; then
+            for site in $(ls -d sites/*/ | sed 's:/$::'); do
+              if [ -f "$site/netlify.toml" ] && [ -d "$site/dist" ]; then
+                ./scripts/design-check "$site"
+              fi
+            done
+          else
+            echo "跳过：design-check 不在项目仓库，请在工作区根目录运行 ./scripts/design-check"
+          fi

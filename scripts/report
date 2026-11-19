@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""
+站点健康报告。汇总页面数、产物大小、死链与合规问题，输出 Markdown，可直接作为 issue 正文。
+
+用法：
+  ./scripts/report
+  ./scripts/report > report.md
+  ./scripts/report --json
+
+退出码：0 全部正常，1 存在硬性错误。
+
+依赖同目录的 check-content 与 check-links，要求站点已构建。
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from datetime import date
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SCRIPTS = Path(__file__).resolve().parent
+
+
+def run_json(script: str, *args: str) -> object:
+    result = subprocess.run(
+        [sys.executable, str(SCRIPTS / script), *args, "--json"],
+        capture_output=True,
+        text=True,
+    )
+    try:
+        return json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return []
+
+
+def human(n: int) -> str:
+    size = float(n)
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024:
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} TB"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="站点健康报告")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+
+    content = run_json("check-content", "--all")
+    content_issues = content.get("issues", []) if isinstance(content, dict) else []
+
+    rows = []
+    errors: list[str] = []
+    sys.path.insert(0, str(SCRIPTS))
+    from _common import sites_from_facts
+
+    for site in sites_from_facts(ROOT):
+        dist = site / "dist"
+        name = site.name
+        if not dist.is_dir():
+            rows.append({"site": name, "pages": 0, "size": "未构建", "links": "-", "content": "-"})
+            errors.append(f"{name}: 没有 dist/")
+            continue
+
+        html = list(dist.rglob("*.html"))
+        size = sum(f.stat().st_size for f in dist.rglob("*") if f.is_file())
+
+        link_issues = run_json("check-links", str(site))
+        link_issues = link_issues if isinstance(link_issues, list) else []
+        link_err = sum(1 for i in link_issues if i.get("level") == "error")
+
+        own = [i for i in content_issues if site.name in i.get("file", "")]
+        c_err = sum(1 for i in own if i.get("level") == "error")
+        c_warn = sum(1 for i in own if i.get("level") == "warn")
+
+        rows.append(
+            {
+                "site": name,
+                "pages": len(html),
+                "size": human(size),
+                "links": f"{link_err} 错" if link_err else "正常",
+                "content": f"{c_err} 错 / {c_warn} 警" if (c_err or c_warn) else "正常",
+            }
+        )
+        for issue in link_issues:
+            if issue.get("level") == "error":
+                errors.append(f"{name} 死链：{issue.get('message')}（{issue.get('file')}）")
+        for issue in own:
+            if issue.get("level") == "error":
+                errors.append(f"{name} 合规：{issue.get('message')}（{issue.get('file')}）")
+
+    if args.json:
+        print(json.dumps({"rows": rows, "errors": errors}, ensure_ascii=False, indent=2))
+        return 1 if errors else 0
+
+    print(f"## 站点健康报告 {date.today().isoformat()}")
+    print()
+    print("| 站点 | 页面 | 产物 | 死链 | 合规 |")
+    print("|---|---|---|---|---|")
+    for row in rows:
+        print(f"| {row['site']} | {row['pages']} | {row['size']} | {row['links']} | {row['content']} |")
+    print()
+    if errors:
+        print("### 需要处理")
+        print()
+        for line in errors:
+            print(f"- {line}")
+    else:
+        print("全部正常。")
+
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

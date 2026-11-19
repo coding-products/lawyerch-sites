@@ -1,0 +1,103 @@
+name: Automation
+
+on:
+  schedule:
+    # 每天 09:00 Asia/Shanghai
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: automation
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  daily:
+    name: Daily health and indexing
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all sites
+        run: pnpm build
+
+      # 提交状态存在 Actions 缓存里，不写仓库、不产生 main 上的自动 commit。
+      - name: Restore submit state
+        uses: actions/cache@v4
+        with:
+          path: .automation
+          key: automation-state-${{ github.run_id }}
+          restore-keys: |
+            automation-state-
+
+      - name: Submit URLs
+        id: submit
+        continue-on-error: true
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+          BAIDU_PUSH_TOKEN: ${{ secrets.BAIDU_PUSH_TOKEN }}
+        run: |
+          failed=0
+          for site in $(ls -d sites/*/ | sed 's:/$::'); do
+            if [ -f "$site/netlify.toml" ] && [ -d "$site/dist" ]; then
+              python3 scripts/submit-urls "$site" || failed=1
+            fi
+          done
+          exit $failed
+
+      - name: Build report
+        id: report
+        if: always()
+        run: |
+          set +e
+          python3 scripts/report > report.md 2>&1
+          code=$?
+          if [ ! -s report.md ]; then
+            echo "## 站点健康报告" > report.md
+            echo "报告生成失败，请查看 workflow 日志。" >> report.md
+            code=1
+          fi
+          echo "status=$code" >> "$GITHUB_OUTPUT"
+          cat report.md
+
+      - name: Close stale issue when healthy
+        if: always() && steps.report.outputs.status == '0' && steps.submit.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue list --state open --search '站点异常 in:title' --json number --jq '.[].number' |
+          while read -r number; do
+            gh issue close "$number" --comment "站点已恢复正常。"
+          done
+
+      - name: Open or update issue when unhealthy
+        if: always() && (steps.report.outputs.status != '0' || steps.submit.outcome != 'success')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(gh issue list --state open --search '站点异常 in:title' --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file report.md
+          else
+            gh issue create --title "站点异常 $(date -u +%F)" --body-file report.md
+          fi

@@ -151,8 +151,10 @@ def check_file(path: Path) -> list[Issue]:
 
 def site_dirs(targets: list[str], all_sites: bool) -> list[Path]:
     if all_sites:
-        base = ROOT / "sites"
-        return sorted(p for p in base.iterdir() if p.is_dir() and (p / "src").is_dir())
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from _common import sites_from_facts
+
+        return sites_from_facts(ROOT)
     return [Path(t).resolve() for t in targets]
 
 

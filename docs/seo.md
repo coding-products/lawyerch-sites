@@ -2,26 +2,25 @@
 
 ## 当前状态
 
-- 站点：https://labor-lawyerch-cn.netlify.app
-- sitemap：https://labor-lawyerch-cn.netlify.app/sitemap-index.xml
-- 主动提交：IndexNow 已提交 28 个 URL（202 Accepted）
-- 百度 / 谷歌：需要账号验证后提交
+- 站点：https://labor.lawyerch.cn
+- sitemap：https://labor.lawyerch.cn/sitemap-index.xml
+- 主动提交：由 `scripts/submit-urls` 增量完成，`.github/workflows/automation.yml` 每日 09:00 自动跑
+- 百度：需要 `BAIDU_PUSH_TOKEN`，未配置时自动跳过
 
-> 注意：当前 canonical 与 sitemap 使用 Netlify 地址。绑定 `labor.lawyerch.cn` 后，用
-> `SITE_URL=https://labor.lawyerch.cn pnpm build` 重新构建并重新提交。
+> 换域名后必须 `SITE_URL=https://<domain> pnpm build` 重新构建，否则 canonical 与 sitemap 指向旧域名。
+> `./scripts/check-links <site>` 会直接报出这类问题。
 
 ## IndexNow（Bing / Yandex / Naver）
 
-已配置完成。
-
-- key 文件：`public/d7ce9acc8abb214e731115ff910ecd19.txt`
-- 提交脚本：`scripts/seo-push.mjs`
-
-每次发布后执行：
+- key 文件：`public/<key>.txt`，**文件名就是密钥**
+- 同样的值要设为 GitHub Secret `INDEXNOW_KEY`
 
 ```bash
-SITE_URL=https://labor-lawyerch-cn.netlify.app node scripts/seo-push.mjs
+INDEXNOW_KEY=<key> ./scripts/submit-urls sites/labor.lawyerch.cn
+./scripts/submit-urls sites/labor.lawyerch.cn --dry-run   # 只看待提交，不发送
 ```
+
+日常不需要手动执行，`automation.yml` 每天增量提交一次。
 
 ## 百度搜索资源平台
 

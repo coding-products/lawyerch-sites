@@ -2,7 +2,7 @@ import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
 import { getCollection } from 'astro:content';
 import siteConfig from '~/config/site';
-import { isVisible } from '~/lib/utils';
+import { isVisible, slugOf } from '~/lib/utils';
 
 export async function GET(context: APIContext) {
   const posts = (await getCollection('blog'))
@@ -18,7 +18,7 @@ export async function GET(context: APIContext) {
       title: post.data.title,
       description: post.data.description,
       pubDate: post.data.pubDate,
-      link: `/journal/${post.id}/`,
+      link: `${post.data.lang === 'en' ? '/en' : ''}/journal/${slugOf(post)}/`,
       categories: [post.data.category, ...post.data.tags],
       author: post.data.author,
     })),

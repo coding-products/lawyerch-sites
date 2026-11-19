@@ -7,7 +7,7 @@ import Icon from '~/components/Icon.astro';
 import Button from '~/components/Button.astro';
 import Cta from '~/components/home/Cta.astro';
 import siteConfig from '~/config/site';
-import { isVisible } from '~/lib/utils';
+import { isVisible, slugOf } from '~/lib/utils';
 import { graph, breadcrumbSchema, personSchema } from '~/lib/jsonld';
 
 export const getStaticPaths = (async () => {
@@ -35,7 +35,7 @@ const jsonLd = graph([
   breadcrumbSchema([
     { name: 'Home', url: `${siteConfig.url}/` },
     { name: 'Services', url: `${siteConfig.url}/services/` },
-    { name: d.title, url: `${siteConfig.url}/services/${service.id}/` },
+    { name: d.title, url: `${siteConfig.url}/services/${slugOf(service)}/` },
   ]),
 ]);
 ---
@@ -97,7 +97,7 @@ const jsonLd = graph([
       }
 
       <div class="nextprev">
-        <a href={`/services/${next.id}/`}>
+        <a href={`/services/${slugOf(next)}/`}>
           <b>Next service</b>
           <span>{next.data.title}</span>
         </a>

@@ -1,6 +1,8 @@
 ---
 import Icon from '../Icon.astro';
 import type { CollectionEntry } from 'astro:content';
+import { getLangFromUrl } from '~/i18n/ui';
+import { slugOf } from '~/lib/utils';
 
 interface Props {
   service: CollectionEntry<'services'>;
@@ -10,6 +12,7 @@ interface Props {
 
 const { service, class: className, headingLevel: Heading = 'h3' } = Astro.props;
 const { title, icon, number, excerpt, tags } = service.data;
+const base = getLangFromUrl(Astro.url) === 'en' ? '/en' : '';
 ---
 
 <article class:list={['svc-card', className]}>
@@ -17,7 +20,7 @@ const { title, icon, number, excerpt, tags } = service.data;
     <span class="svc-ic"><Icon name={icon} class="ic-lg" /></span>
     <span class="svc-num">{number}</span>
   </div>
-  <Heading><a class="stretch" href={`/services/${service.id}/`}>{title}</a></Heading>
+  <Heading><a class="stretch" href={`${base}/services/${slugOf(service)}/`}>{title}</a></Heading>
   <p class="muted">{excerpt}</p>
   {
     tags.length > 0 && (

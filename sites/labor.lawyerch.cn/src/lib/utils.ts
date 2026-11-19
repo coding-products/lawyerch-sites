@@ -40,6 +40,11 @@ export function isVisible(entry: { data: { draft?: boolean } }): boolean {
   return import.meta.env.DEV || !entry.data.draft;
 }
 
+/** Content collection ids include the language folder (`zh/foo`); URLs do not. */
+export function slugOf(entry: { id: string }): string {
+  return entry.id.replace(/^(zh|en)\//, '');
+}
+
 /** Pads a number for the `S/01` style labels. */
 export function pad(n: number, width = 2): string {
   return String(n).padStart(width, '0');

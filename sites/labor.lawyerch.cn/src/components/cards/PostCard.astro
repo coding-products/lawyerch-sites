@@ -2,7 +2,7 @@
 import { getLangFromUrl, useTranslations } from '~/i18n/ui';
 const t = useTranslations(getLangFromUrl(Astro.url));
 import Icon from '../Icon.astro';
-import { formatDate, isoDate } from '~/lib/utils';
+import { formatDate, isoDate, slugOf } from '~/lib/utils';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -15,7 +15,8 @@ interface Props {
 
 const { post, eager = false, class: className, headingLevel: Heading = 'h3' } = Astro.props;
 const { title, description, category, readingTime, pubDate, image } = post.data;
-const href = `/journal/${post.id}/`;
+const base = getLangFromUrl(Astro.url) === 'en' ? '/en' : '';
+const href = `${base}/journal/${slugOf(post)}/`;
 ---
 
 <article class:list={['post', className]}>

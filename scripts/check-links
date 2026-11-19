@@ -91,7 +91,7 @@ def check_html(html: Path, dist: Path, origin: str | None) -> list[Issue]:
                     issues.append(
                         Issue(rel, "error", f"canonical 域名不符：{got}，应为 {origin}")
                     )
-        else:
+        elif rel != "404.html":
             issues.append(Issue(rel, "warn", "缺少 canonical"))
     return issues
 

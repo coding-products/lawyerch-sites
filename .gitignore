@@ -52,3 +52,8 @@ infrastructure/zones.json
 
 # i18n working batches: scratch handed to the translator, not history.
 sites/*/i18n/.batches/
+
+# Automation: URL 提交状态与报告（Actions 用缓存保存，不进仓库）
+.automation/
+report.md
+__pycache__/

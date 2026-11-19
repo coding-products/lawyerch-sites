@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""
+增量提交 URL 到搜索引擎。对比 sitemap 与已提交状态，只推送新增或内容变化的页面。
+
+用法：
+  ./scripts/submit-urls <站点目录>
+  ./scripts/submit-urls <站点目录> --all
+  ./scripts/submit-urls <站点目录> --dry-run
+  ./scripts/submit-urls <站点目录> --json
+
+退出码：0 通过（含“凭证缺失已跳过”），1 有推送失败。
+
+渠道：
+  - IndexNow（覆盖 Bing / Yandex）：需要 INDEXNOW_KEY，且站点根目录有 /<key>.txt
+  - 百度主动推送：需要 BAIDU_PUSH_TOKEN
+  - GSC：不做（service account 成本高），提交 sitemap 由 GSC 后台自动抓取
+
+状态文件默认 .automation/submitted.json，按渠道记录 URL 与内容哈希。
+只有推送成功才写状态，凭证缺失不会吞掉 URL。
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import sys
+import urllib.error
+import urllib.request
+from pathlib import Path
+from urllib.parse import urlparse
+
+ROOT = Path(__file__).resolve().parent.parent
+OK = "\033[32m✔\033[0m"
+WARN = "\033[33m⚠\033[0m"
+FAIL = "\033[31m✖\033[0m"
+
+LOC = re.compile(r"<loc>\s*([^<\s]+)\s*</loc>")
+DEFAULT_STATE = ROOT / ".automation" / "submitted.json"
+TIMEOUT = 20
+
+
+def sitemap_urls(dist: Path) -> list[str]:
+    urls: list[str] = []
+    for xml in sorted(dist.glob("sitemap*.xml")):
+        for url in LOC.findall(xml.read_text(encoding="utf-8", errors="replace")):
+            if not url.endswith(".xml"):
+                urls.append(url)
+    return sorted(set(urls))
+
+
+def local_file(url: str, dist: Path) -> Path | None:
+    path = urlparse(url).path or "/"
+    rel = path.lstrip("/")
+    candidates = (
+        [dist / rel / "index.html"]
+        if rel == "" or path.endswith("/")
+        else [dist / rel, dist / rel / "index.html", dist / (rel + ".html")]
+    )
+    return next((c for c in candidates if c.is_file()), None)
+
+
+def content_hash(url: str, dist: Path) -> str | None:
+    page = local_file(url, dist)
+    if page is None:
+        return None
+    return hashlib.sha256(page.read_bytes()).hexdigest()[:12]
+
+
+def load_state(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+
+
+def save_state(path: Path, state: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def post(url: str, body: bytes, headers: dict[str, str]) -> tuple[bool, str]:
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+            return 200 <= resp.status < 300, f"HTTP {resp.status}"
+    except urllib.error.HTTPError as e:
+        return False, f"HTTP {e.code} {e.reason}"
+    except Exception as e:  # noqa: BLE001
+        return False, str(e)
+
+
+def push_indexnow(urls: list[str], host: str, key: str) -> tuple[bool, str]:
+    payload = json.dumps(
+        {
+            "host": host,
+            "key": key,
+            "keyLocation": f"https://{host}/{key}.txt",
+            "urlList": urls,
+        }
+    ).encode()
+    return post(
+        "https://api.indexnow.org/indexnow",
+        payload,
+        {"Content-Type": "application/json; charset=utf-8"},
+    )
+
+
+def push_baidu(urls: list[str], host: str, token: str) -> tuple[bool, str]:
+    body = "\n".join(urls).encode()
+    return post(
+        f"http://data.zz.baidu.com/urls?site=https://{host}&token={token}",
+        body,
+        {"Content-Type": "text/plain"},
+    )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="增量提交 URL")
+    parser.add_argument("site", help="站点目录，例如 sites/labor.lawyerch.cn")
+    parser.add_argument("--all", action="store_true", help="忽略状态，全量提交")
+    parser.add_argument("--dry-run", action="store_true", help="只打印，不推送不写状态")
+    parser.add_argument("--state", default=str(DEFAULT_STATE), help="状态文件路径")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+
+    site = Path(args.site).resolve()
+    dist = site / "dist"
+    if not dist.is_dir():
+        print(f"{FAIL} {args.site} 没有 dist/，先构建", file=sys.stderr)
+        return 1
+
+    urls = sitemap_urls(dist)
+    if not urls:
+        print(f"{FAIL} {args.site} 没有 sitemap URL", file=sys.stderr)
+        return 1
+
+    host = urlparse(urls[0]).netloc
+    state_path = Path(args.state)
+    state = load_state(state_path)
+
+    hashes = {u: content_hash(u, dist) for u in urls}
+    hashes = {u: h for u, h in hashes.items() if h}
+
+    channels = {
+        "indexnow": os.environ.get("INDEXNOW_KEY", "").strip(),
+        "baidu": os.environ.get("BAIDU_PUSH_TOKEN", "").strip(),
+    }
+
+    report: dict = {"site": args.site, "host": host, "total": len(urls), "channels": {}}
+    failed = False
+
+    for name, secret in channels.items():
+        sent_map = state.get(name, {})
+        pending = [u for u in urls if args.all or sent_map.get(u) != hashes.get(u)]
+        if not pending:
+            report["channels"][name] = {"pending": 0, "status": "up-to-date"}
+            continue
+        if not secret:
+            report["channels"][name] = {"pending": len(pending), "status": "skipped"}
+            continue
+        if args.dry_run:
+            report["channels"][name] = {"pending": len(pending), "status": "dry-run", "urls": pending}
+            continue
+
+        batch = pending[:1000]
+        ok, detail = (
+            push_indexnow(batch, host, secret)
+            if name == "indexnow"
+            else push_baidu(batch, host, secret)
+        )
+        report["channels"][name] = {
+            "pending": len(pending),
+            "status": "sent" if ok else "failed",
+            "detail": detail,
+        }
+        if ok:
+            sent_map.update({u: hashes[u] for u in batch})
+            state[name] = sent_map
+        else:
+            failed = True
+
+    if not args.dry_run and state:
+        save_state(state_path, state)
+
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    else:
+        print(f"{OK} {args.site}  共 {report['total']} 个 URL")
+        for name, info in report["channels"].items():
+            icon = {"sent": OK, "failed": FAIL, "skipped": WARN}.get(info["status"], OK)
+            note = f"  {info.get('detail', '')}"
+            print(f"  {icon} {name:9} {info['status']:9} 待提交 {info['pending']}{note}")
+        if all(i["status"] == "skipped" for i in report["channels"].values()):
+            print("  提示：设置 INDEXNOW_KEY / BAIDU_PUSH_TOKEN 后才会真正提交")
+
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

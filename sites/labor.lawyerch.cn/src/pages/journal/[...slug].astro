@@ -6,7 +6,7 @@ import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import PostCard from '~/components/cards/PostCard.astro';
 import Button from '~/components/Button.astro';
 import siteConfig from '~/config/site';
-import { isVisible, formatDate, isoDate, absoluteUrl } from '~/lib/utils';
+import { isVisible, formatDate, isoDate, absoluteUrl, slugOf } from '~/lib/utils';
 import { graph, blogPostingSchema, breadcrumbSchema, personSchema } from '~/lib/jsonld';
 
 export const getStaticPaths = (async () => {
@@ -33,7 +33,7 @@ interface Props {
 const { post, related, next } = Astro.props;
 const { Content } = await render(post);
 const d = post.data;
-const url = `${siteConfig.url}/journal/${post.id}/`;
+const url = `${siteConfig.url}/journal/${slugOf(post)}/`;
 
 const jsonLd = graph([
   personSchema(siteConfig),
@@ -98,7 +98,7 @@ const jsonLd = graph([
           <div class="tags">{d.tags.map((t) => <span>#{t}</span>)}</div>
         )
       }
-      <Button href={`/journal/${next.id}/`} variant="outline">Next article</Button>
+      <Button href={`/journal/${slugOf(next)}/`} variant="outline">Next article</Button>
     </footer>
   </article>
 
