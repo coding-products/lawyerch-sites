@@ -1,4 +1,16 @@
 {
+  "baidu": {
+    "https://labor.lawyerch.cn/": "d689664ebb6a",
+    "https://labor.lawyerch.cn/about/": "3e9210938e42",
+    "https://labor.lawyerch.cn/contact/": "08cc5991c652",
+    "https://labor.lawyerch.cn/en/": "c3dab7252355",
+    "https://labor.lawyerch.cn/en/about/": "cb82980c869a",
+    "https://labor.lawyerch.cn/en/contact/": "4916d4b79de5",
+    "https://labor.lawyerch.cn/en/journal/": "fdf4b4f63fd6",
+    "https://labor.lawyerch.cn/en/journal/contract-expiry-compensation/": "147c768c5974",
+    "https://labor.lawyerch.cn/en/journal/overtime-evidence/": "3baeb59e0efe",
+    "https://labor.lawyerch.cn/en/services/": "43e513a25b4d"
+  },
   "indexnow": {
     "https://labor.lawyerch.cn/": "d689664ebb6a",
     "https://labor.lawyerch.cn/about/": "3e9210938e42",
