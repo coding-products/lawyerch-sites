@@ -6,23 +6,26 @@ import { graph, personSchema, websiteSchema } from '~/lib/jsonld';
 
 const jsonLd = graph([personSchema(siteConfig), websiteSchema(siteConfig)]);
 
-const lines = [
+const products = [
   {
-    eyebrow: '法律科技',
-    title: '把法律经验做成可复用的工具',
-    body: '知识资产、AI 技能、文档工具。面向法律人，也面向做法律产品的开发者。',
-    links: [
+    id: 'legal-products',
+    label: 'Legal products',
+    title: '法律产品',
+    note: '把法律经验做成可复用的工具。面向法律人，也面向做法律产品的开发者。',
+    items: [
       { label: 'skills-for-legal', note: '中国法实务 AI 技能集', href: 'https://github.com/law-products/skills-for-legal' },
       { label: 'doc-anonymizer', note: '本地文档脱敏', href: 'https://github.com/law-products/doc-anonymizer' },
       { label: 'doc-flip-video', note: '文档翻页视频', href: 'https://github.com/law-products/doc-flip-video' },
+      { label: 'labor.lawyerch.cn', note: '劳动法领域站', href: 'https://labor.lawyerch.cn' },
     ],
     all: { label: 'github.com/law-products', href: 'https://github.com/law-products' },
   },
   {
-    eyebrow: 'AI 开发',
-    title: '做能跑、能交付的东西',
-    body: '文档处理、桌面应用、Agent 工具链，以及一份持续更新的开发资源索引。',
-    links: [
+    id: 'tech-products',
+    label: 'Tech products',
+    title: '技术产品',
+    note: '文档处理、桌面应用、Agent 工具链，以及一份持续更新的开发资源索引。',
+    items: [
       { label: 'dev-resources', note: '动效 / 音效 / 图标 / UI', href: 'https://github.com/lawyerch-dev/dev-resources' },
       { label: 'cc-ai-tools', note: '可扩展启动器', href: 'https://github.com/lawyerch-dev/cc-ai-tools' },
       { label: 'cc-md-editor', note: 'Markdown 编辑器', href: 'https://github.com/lawyerch-dev/cc-md-editor' },
@@ -63,51 +66,33 @@ const lines = [
         </dl>
       </section>
 
-      <section class="hv-sec" id="work">
-        <div class="hv-sec-head">
-          <p class="hv-label">Work</p>
-          <h2 class="hv-sec-title">正在做的事</h2>
-        </div>
+      {
+        products.map((section) => (
+          <section class="hv-sec" id={section.id}>
+            <div class="hv-sec-head">
+              <p class="hv-label">{section.label}</p>
+              <h2 class="hv-sec-title">{section.title}</h2>
+              <p class="hv-sec-note">{section.note}</p>
+            </div>
 
-        <div class="hv-lines">
-          {
-            lines.map((line) => (
-              <div class="hv-line">
-                <h3>{line.title}</h3>
-                <p>{line.body}</p>
-                <ul class="hv-list">
-                  {line.links.map((link) => (
-                    <li>
-                      <a href={link.href} target="_blank" rel="noopener">
-                        <b>{link.label}</b>
-                        <span>{link.note}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <a class="hv-list-all" href={line.all.href} target="_blank" rel="noopener">
-                  {line.all.label}
-                </a>
-              </div>
-            ))
-          }
-        </div>
-      </section>
-
-      <section class="hv-sec">
-        <div class="hv-sec-head">
-          <p class="hv-label">Domain</p>
-          <h2 class="hv-sec-title">劳动法</h2>
-        </div>
-        <div class="hv-domain">
-          <p>
-            一个独立的领域站，写劳动争议、用工合规、规章制度与裁员方案。想找实务文章或约一次咨询，去那里更直接。
-          </p>
-          <a href="https://labor.lawyerch.cn" target="_blank" rel="noopener">
-            访问 labor.lawyerch.cn
-          </a>
-        </div>
-      </section>
+            <div class="hv-products">
+              <ul class="hv-list">
+                {section.items.map((item) => (
+                  <li>
+                    <a href={item.href} target="_blank" rel="noopener">
+                      <b>{item.label}</b>
+                      <span>{item.note}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <a class="hv-list-all" href={section.all.href} target="_blank" rel="noopener">
+                {section.all.label}
+              </a>
+            </div>
+          </section>
+        ))
+      }
 
       <section class="hv-sec">
         <div class="hv-sec-head">

@@ -6,23 +6,26 @@ import { graph, personSchema, websiteSchema } from '~/lib/jsonld';
 
 const jsonLd = graph([personSchema(siteConfig), websiteSchema(siteConfig)]);
 
-const lines = [
+const products = [
   {
-    eyebrow: 'Legal tech',
-    title: 'Turning legal experience into tools',
-    body: 'Knowledge assets, AI skills and document tools — for lawyers and for developers building legal products.',
-    links: [
+    id: 'legal-products',
+    label: 'Legal products',
+    title: 'Legal products',
+    note: 'Turning legal experience into tools — for lawyers and for developers building legal products.',
+    items: [
       { label: 'skills-for-legal', note: 'Chinese legal AI skills', href: 'https://github.com/law-products/skills-for-legal' },
       { label: 'doc-anonymizer', note: 'Local document anonymisation', href: 'https://github.com/law-products/doc-anonymizer' },
       { label: 'doc-flip-video', note: 'Document flip videos', href: 'https://github.com/law-products/doc-flip-video' },
+      { label: 'labor.lawyerch.cn', note: 'Labour law site', href: 'https://labor.lawyerch.cn/en/' },
     ],
     all: { label: 'github.com/law-products', href: 'https://github.com/law-products' },
   },
   {
-    eyebrow: 'AI development',
-    title: 'Build things that run and ship',
-    body: 'Document processing, desktop apps, agent tooling, and a continuously updated resource index.',
-    links: [
+    id: 'tech-products',
+    label: 'Tech products',
+    title: 'Tech products',
+    note: 'Document processing, desktop apps, agent tooling, and a continuously updated resource index.',
+    items: [
       { label: 'dev-resources', note: 'Motion / sound / icons / UI', href: 'https://github.com/lawyerch-dev/dev-resources' },
       { label: 'cc-ai-tools', note: 'Extensible launcher', href: 'https://github.com/lawyerch-dev/cc-ai-tools' },
       { label: 'cc-md-editor', note: 'Markdown editor', href: 'https://github.com/lawyerch-dev/cc-md-editor' },
@@ -66,52 +69,33 @@ const lines = [
         </dl>
       </section>
 
-      <section class="hv-sec" id="work">
-        <div class="hv-sec-head">
-          <p class="hv-label">Work</p>
-          <h2 class="hv-sec-title">What I am building</h2>
-        </div>
+      {
+        products.map((section) => (
+          <section class="hv-sec" id={section.id}>
+            <div class="hv-sec-head">
+              <p class="hv-label">{section.label}</p>
+              <h2 class="hv-sec-title">{section.title}</h2>
+              <p class="hv-sec-note">{section.note}</p>
+            </div>
 
-        <div class="hv-lines">
-          {
-            lines.map((line) => (
-              <div class="hv-line">
-                <h3>{line.title}</h3>
-                <p>{line.body}</p>
-                <ul class="hv-list">
-                  {line.links.map((link) => (
-                    <li>
-                      <a href={link.href} target="_blank" rel="noopener">
-                        <b>{link.label}</b>
-                        <span>{link.note}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <a class="hv-list-all" href={line.all.href} target="_blank" rel="noopener">
-                  {line.all.label}
-                </a>
-              </div>
-            ))
-          }
-        </div>
-      </section>
-
-      <section class="hv-sec">
-        <div class="hv-sec-head">
-          <p class="hv-label">Domain</p>
-          <h2 class="hv-sec-title">Labour law</h2>
-        </div>
-        <div class="hv-domain">
-          <p>
-            A dedicated site for labour disputes, employment compliance, workplace policies and redundancy
-            planning. For practical articles or a consultation, that is the place to go.
-          </p>
-          <a href="https://labor.lawyerch.cn/en/" target="_blank" rel="noopener">
-            Visit labor.lawyerch.cn
-          </a>
-        </div>
-      </section>
+            <div class="hv-products">
+              <ul class="hv-list">
+                {section.items.map((item) => (
+                  <li>
+                    <a href={item.href} target="_blank" rel="noopener">
+                      <b>{item.label}</b>
+                      <span>{item.note}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <a class="hv-list-all" href={section.all.href} target="_blank" rel="noopener">
+                {section.all.label}
+              </a>
+            </div>
+          </section>
+        ))
+      }
 
       <section class="hv-sec">
         <div class="hv-sec-head">
