@@ -119,10 +119,16 @@ jobs:
         run: |
           failed=0
           for domain in lawyerch.cn labor.lawyerch.cn; do
-            end=$(echo | openssl s_client -servername "$domain" -connect "$domain":443 2>/dev/null \
-              | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+            end=""
+            for attempt in 1 2 3; do
+              # -4 强制 IPv4：runner 偶尔解析到 IPv6 边缘节点会连不上
+              end=$(echo | openssl s_client -4 -servername "$domain" -connect "${domain}:443" 2>/dev/null \
+                | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+              [ -n "$end" ] && break
+              sleep 5
+            done
             if [ -z "$end" ]; then
-              echo "::error::$domain 取不到证书"
+              echo "::error::$domain 取不到证书（已重试 3 次）"
               failed=1
               continue
             fi
