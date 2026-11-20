@@ -26,7 +26,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-TOKENS_DOC = ROOT / "docs" / "design" / "tokens.md"
+# 白名单文档随 sync-standard 分发进项目（<project>/docs/design/tokens.md），
+# 工作区根目录是开发时的位置。两处都找，先找项目内。
+TOKENS_CANDIDATES = [
+    ROOT / "docs" / "design" / "tokens.md",
+    ROOT.parent / "docs" / "design" / "tokens.md",
+]
 OK = "\033[32m✔\033[0m"
 WARN = "\033[33m⚠\033[0m"
 FAIL = "\033[31m✖\033[0m"
@@ -48,11 +53,19 @@ class Issue:
     message: str
 
 
+def tokens_doc() -> Path | None:
+    for path in TOKENS_CANDIDATES:
+        if path.is_file():
+            return path
+    return None
+
+
 def load_whitelist() -> set[str]:
     """从 tokens.md 的白名单代码块读出允许的颜色。"""
-    if not TOKENS_DOC.is_file():
+    doc = tokens_doc()
+    if doc is None:
         return set()
-    text = TOKENS_DOC.read_text(encoding="utf-8")
+    text = doc.read_text(encoding="utf-8")
     block = re.search(r"### 1\.2 白名单[\s\S]*?```json\n([\s\S]*?)```", text)
     if not block:
         return set()
@@ -173,7 +186,9 @@ def main() -> int:
 
     whitelist = load_whitelist()
     if not whitelist:
-        print(f"{FAIL} 读不到白名单：{TOKENS_DOC}", file=sys.stderr)
+        looked = "\n  ".join(str(p) for p in TOKENS_CANDIDATES)
+        print(f"{FAIL} 读不到白名单，已查找：\n  {looked}", file=sys.stderr)
+        print("  在工作区运行 ./scripts/sync-standard 分发 tokens.md", file=sys.stderr)
         return 1
 
     issues = check(site, whitelist) + check_radii(site)
