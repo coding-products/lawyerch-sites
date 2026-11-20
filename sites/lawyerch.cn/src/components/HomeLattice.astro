@@ -1,48 +1,71 @@
 ---
 /**
- * 首页背景层：等距线框网格 + 光点，随滚动轻微位移。
- * 纯 SVG + CSS，无第三方依赖，prefers-reduced-motion 下静止。
+ * 首屏背景：等距线框 + 光点，随滚动轻微位移。
+ * 纯 SVG，无第三方依赖；prefers-reduced-motion 下静止。
+ *
+ * 视觉来源：miaoqichuan 的立体网格（见 docs/design/miaoqichuan-analysis.md），
+ * 换成品牌色线框，密度加强。
  */
 interface Props {
-  /** 光点强度，0 到 1。深色底用 0.9，浅色底用 0.35。 */
   intensity?: number;
 }
-const { intensity = 0.9 } = Astro.props;
+const { intensity = 1 } = Astro.props;
 ---
 
 <div class="hv-lattice" aria-hidden="true" style={`--hv-glow:${intensity}`}>
-  <svg viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice" role="presentation">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="presentation">
     <defs>
-      <linearGradient id="hv-line" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="currentColor" stop-opacity="0.05" />
-        <stop offset="50%" stop-color="currentColor" stop-opacity="0.34" />
-        <stop offset="100%" stop-color="currentColor" stop-opacity="0.06" />
+      <linearGradient id="hv-line-a" x1="0" y1="0" x2="0.6" y2="1">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0.02" />
+        <stop offset="45%" stop-color="currentColor" stop-opacity="0.28" />
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0.03" />
+      </linearGradient>
+      <linearGradient id="hv-line-b" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0.02" />
+        <stop offset="55%" stop-color="currentColor" stop-opacity="0.16" />
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0.02" />
       </linearGradient>
       <radialGradient id="hv-spark">
-        <stop offset="0%" stop-color="currentColor" stop-opacity="1" />
-        <stop offset="60%" stop-color="currentColor" stop-opacity="0.35" />
-        <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
+        <stop offset="0%" stop-color="var(--swp-lime)" stop-opacity="0.95" />
+        <stop offset="45%" stop-color="var(--swp-lime)" stop-opacity="0.3" />
+        <stop offset="100%" stop-color="var(--swp-lime)" stop-opacity="0" />
       </radialGradient>
     </defs>
 
-    <g class="hv-lattice-lines" fill="none" stroke="url(#hv-line)" stroke-width="1">
-      <!-- 等距立体网格：三组平行线构成一个盒子 -->
-      <path d="M120 620 L600 360 L1080 620 L600 880 Z" />
-      <path d="M120 500 L600 240 L1080 500 L600 760 Z" />
-      <path d="M120 380 L600 120 L1080 380 L600 640 Z" />
-      <path d="M120 260 L600 0 L1080 260 L600 520 Z" />
-      <path d="M600 360 L600 880" />
-      <path d="M600 240 L600 760" />
-      <path d="M600 120 L600 640" />
-      <path d="M120 620 L120 260 M1080 620 L1080 260" />
-      <path d="M600 360 L120 620 M600 360 L1080 620" />
+    <!-- 主网格：一个立体盒子 -->
+    <g class="hv-lattice-a" fill="none" stroke="url(#hv-line-a)" stroke-width="1">
+      <path d="M180 700 L720 400 L1260 700 L720 1000 Z" />
+      <path d="M180 580 L720 280 L1260 580 L720 880 Z" />
+      <path d="M180 460 L720 160 L1260 460 L720 760 Z" />
+      <path d="M180 340 L720 40 L1260 340 L720 640 Z" />
+      <path d="M180 220 L720 -80 L1260 220 L720 520 Z" />
     </g>
 
+    <!-- 垂直线：构成盒子的棱 -->
+    <g class="hv-lattice-b" fill="none" stroke="url(#hv-line-b)" stroke-width="1">
+      <path d="M720 400 V1000" />
+      <path d="M720 280 V880" />
+      <path d="M720 160 V760" />
+      <path d="M720 40 V640" />
+      <path d="M720 -80 V520" />
+      <path d="M180 700 V220" />
+      <path d="M1260 700 V220" />
+    </g>
+
+    <!-- 斜向辅助线：增加纵深 -->
+    <g class="hv-lattice-c" fill="none" stroke="url(#hv-line-b)" stroke-width="1" opacity="0.6">
+      <path d="M180 460 L720 700 L1260 460" />
+      <path d="M180 580 L720 820 L1260 580" />
+      <path d="M180 340 L720 580 L1260 340" />
+    </g>
+
+    <!-- 光点：呼吸 -->
     <g class="hv-lattice-sparks">
-      <circle cx="600" cy="360" r="26" fill="url(#hv-spark)" />
-      <circle cx="330" cy="500" r="16" fill="url(#hv-spark)" />
-      <circle cx="880" cy="440" r="14" fill="url(#hv-spark)" />
-      <circle cx="470" cy="700" r="10" fill="url(#hv-spark)" />
+      <circle cx="720" cy="400" r="40" fill="url(#hv-spark)" />
+      <circle cx="450" cy="560" r="22" fill="url(#hv-spark)" />
+      <circle cx="1010" cy="500" r="18" fill="url(#hv-spark)" />
+      <circle cx="620" cy="740" r="14" fill="url(#hv-spark)" />
+      <circle cx="880" cy="300" r="12" fill="url(#hv-spark)" />
     </g>
   </svg>
 </div>

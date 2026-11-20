@@ -168,7 +168,7 @@ cd <工作区根>
 
 ## 资源选型
 
-完整索引：https://github.com/lawyerch-dev/dev-resources
+完整索引：https://github.com/coding-products/dev-resources
 
 本站点已定的选择：
 

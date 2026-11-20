@@ -10,7 +10,7 @@ export const primaryNav: NavItem[] = [
 /** 移动端额外入口。 */
 export const mobileExtraNav: NavItem[] = [
   { label: '劳动法站', href: 'https://labor.lawyerch.cn' },
-  { label: 'GitHub', href: 'https://github.com/lawyerch-dev' },
+  { label: 'GitHub', href: 'https://github.com/coding-products' },
 ];
 
 export const footerNav = {

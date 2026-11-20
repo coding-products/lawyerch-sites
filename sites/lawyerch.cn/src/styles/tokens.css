@@ -24,6 +24,8 @@
   /* Typography */
   --font-display: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* 中文标题用宋体：专业、有辨识度，系统自带不增加加载。见 docs/design/tokens.md */
+  --font-serif: 'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', STSong, SimSun, serif;
 
   /* Layout */
   --pad: clamp(20px, calc((100vw - 1320px) / 2), 300px);
