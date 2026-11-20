@@ -1,0 +1,60 @@
+---
+import siteConfig from '~/config/site';
+import { getLangFromUrl } from '~/i18n/ui';
+
+const lang = getLangFromUrl(Astro.url);
+const base = lang === 'en' ? '/en' : '';
+
+const copy = {
+  zh: {
+    brand: siteConfig.name,
+    links: [
+      { label: '作品', href: '#work' },
+      { label: '劳动法', href: 'https://labor.lawyerch.cn', external: true },
+      { label: '关于', href: `${base}/about/` },
+      { label: '联系', href: `${base}/contact/` },
+    ],
+    switchLabel: 'EN',
+    switchHref: '/en/',
+    switchLang: 'en',
+  },
+  en: {
+    brand: siteConfig.name,
+    links: [
+      { label: 'Work', href: '#work' },
+      { label: 'Labour Law', href: 'https://labor.lawyerch.cn', external: true },
+      { label: 'About', href: `${base}/about/` },
+      { label: 'Contact', href: `${base}/contact/` },
+    ],
+    switchLabel: '中文',
+    switchHref: '/',
+    switchLang: 'zh',
+  },
+} as const;
+
+const c = copy[lang];
+---
+
+<nav class="hv-pill" aria-label="Primary">
+  <a class="hv-pill-brand" href={`${base}/`}>{c.brand}</a>
+
+  <ul class="hv-pill-links">
+    {
+      c.links.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            target={'external' in item && item.external ? '_blank' : undefined}
+            rel={'external' in item && item.external ? 'noopener' : undefined}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <a class="hv-pill-lang" href={c.switchHref} hreflang={c.switchLang} lang={c.switchLang}>
+    {c.switchLabel}
+  </a>
+</nav>

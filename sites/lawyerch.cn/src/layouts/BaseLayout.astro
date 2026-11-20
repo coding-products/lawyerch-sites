@@ -3,6 +3,7 @@ import '~/styles/global.css';
 import Seo from '~/components/Seo.astro';
 import IconSprite from '~/components/icons/IconSprite.astro';
 import Header from '~/components/Header.astro';
+import HomeNav from '~/components/HomeNav.astro';
 import Footer from '~/components/Footer.astro';
 import BackToTop from '~/components/BackToTop.astro';
 import siteConfig from '~/config/site';
@@ -21,9 +22,11 @@ interface Props {
   jsonLd?: string;
   /** Extra class on `<body>`, handy for page-specific tweaks. */
   bodyClass?: string;
+  /** 首页专用：用悬浮胶囊导航替代默认页头。 */
+  homeNav?: boolean;
 }
 
-const { bodyClass, ...seo } = Astro.props;
+const { bodyClass, homeNav = false, ...seo } = Astro.props;
 const themeCss = Object.entries(theme)
   .map(([key, value]) => `--swp-${key}: ${value};`)
   .join(' ');
@@ -63,7 +66,7 @@ const themeCss = Object.entries(theme)
     <IconSprite />
 
     <div class="swp-shell">
-      <Header />
+      {homeNav ? <HomeNav /> : <Header />}
       <main id="main">
         <slot />
       </main>
