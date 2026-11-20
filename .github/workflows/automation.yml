@@ -111,6 +111,30 @@ jobs:
           echo "status=$code" >> "$GITHUB_OUTPUT"
           cat report.md
 
+      # 证书续期跑在本机 acme.sh，万一没跑成，这里会在过期前 21 天报警。
+      - name: Check TLS expiry
+        id: tls
+        if: always()
+        continue-on-error: true
+        run: |
+          failed=0
+          for domain in lawyerch.cn labor.lawyerch.cn; do
+            end=$(echo | openssl s_client -servername "$domain" -connect "$domain":443 2>/dev/null \
+              | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+            if [ -z "$end" ]; then
+              echo "::error::$domain 取不到证书"
+              failed=1
+              continue
+            fi
+            days=$(( ( $(date -d "$end" +%s) - $(date +%s) ) / 86400 ))
+            echo "$domain 证书剩余 $days 天"
+            if [ "$days" -lt 21 ]; then
+              echo "::error::$domain 证书 $days 天后过期，检查本机 acme.sh 续期"
+              failed=1
+            fi
+          done
+          exit $failed
+
       - name: Close stale issue when healthy
         if: always() && steps.report.outputs.status == '0' && steps.submit.outcome == 'success'
         env:
@@ -122,7 +146,7 @@ jobs:
           done
 
       - name: Open or update issue when unhealthy
-        if: always() && (steps.report.outputs.status != '0' || steps.submit.outcome != 'success')
+        if: always() && (steps.report.outputs.status != '0' || steps.submit.outcome != 'success' || steps.tls.outcome != 'success')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
