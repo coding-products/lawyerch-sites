@@ -84,6 +84,19 @@ jobs:
           ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
           ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
 
+      # 收录前置检查：错误阻断发布，警告放行
+      - name: SEO preflight
+        run: |
+          failed=0
+          for site in $(python3 scripts/list-sites); do
+            set +e
+            ./scripts/seo-audit "$site"
+            code=$?
+            set -e
+            [ "$code" -eq 1 ] && failed=1
+          done
+          exit $failed
+
       - name: Upload to OSS
         run: |
           for site in $(python3 scripts/list-sites); do

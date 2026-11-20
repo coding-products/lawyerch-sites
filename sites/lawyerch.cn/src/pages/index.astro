@@ -2,6 +2,10 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Button from '~/components/Button.astro';
 import Icon from '~/components/Icon.astro';
+import siteConfig from '~/config/site';
+import { graph, personSchema, websiteSchema } from '~/lib/jsonld';
+
+const jsonLd = graph([personSchema(siteConfig), websiteSchema(siteConfig)]);
 
 const areas = [
   {
@@ -37,6 +41,7 @@ const areas = [
   title="陈恒律师 — 执业律师 · AI 独立开发者"
   description="广州执业律师，用代码做法律工具。法律科技与 AI 开发两条线：知识资产、法律工具、开源项目。"
   appendSiteName={false}
+  jsonLd={jsonLd}
 >
   <!-- Hero -->
   <section class="wrap home-hero">

@@ -1,0 +1,255 @@
+#!/usr/bin/env python3
+"""
+搜索引擎收录前置检查。新站上线或换域名后跑一次，把「忘了做某一步」变成一条命令。
+
+用法：
+  ./scripts/seo-audit <站点目录>
+  ./scripts/seo-audit <站点目录> --live     # 额外检查线上是否与本地一致
+  ./scripts/seo-audit <站点目录> --json
+
+退出码：0 通过，1 有硬性错误，2 只有警告。
+
+检查项（离线，基于 dist/）：
+  - robots.txt 存在，Sitemap 指向 urlset 而不是 sitemap-index.xml
+    （百度明确不处理索引型 sitemap，且会阻断新文件提交）
+  - sitemap-0.xml 存在且根节点是 urlset
+  - sitemap 里的 URL 在 dist/ 有对应页面
+  - 首页有 description 与 og:title
+  - 首页有 JSON-LD 结构化数据
+  - 每个中文页面页脚有 ICP 备案号
+  - public/ 下有合法的 IndexNow key 文件（32 位十六进制，内容等于文件名）
+  - 页面有搜索引擎验证 meta（google / baidu / bing）
+
+检查项（--live，需要网络）：
+  - 线上 robots.txt 与本地一致
+  - 线上 sitemap 可访问且是 urlset
+  - 首页 HTTPS 返回 200
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+import urllib.error
+import urllib.request
+from dataclasses import dataclass
+from pathlib import Path
+from urllib.parse import urlparse
+
+ROOT = Path(__file__).resolve().parent.parent
+OK = "\033[32m✔\033[0m"
+WARN = "\033[33m⚠\033[0m"
+FAIL = "\033[31m✖\033[0m"
+
+DEFAULT_SITE = re.compile(r"""DEFAULT_SITE\s*=\s*['"]([^'"]+)['"]""")
+LOC = re.compile(r"<loc>\s*([^<\s]+)\s*</loc>")
+HEX32 = re.compile(r"^[0-9a-f]{32}$")
+ICP = re.compile(r"ICP备\d+号")
+VERIFY = re.compile(r'<meta[^>]+name=["\'](google-site-verification|baidu-site-verification|msvalidate\.01)["\']', re.I)
+
+TIMEOUT = 15
+
+
+@dataclass
+class Issue:
+    level: str
+    message: str
+
+
+def site_origin(site: Path) -> str | None:
+    cfg = site / "astro.config.mjs"
+    if not cfg.is_file():
+        return None
+    m = DEFAULT_SITE.search(cfg.read_text(encoding="utf-8"))
+    return m.group(1).rstrip("/") if m else None
+
+
+def read(path: Path) -> str:
+    return path.read_text(encoding="utf-8", errors="replace") if path.is_file() else ""
+
+
+def fetch(url: str) -> tuple[int, str]:
+    try:
+        with urllib.request.urlopen(url, timeout=TIMEOUT) as r:
+            return r.status, r.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as e:
+        return e.code, ""
+    except Exception:  # noqa: BLE001
+        return 0, ""
+
+
+def check_robots(site: Path, dist: Path) -> list[Issue]:
+    text = read(dist / "robots.txt")
+    if not text:
+        return [Issue("error", "dist/robots.txt 不存在")]
+    issues: list[Issue] = []
+    sitemaps = re.findall(r"^Sitemap:\s*(\S+)", text, re.M | re.I)
+    if not sitemaps:
+        issues.append(Issue("error", "robots.txt 没有 Sitemap 行"))
+    for url in sitemaps:
+        if "sitemap-index" in url:
+            issues.append(
+                Issue("error", f"robots.txt 指向索引型 sitemap（{url}），百度不予处理且阻断提交")
+            )
+    return issues
+
+
+def check_sitemap(site: Path, dist: Path) -> list[Issue]:
+    files = sorted(dist.glob("sitemap*.xml"))
+    if not files:
+        return [Issue("error", "没有 sitemap，检查 @astrojs/sitemap 配置")]
+
+    issues: list[Issue] = []
+    urlset = None
+    for f in files:
+        head = read(f)[:200]
+        if "<sitemapindex" in head:
+            # 索引型文件本身无害，只要 robots.txt 不指向它；那条在 check_robots 里报错。
+            continue
+        if "<urlset" in head:
+            urlset = f
+
+    if urlset is None:
+        issues.append(Issue("error", "没有 urlset 类型的 sitemap"))
+        return issues
+
+    urls = [u for u in LOC.findall(read(urlset)) if not u.endswith(".xml")]
+    if not urls:
+        issues.append(Issue("error", f"{urlset.name} 里没有 URL"))
+
+    missing = []
+    for url in urls:
+        path = urlparse(url).path or "/"
+        rel = path.lstrip("/")
+        candidates = (
+            [dist / rel / "index.html"]
+            if rel == "" or path.endswith("/")
+            else [dist / rel, dist / rel / "index.html"]
+        )
+        if not any(c.is_file() for c in candidates):
+            missing.append(path)
+    for path in missing[:5]:
+        issues.append(Issue("error", f"sitemap 有页面不存在：{path}"))
+
+    html_count = len(list(dist.rglob("*.html")))
+    if urls and html_count and len(urls) < html_count - 5:
+        issues.append(
+            Issue("warn", f"sitemap 只列了 {len(urls)} 个 URL，dist 有 {html_count} 个页面，确认是否有意排除")
+        )
+    return issues
+
+
+def check_head(dist: Path) -> list[Issue]:
+    home = read(dist / "index.html")
+    if not home:
+        return [Issue("error", "dist/index.html 不存在")]
+    issues: list[Issue] = []
+    if not re.search(r'<meta[^>]+name=["\']description["\']', home, re.I):
+        issues.append(Issue("error", "首页缺少 meta description"))
+    if not re.search(r'property=["\']og:title["\']', home, re.I):
+        issues.append(Issue("warn", "首页缺少 og:title"))
+    if "application/ld+json" not in home:
+        issues.append(Issue("warn", "首页缺少 JSON-LD 结构化数据"))
+    return issues
+
+
+def check_icp(dist: Path) -> list[Issue]:
+    pages = list(dist.rglob("*.html"))
+    zh = [p for p in pages if "/en/" not in p.as_posix()]
+    if not zh:
+        return []
+    missing = [p for p in zh if not ICP.search(read(p))]
+    if missing:
+        return [Issue("error", f"{len(missing)} 个中文页面没有 ICP 备案号（如 {missing[0].relative_to(dist)}）")]
+    return []
+
+
+def check_indexnow(site: Path) -> list[Issue]:
+    pub = site / "public"
+    if not pub.is_dir():
+        return []
+    keys = [p for p in pub.glob("*.txt") if HEX32.match(p.stem) and p.name != "robots.txt"]
+    if not keys:
+        return [Issue("warn", "public/ 下没有 IndexNow key 文件（32 位十六进制）")]
+    issues: list[Issue] = []
+    for k in keys:
+        if k.read_text(encoding="utf-8").strip() != k.stem:
+            issues.append(Issue("error", f"{k.name} 内容与文件名不一致，IndexNow 校验会失败"))
+    if len(keys) > 1:
+        issues.append(Issue("warn", f"有 {len(keys)} 个 IndexNow key 文件，只保留一个"))
+    return issues
+
+
+def check_verify(dist: Path) -> list[Issue]:
+    home = read(dist / "index.html")
+    if not home:
+        return []
+    if not VERIFY.search(home):
+        return [Issue("warn", "首页没有搜索引擎验证 meta（Google / 百度 / Bing）")]
+    return []
+
+
+def check_live(origin: str, dist: Path) -> list[Issue]:
+    issues: list[Issue] = []
+    status, _ = fetch(f"{origin}/")
+    if status != 200:
+        issues.append(Issue("error", f"线上首页返回 {status or '连接失败'}"))
+
+    live_robots = fetch(f"{origin}/robots.txt")[1]
+    local_robots = read(dist / "robots.txt")
+    if live_robots and local_robots and live_robots.strip() != local_robots.strip():
+        issues.append(Issue("warn", "线上 robots.txt 与本地不一致（CDN 缓存未刷新？）"))
+
+    status, body = fetch(f"{origin}/sitemap-0.xml")
+    if status != 200 or "<urlset" not in body[:200]:
+        issues.append(Issue("error", f"线上 sitemap-0.xml 不可用（HTTP {status or '失败'}）"))
+    return issues
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="搜索引擎收录前置检查")
+    parser.add_argument("site", help="站点目录，例如 sites/lawyerch.cn")
+    parser.add_argument("--live", action="store_true", help="额外检查线上")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+
+    site = Path(args.site).resolve()
+    dist = site / "dist"
+    if not dist.is_dir():
+        print(f"{FAIL} {args.site} 没有 dist/，先构建：pnpm build", file=sys.stderr)
+        return 1
+
+    origin = site_origin(site)
+    if not origin:
+        print(f"{FAIL} 无法从 astro.config.mjs 读出 DEFAULT_SITE", file=sys.stderr)
+        return 1
+
+    issues: list[Issue] = []
+    issues += check_robots(site, dist)
+    issues += check_sitemap(site, dist)
+    issues += check_head(dist)
+    issues += check_icp(dist)
+    issues += check_indexnow(site)
+    issues += check_verify(dist)
+    if args.live:
+        issues += check_live(origin, dist)
+
+    if args.json:
+        print(json.dumps({"site": args.site, "origin": origin, "issues": [i.__dict__ for i in issues]}, ensure_ascii=False, indent=2))
+    else:
+        for i in issues:
+            icon = FAIL if i.level == "error" else WARN
+            print(f"{icon} {i.message}")
+        if not issues:
+            print(f"{OK} {args.site} 收录前置检查全部通过")
+
+    if any(i.level == "error" for i in issues):
+        return 1
+    if issues:
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

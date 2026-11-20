@@ -36,6 +36,7 @@ pnpm build
 由工作区 `scripts/` 分发，不要手改：
 
 - `scripts/design-check`
+- `scripts/seo-audit`
 
 ## 通用流程
 
