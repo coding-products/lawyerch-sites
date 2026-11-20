@@ -37,6 +37,7 @@ pnpm build
 
 - `scripts/design-check`
 - `scripts/seo-audit`
+- `scripts/check-tokens`
 
 ## 通用流程
 

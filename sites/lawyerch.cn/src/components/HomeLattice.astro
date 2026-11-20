@@ -1,0 +1,48 @@
+---
+/**
+ * 首页背景层：等距线框网格 + 光点，随滚动轻微位移。
+ * 纯 SVG + CSS，无第三方依赖，prefers-reduced-motion 下静止。
+ */
+interface Props {
+  /** 光点强度，0 到 1。深色底用 0.9，浅色底用 0.35。 */
+  intensity?: number;
+}
+const { intensity = 0.9 } = Astro.props;
+---
+
+<div class="hv-lattice" aria-hidden="true" style={`--hv-glow:${intensity}`}>
+  <svg viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice" role="presentation">
+    <defs>
+      <linearGradient id="hv-line" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0.05" />
+        <stop offset="50%" stop-color="currentColor" stop-opacity="0.34" />
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0.06" />
+      </linearGradient>
+      <radialGradient id="hv-spark">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="1" />
+        <stop offset="60%" stop-color="currentColor" stop-opacity="0.35" />
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+
+    <g class="hv-lattice-lines" fill="none" stroke="url(#hv-line)" stroke-width="1">
+      <!-- 等距立体网格：三组平行线构成一个盒子 -->
+      <path d="M120 620 L600 360 L1080 620 L600 880 Z" />
+      <path d="M120 500 L600 240 L1080 500 L600 760 Z" />
+      <path d="M120 380 L600 120 L1080 380 L600 640 Z" />
+      <path d="M120 260 L600 0 L1080 260 L600 520 Z" />
+      <path d="M600 360 L600 880" />
+      <path d="M600 240 L600 760" />
+      <path d="M600 120 L600 640" />
+      <path d="M120 620 L120 260 M1080 620 L1080 260" />
+      <path d="M600 360 L120 620 M600 360 L1080 620" />
+    </g>
+
+    <g class="hv-lattice-sparks">
+      <circle cx="600" cy="360" r="26" fill="url(#hv-spark)" />
+      <circle cx="330" cy="500" r="16" fill="url(#hv-spark)" />
+      <circle cx="880" cy="440" r="14" fill="url(#hv-spark)" />
+      <circle cx="470" cy="700" r="10" fill="url(#hv-spark)" />
+    </g>
+  </svg>
+</div>

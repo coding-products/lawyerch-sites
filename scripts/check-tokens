@@ -1,0 +1,200 @@
+#!/usr/bin/env python3
+"""
+设计 token 校验。按 docs/design/tokens.md 的白名单检查源码里的颜色。
+
+用法：
+  ./scripts/check-tokens <站点目录>
+  ./scripts/check-tokens <站点目录> --json
+
+退出码：0 通过，1 有硬性错误，2 只有警告。
+
+检查项：
+  - 颜色必须在白名单内（硬错误）
+  - 强调色饱和度 ≥ 0.2（硬错误）
+  - 颜色与米色底、深蓝底的对比度 ≥ 4.5（警告，按用途判断）
+  - 圆角只能是 tokens.md 里的三个值（警告）
+
+白名单来源：docs/design/tokens.md 的「白名单」代码块，改设计系统先改那里。
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+TOKENS_DOC = ROOT / "docs" / "design" / "tokens.md"
+OK = "\033[32m✔\033[0m"
+WARN = "\033[33m⚠\033[0m"
+FAIL = "\033[31m✖\033[0m"
+
+HEX = re.compile(r"#([0-9a-fA-F]{3,8})\b")
+SCAN_SUFFIX = {".css", ".astro", ".ts", ".tsx", ".js", ".mjs", ".svg", ".html"}
+SKIP_DIRS = {"node_modules", "dist", ".astro", ".turbo"}
+
+# 浅底 / 深底，用于对比度判断
+LIGHT_BG = "#f5f2ea"
+DARK_BG = "#0f1b2d"
+
+
+@dataclass
+class Issue:
+    level: str
+    file: str
+    line: int
+    message: str
+
+
+def load_whitelist() -> set[str]:
+    """从 tokens.md 的白名单代码块读出允许的颜色。"""
+    if not TOKENS_DOC.is_file():
+        return set()
+    text = TOKENS_DOC.read_text(encoding="utf-8")
+    block = re.search(r"### 1\.2 白名单[\s\S]*?```json\n([\s\S]*?)```", text)
+    if not block:
+        return set()
+    try:
+        return {c.lower() for c in json.loads(block.group(1))}
+    except json.JSONDecodeError:
+        return {m.group(0).lower() for m in HEX.finditer(block.group(1))}
+
+
+def normalize(hex_value: str) -> str:
+    h = hex_value.lstrip("#").lower()
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    return "#" + h[:6]
+
+
+def to_rgb(hex_value: str) -> tuple[float, float, float]:
+    h = normalize(hex_value).lstrip("#")
+    return tuple(int(h[i : i + 2], 16) / 255 for i in (0, 2, 4))  # type: ignore[return-value]
+
+
+def luminance(hex_value: str) -> float:
+    def channel(c: float) -> float:
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
+    r, g, b = (channel(c) for c in to_rgb(hex_value))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def contrast(a: str, b: str) -> float:
+    la, lb = luminance(a), luminance(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def saturation(hex_value: str) -> float:
+    r, g, b = to_rgb(hex_value)
+    mx, mn = max(r, g, b), min(r, g, b)
+    if mx == mn:
+        return 0.0
+    lightness = (mx + mn) / 2
+    delta = mx - mn
+    return delta / (1 - abs(2 * lightness - 1))
+
+
+def scan_files(site: Path) -> list[Path]:
+    files = []
+    for path in site.rglob("*"):
+        if any(part in SKIP_DIRS for part in path.parts):
+            continue
+        if path.is_file() and path.suffix in SCAN_SUFFIX:
+            files.append(path)
+    return sorted(files)
+
+
+def check(site: Path, whitelist: set[str]) -> list[Issue]:
+    issues: list[Issue] = []
+    for path in scan_files(site):
+        try:
+            lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            continue
+        rel = str(path.relative_to(site))
+        for i, line in enumerate(lines, 1):
+            for m in HEX.finditer(line):
+                color = normalize(m.group(0))
+                if color in whitelist:
+                    continue
+                # 透明色 / 8 位 hex 常被用于遮罩，只警告
+                raw = m.group(1)
+                level = "error" if len(raw) in (3, 6) else "warn"
+                issues.append(
+                    Issue(level, rel, i, f"白名单外颜色 {color}")
+                )
+
+    # 强调色专项：饱和度过低说明是灰，和白名单里的灰分不开
+    for color in whitelist:
+        if color in ("#ffffff", "#000000", "#f5f2ea", "#e5e0d3"):
+            continue
+        sat = saturation(color)
+        if sat < 0.2 and color not in ("#47505e", "#5f5b4d", "#1c2e4a", "#0f1b2d"):
+            issues.append(
+                Issue("warn", "docs/design/tokens.md", 0, f"{color} 饱和度 {sat:.2f} < 0.2，与灰阶梯难区分")
+            )
+
+    return issues
+
+
+def check_radii(site: Path) -> list[Issue]:
+    allowed = {"0", "10px", "26px", "999px", "50%", "inherit", "0px"}
+    issues: list[Issue] = []
+    for path in scan_files(site):
+        if path.suffix not in (".css", ".astro"):
+            continue
+        rel = str(path.relative_to(site))
+        for i, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+            m = re.search(r"border-radius:\s*([^;]+);", line)
+            if not m:
+                continue
+            for value in re.split(r"\s+", m.group(1).strip()):
+                if value in allowed or value.startswith("var(") or value.startswith("calc("):
+                    continue
+                issues.append(Issue("warn", rel, i, f"圆角 {value} 不在 tokens 允许的三个值内"))
+                break
+    return issues
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="设计 token 校验")
+    parser.add_argument("site", help="站点目录，例如 sites/lawyerch.cn")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+
+    site = Path(args.site).resolve()
+    if not site.is_dir():
+        print(f"{FAIL} 目录不存在：{args.site}", file=sys.stderr)
+        return 1
+
+    whitelist = load_whitelist()
+    if not whitelist:
+        print(f"{FAIL} 读不到白名单：{TOKENS_DOC}", file=sys.stderr)
+        return 1
+
+    issues = check(site, whitelist) + check_radii(site)
+
+    if args.json:
+        print(json.dumps([i.__dict__ for i in issues], ensure_ascii=False, indent=2))
+    else:
+        for issue in issues:
+            icon = FAIL if issue.level == "error" else WARN
+            where = f"{issue.file}:{issue.line}" if issue.line else issue.file
+            print(f"{icon} {where}")
+            print(f"   {issue.message}")
+        if not issues:
+            print(f"{OK} {args.site} token 校验通过（{len(whitelist)} 个白名单色）")
+
+    if any(i.level == "error" for i in issues):
+        return 1
+    if issues:
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

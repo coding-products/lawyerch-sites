@@ -57,11 +57,11 @@
   font-size: 0.88em;
   background: var(--swp-mist);
   padding: 0.18em 0.42em;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
 }
 .prose pre {
   background: var(--swp-ink);
-  color: #f4f6ef;
+  color: var(--swp-mist);
   padding: 20px 22px;
   border-radius: var(--r-md);
   overflow-x: auto;

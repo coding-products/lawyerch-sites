@@ -48,6 +48,12 @@ jobs:
             [ -d "$site/dist" ] && python3 scripts/check-links "$site"
           done
 
+      - name: Design tokens
+        run: |
+          for site in $(python3 scripts/list-sites); do
+            ./scripts/check-tokens "$site"
+          done
+
       - name: Design check
         run: |
           if [ ! -x scripts/design-check ]; then

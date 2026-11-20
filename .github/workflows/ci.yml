@@ -52,6 +52,12 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Design tokens
+        run: |
+          for site in $(python3 scripts/list-sites); do
+            ./scripts/check-tokens "$site"
+          done
+
       - name: Design check
         run: |
           if [ ! -x scripts/design-check ]; then

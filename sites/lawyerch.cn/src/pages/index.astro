@@ -1,12 +1,36 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import HomeLattice from '~/components/HomeLattice.astro';
 import '~/styles/home.css';
 import siteConfig from '~/config/site';
 import { graph, personSchema, websiteSchema } from '~/lib/jsonld';
 
 const jsonLd = graph([personSchema(siteConfig), websiteSchema(siteConfig)]);
 
-const products = [
+const identities = [
+  {
+    title: '律师',
+    lines: [
+      '广州执业律师，专注劳动争议与企业用工合规。',
+      '从一份劳动合同的条款，到一次解除的补偿测算，再到一套员工手册的落地。',
+    ],
+    items: ['劳动争议仲裁与诉讼', '企业用工合规审查', '规章制度与裁员方案'],
+  },
+  {
+    title: 'AI 开发者',
+    lines: [
+      '写代码是长期爱好。把法律工作里重复的部分交给工具，把判断留给人。',
+      '做文档处理、桌面应用、Agent 工具链，也维护一份开发资源索引。',
+    ],
+    items: [
+      'skills-for-legal：中国法实务 AI 技能集',
+      'doc-anonymizer：本地文档脱敏',
+      'dev-resources：动效 / 图标 / 组件索引',
+    ],
+  },
+];
+
+const blocks = [
   {
     id: 'legal-products',
     label: 'Legal products',
@@ -16,7 +40,6 @@ const products = [
       { label: 'skills-for-legal', note: '中国法实务 AI 技能集', href: 'https://github.com/law-products/skills-for-legal' },
       { label: 'doc-anonymizer', note: '本地文档脱敏', href: 'https://github.com/law-products/doc-anonymizer' },
       { label: 'doc-flip-video', note: '文档翻页视频', href: 'https://github.com/law-products/doc-flip-video' },
-      { label: 'labor.lawyerch.cn', note: '劳动法领域站', href: 'https://labor.lawyerch.cn' },
     ],
     all: { label: 'github.com/law-products', href: 'https://github.com/law-products' },
   },
@@ -32,6 +55,14 @@ const products = [
     ],
     all: { label: 'github.com/lawyerch-dev', href: 'https://github.com/lawyerch-dev' },
   },
+  {
+    id: 'labour',
+    label: 'Domain site',
+    title: '劳动法',
+    note: '独立的领域站，写劳动争议、用工合规、规章制度与裁员方案。找实务文章或约一次咨询，去那里更直接。',
+    items: [],
+    all: { label: 'labor.lawyerch.cn', href: 'https://labor.lawyerch.cn' },
+  },
 ];
 ---
 
@@ -40,44 +71,89 @@ const products = [
   description="广州执业律师，用代码做法律工具。法律科技与 AI 开发两条线：知识资产、法律工具、开源项目。"
   appendSiteName={false}
   jsonLd={jsonLd}
-  bodyClass="home-v2"
+  bodyClass="home-v3"
   homeNav
 >
-  <div class="hv-frame">
-    <div class="hv-card">
-      <section class="hv-hero">
-        <p class="hv-label">TL;DR</p>
-        <h1 class="hv-title">陈恒<em>律师</em></h1>
-        <p class="hv-lede">广州执业律师，用代码把法律工作里重复的部分交给机器，把判断留给人。</p>
+  <HomeLattice />
 
-        <dl class="hv-meta">
+  <section class="hv-stage">
+    <div class="hv-id">
+      <div>
+        <h1 class="hv-id-name">陈恒<em>律师</em></h1>
+        <span class="hv-id-latin">Chen Heng · Lawyer</span>
+
+        <ul class="hv-id-roles">
+          <li>律师</li>
+          <li>AI 开发者</li>
+          <li>法律内容创作者</li>
+        </ul>
+      </div>
+
+      <div class="hv-id-contact">
+        <dl>
           <div>
-            <dt>执业领域</dt>
-            <dd>劳动争议 · 企业用工合规</dd>
+            <dt>Mail</dt>
+            <dd><a href="mailto:lawyerch@foxmail.com">lawyerch@foxmail.com</a></dd>
           </div>
           <div>
-            <dt>两条线</dt>
-            <dd>法律科技 <span aria-hidden="true">／</span> AI 开发</dd>
+            <dt>GitHub</dt>
+            <dd><a href="https://github.com/lawyerch-dev" target="_blank" rel="noopener">lawyerch-dev</a></dd>
           </div>
           <div>
-            <dt>所在地</dt>
+            <dt>Base</dt>
             <dd>广州 · 可远程协作</dd>
           </div>
         </dl>
-      </section>
+
+        <div class="hv-id-actions">
+          <a class="hv-btn hv-btn-primary" href="/contact/">发起咨询</a>
+          <a class="hv-btn hv-btn-ghost" href="https://labor.lawyerch.cn" target="_blank" rel="noopener">
+            劳动法站
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hv-scroll" aria-hidden="true">
+      <span></span>
+      Scroll
+    </div>
+  </section>
+
+  <div class="hv-body">
+    <div class="hv-paper">
+      <div class="hv-fold">
+        {
+          identities.map((id) => (
+            <details>
+              <summary>{id.title}</summary>
+              <div class="hv-fold-body">
+                {id.lines.map((line) => (
+                  <p>{line}</p>
+                ))}
+                <ul>
+                  {id.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          ))
+        }
+      </div>
 
       {
-        products.map((section) => (
-          <section class="hv-sec" id={section.id}>
-            <div class="hv-sec-head">
-              <p class="hv-label">{section.label}</p>
-              <h2 class="hv-sec-title">{section.title}</h2>
-              <p class="hv-sec-note">{section.note}</p>
+        blocks.map((block) => (
+          <section class="hv-block" id={block.id}>
+            <div class="hv-block-head">
+              <p class="hv-label">{block.label}</p>
+              <h2 class="hv-block-title">{block.title}</h2>
+              <p class="hv-block-note">{block.note}</p>
             </div>
 
-            <div class="hv-products">
+            {block.items.length > 0 && (
               <ul class="hv-list">
-                {section.items.map((item) => (
+                {block.items.map((item) => (
                   <li>
                     <a href={item.href} target="_blank" rel="noopener">
                       <b>{item.label}</b>
@@ -86,19 +162,23 @@ const products = [
                   </li>
                 ))}
               </ul>
-              <a class="hv-list-all" href={section.all.href} target="_blank" rel="noopener">
-                {section.all.label}
-              </a>
-            </div>
+            )}
+
+            <a class="hv-block-link" href={block.all.href} target="_blank" rel="noopener">
+              {block.all.label}
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
           </section>
         ))
       }
 
-      <section class="hv-sec">
-        <div class="hv-sec-head">
+      <section class="hv-block hv-block-contact">
+        <div class="hv-block-head">
           <p class="hv-label">Contact</p>
-          <h2 class="hv-sec-title">聊一聊</h2>
-          <p class="hv-sec-note">法律问题请走正式委托；工具、开源、合作可以直接发邮件。</p>
+          <h2 class="hv-block-title">聊一聊</h2>
+          <p class="hv-block-note">法律问题请走正式委托；工具、开源、合作可以直接发邮件。</p>
         </div>
         <ul class="hv-contact-links">
           <li><a href="mailto:lawyerch@foxmail.com">lawyerch@foxmail.com</a></li>
@@ -108,4 +188,24 @@ const products = [
       </section>
     </div>
   </div>
+
+  <script>
+    const lattice = document.querySelector<SVGElement>('.hv-lattice svg');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (lattice && !reduce) {
+      let raf = 0;
+      const update = () => {
+        raf = 0;
+        const shift = Math.min(window.scrollY * 0.14, 160);
+        lattice.style.setProperty('--hv-shift', `${shift}px`);
+      };
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!raf) raf = requestAnimationFrame(update);
+        },
+        { passive: true }
+      );
+    }
+  </script>
 </BaseLayout>

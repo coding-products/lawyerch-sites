@@ -453,7 +453,7 @@
   border-radius: var(--r-md);
   overflow: hidden;
   aspect-ratio: 16 / 10;
-  background: #1a1b19;
+  background: var(--swp-ink);
   box-shadow: 0 30px 60px -40px rgba(0, 0, 0, 0.9);
 }
 .vid img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.85); }
@@ -586,7 +586,7 @@
 .svc-ic {
   width: 52px;
   height: 52px;
-  border-radius: 14px;
+  border-radius: var(--r-sm);
   background: var(--swp-shell);
   color: var(--swp-ink);
   display: grid;
