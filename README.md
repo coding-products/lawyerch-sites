@@ -10,7 +10,7 @@
 |---|---|---|---|
 | `sites/lawyerch.cn` | lawyerch.cn | 个人品牌首页 | `lawyerch-cn` |
 | `sites/labor.lawyerch.cn` | labor.lawyerch.cn | 劳动法领域站 | `labor-lawyerch-cn` |
-| `sites/starter` | — | 新站点模板，不部署 | — |
+| `templates/starter` | — | 新站点模板，不部署 | — |
 
 ## 快速开始
 
@@ -33,8 +33,9 @@ netlify deploy --dir=$(pwd)/dist --prod --site=lawyerch-cn --no-build
 ```
 sites/
 ├── lawyerch.cn/          主站
-├── labor.lawyerch.cn/    劳动法站
-└── starter/              新站模板
+└── labor.lawyerch.cn/    劳动法站
+templates/
+└── starter/              新站模板（不部署，不参与 turbo 构建）
 packages/
 ├── shared-ui/            共用布局、组件、设计 tokens
 └── config/               共用 Astro/TS 配置

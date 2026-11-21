@@ -25,7 +25,7 @@ Everything you need to go from zero to a running site with its own branding.
 
 **What the script does:**
 
-1. Copies `sites/starter/` into `sites/<domain>/`
+1. Copies `templates/starter/` into `sites/<domain>/`
 2. Updates `astro.config.mjs` — sets `site` to `https://www.<domain>`
 3. Updates `package.json` — sets `name` to `<domain>`
 4. Updates `site-config.ts` — sets `SITE_NAME` from the domain prefix

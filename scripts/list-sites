@@ -2,7 +2,7 @@
 """
 列出需要构建/检查/部署的真实站点目录，一行一个。
 
-站点清单来自 site.facts.yml 的 sites[].path，模板目录（如 sites/starter）不会出现。
+站点清单来自 site.facts.yml 的 sites[].path，templates/ 下的模板不会出现。
 
 用法：
   python3 scripts/list-sites

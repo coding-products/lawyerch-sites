@@ -12,7 +12,7 @@
 | `./scripts/report` | 健康报告（Markdown，可直接当 issue 正文） | 0/1 |
 | `python3 -m unittest discover -s scripts/tests` | 脚本自测 | 0/1 |
 
-站点清单来自 `site.facts.yml` 的 `sites[].path`，`sites/starter` 之类的模板不会被检查。
+站点清单来自 `site.facts.yml` 的 `sites[].path`，`templates/` 下的模板不会被检查。
 
 ## 工作流
 

@@ -139,11 +139,11 @@ async function replaceInFile(path, replacements) {
 
 export async function scaffoldSite({ rootDir, domain, preset }) {
   const sitesDir = join(rootDir, 'sites');
-  const starterDir = join(sitesDir, 'starter');
+  const starterDir = join(rootDir, 'templates', 'starter');
   const targetDir = join(sitesDir, domain);
 
   if (!(await pathExists(starterDir))) {
-    throw new Error(`Starter template not found at sites/starter in ${rootDir}.`);
+    throw new Error(`Starter template not found at templates/starter in ${rootDir}.`);
   }
   if (await pathExists(targetDir)) {
     throw new Error(`sites/${domain} already exists.`);

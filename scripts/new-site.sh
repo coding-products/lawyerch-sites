@@ -38,16 +38,21 @@ if [ -d "$ROOT_DIR/sites/$DOMAIN" ]; then
 fi
 
 # Check starter exists
-if [ ! -d "$ROOT_DIR/sites/starter" ]; then
-  echo "Error: sites/starter template not found."
+if [ ! -d "$ROOT_DIR/templates/starter" ]; then
+  echo "Error: templates/starter template not found."
   exit 1
 fi
 
 echo "Creating site: $DOMAIN (preset: $PRESET)"
 echo ""
 
-# 1. Copy starter
-cp -r "$ROOT_DIR/sites/starter" "$ROOT_DIR/sites/$DOMAIN"
+# 1. Copy starter (skip build artifacts and deps: pnpm install regenerates them)
+rsync -a \
+  --exclude 'node_modules' \
+  --exclude 'dist' \
+  --exclude '.astro' \
+  --exclude '.turbo' \
+  "$ROOT_DIR/templates/starter/" "$ROOT_DIR/sites/$DOMAIN/"
 
 # 2. Update astro.config.mjs — replace example.com with the actual domain
 sed -i'' -e "s|https://www.example.com|https://www.$DOMAIN|g" "$ROOT_DIR/sites/$DOMAIN/astro.config.mjs"
@@ -58,7 +63,9 @@ sed -i'' -e "s|\"name\": \"starter\"|\"name\": \"$DOMAIN\"|g" "$ROOT_DIR/sites/$
 
 # 4. Update site-config.ts — replace site name
 # Title-case the domain name (strip TLD, capitalize first letter)
-SITE_TITLE=$(echo "$DOMAIN" | sed 's/\..*//' | sed 's/./\U&/')
+# Note: macOS sed has no \U backreference, so use awk to upper-case the first char.
+BASE_NAME="${DOMAIN%%.*}"
+SITE_TITLE="$(echo "$BASE_NAME" | awk '{ print toupper(substr($0, 1, 1)) substr($0, 2) }')"
 sed -i'' -e "s|'Starter Site'|'$SITE_TITLE'|g" "$ROOT_DIR/sites/$DOMAIN/src/lib/site-config.ts"
 sed -i'' -e "s|'Built with Astro Fleet'|'Powered by $SITE_TITLE'|g" "$ROOT_DIR/sites/$DOMAIN/src/lib/site-config.ts"
 
@@ -197,8 +204,8 @@ echo "✓ Created sites/$DOMAIN"
 echo ""
 echo "Next steps:"
 echo "  1. Edit sites/$DOMAIN/src/lib/site-config.ts with your site details"
-echo "  2. Run: bun install"
-echo "  3. Run: bun run dev --filter=$DOMAIN"
+echo "  2. Run: pnpm install"
+echo "  3. Run: pnpm dev --filter=$DOMAIN"
 echo ""
 echo "Preset: $PRESET"
 echo "Config: sites/$DOMAIN/src/lib/site-config.ts"

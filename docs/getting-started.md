@@ -21,7 +21,7 @@ cd astro-fleet
 bun install
 ```
 
-This installs dependencies for all workspaces: the root, `packages/config`, `packages/shared-ui`, and `sites/starter`.
+This installs dependencies for all workspaces: the root, `packages/config`, `packages/shared-ui`, and `templates/starter`.
 
 ## 3. Start the dev server
 
