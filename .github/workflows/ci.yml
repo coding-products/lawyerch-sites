@@ -64,6 +64,13 @@ jobs:
             echo "::error::缺少 scripts/design-check，在工作区运行 ./scripts/sync-standard 重新分发"
             exit 1
           fi
+          failed=0
           for site in $(python3 scripts/list-sites); do
-            [ -d "$site/dist" ] && ./scripts/design-check "$site"
+            [ -d "$site/dist" ] || continue
+            set +e
+            ./scripts/design-check "$site"
+            code=$?
+            set -e
+            [ "$code" -eq 1 ] && failed=1
           done
+          exit $failed

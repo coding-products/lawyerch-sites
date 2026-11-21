@@ -1,6 +1,6 @@
 # lawyerch-sites
 
-本站点遵循通用规范 [`.agents/standard.md`](.agents/standard.md)（version 2026-11-20.4）。
+本站点遵循通用规范 [`.agents/standard.md`](.agents/standard.md)（version 2026-11-20.5）。
 
 > 本文件由 `scripts/sync-standard` 生成，不要手改。
 > 站点信息改 `site.facts.yml`，规范改工作区的 `.agents/standards/site-standard.md`。

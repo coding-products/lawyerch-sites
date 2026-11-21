@@ -1,5 +1,5 @@
 ---
-version: 2026-11-20.4
+version: 2026-11-20.5
 applies-to: 所有站点项目
 ---
 
@@ -243,10 +243,11 @@ cd <工作区根>
 | 对比度 | 读 `src/config/theme.ts` 的前景/背景色 |
 | 字号 | CSS 中 `font-size` < 12px 直接报错 |
 | 动效降级 | 有 `animation`/`transition` 但没写 `prefers-reduced-motion` 报错 |
+| 触控目标 | `button`/`input`/`select`/`.btn`/`.icon-button` 的显式 `height` 或 `min-height` < 44px 报错 |
 | 图片尺寸 | 缺 `width`/`height`/`aspect-ratio` 超过 20% 报错 |
 | emoji 图标、多个 h1、缺 viewport/description | 报错 |
 
-自动检查之外，上线前人工确认：触控目标 ≥ 44×44、圆角不超过 2 种、阴影只有 1 套、动效全站 2–3 处且时长 200–400ms。这些靠肉眼和 `design-review` 技能，不要假装脚本能覆盖。
+圆角与阴影的取值数量会打印出来（规范建议圆角 ≤2 种、阴影 1 套），但不自动判错，需要人工确认。自动检查之外还要看：动效节奏（全站 2–3 处、200–400ms）、真实内容、一屏一节。这些靠 `design-review` 技能，不要假装脚本能覆盖。
 
 ### 硬性规则
 

@@ -192,6 +192,67 @@ def check_css(site: Path, issues: list, warns: list, output: Path | None = None)
         )
 
 
+def check_touch_targets(dist: Path, issues: list, warns: list) -> None:
+    """检查交互元素的显式高度是否 >= 44px（WCAG 2.5.5 / 规范硬性规则）。"""
+    interactive_tag = re.compile(r"^(button|input|select|textarea)$", re.I)
+    interactive_class = re.compile(r"\.(btn|button|cta|icon-button)(?![\w-])", re.I)
+    checked = 0
+    seen: set[str] = set()
+
+    for f in dist.rglob("*.css"):
+        css = f.read_text(encoding="utf-8", errors="ignore")
+        for m in re.finditer(r"([^{}]+)\{([^{}]*)\}", css):
+            selector_text, body = m.group(1), m.group(2)
+            for selector in selector_text.split(","):
+                last = re.split(r"[\s>+~]+", selector.strip())[-1]
+                last = last.split("::")[0].split(":")[0].strip()
+                if not last:
+                    continue
+                tag = re.sub(r"[.#\[].*$", "", last)
+                if not (interactive_tag.match(tag) or interactive_class.search(last)):
+                    continue
+                for prop in ("height", "min-height"):
+                    value = re.search(rf"(?:^|;)\s*{prop}\s*:\s*(\d+(?:\.\d+)?)px", body)
+                    if not value:
+                        continue
+                    checked += 1
+                    px = float(value.group(1))
+                    if px < 44:
+                        key = f"{f.name}:{selector.strip()}"
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        issues.append(
+                            f"触控目标不足 44px：{f.name} `{selector.strip()}` "
+                            f"{prop}={px:.0f}px"
+                        )
+    if checked and not seen:
+        print(f"{OK} 触控目标检查通过（{checked} 处显式尺寸）")
+
+
+def check_shape_system(dist: Path, warns: list) -> None:
+    """统计圆角与阴影取值，供人工判断（规范：圆角 ≤2 种、阴影 1 套）。"""
+    radii: set[str] = set()
+    shadows: set[str] = set()
+    for f in dist.rglob("*.css"):
+        css = f.read_text(encoding="utf-8", errors="ignore")
+        for value in re.findall(r"border-radius\s*:\s*([^;]+)", css, re.I):
+            v = value.strip().lower()
+            if v in ("0", "0px", "50%", "999px", "inherit", "none") or "var(" in v:
+                continue
+            radii.add(v)
+        for value in re.findall(r"box-shadow\s*:\s*([^;]+)", css, re.I):
+            v = value.strip().lower()
+            if v in ("none", "inherit") or "var(" in v:
+                continue
+            # 焦点环不是阴影层级，不计入
+            if re.match(r"^(inset\s+)?0\s+0\s+0\b", v):
+                continue
+            shadows.add(v)
+    # 只报告数量，不判错：圆角/阴影收敛是设计判断，不是可机械裁决的规则
+    print(f"ℹ 圆角取值 {len(radii)} 种，阴影 {len(shadows)} 种（规范建议 ≤2 / 1，需人工确认）")
+
+
 def main() -> None:
     argv = sys.argv[1:]
     explicit_output: Path | None = None
@@ -219,6 +280,10 @@ def main() -> None:
     check_theme_tokens(site, issues, warns)
     check_html(site, issues, warns, explicit_output)
     check_css(site, issues, warns, explicit_output)
+    dist = resolve_output(site, explicit_output)
+    if dist is not None:
+        check_touch_targets(dist, issues, warns)
+        check_shape_system(dist, warns)
 
     if as_json:
         print(json.dumps({"issues": issues, "warnings": warns}, ensure_ascii=False, indent=2))
