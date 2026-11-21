@@ -41,6 +41,7 @@ pnpm dev --filter=lawyerch.cn
 - `scripts/design-check`
 - `scripts/seo-audit`
 - `scripts/check-tokens`
+- `scripts/deploy-oss`
 - `scripts/deploy-ecs`
 
 ## 通用流程

@@ -1,29 +1,49 @@
 #!/usr/bin/env bash
 ##
-## 把站点构建产物上传到对应的 OSS bucket。
+## 把站点产物上传到对应的 OSS bucket。
 ##
 ## 用法：
 ##   ./scripts/deploy-oss sites/lawyerch.cn
-##   ./scripts/deploy-oss sites/labor.lawyerch.cn
+##   ./scripts/deploy-oss sites/new-ai
+##   ./scripts/deploy-oss sites/new-ai --bucket new-ai-cn
 ##
-## bucket 命名规则：域名里的点换成横线（labor.lawyerch.cn → labor-lawyerch-cn）。
+## 产物目录：有 dist/ 用 dist/，否则用 public/（纯静态站）。
+## bucket 默认按目录名推断，域名里的点换成横线（labor.lawyerch.cn → labor-lawyerch-cn）。
 ## 只上传变化过的文件（-u），不会删除 OSS 上多出来的旧文件。
 set -euo pipefail
 
-site="${1:?用法: ./scripts/deploy-oss sites/<domain>}"
-name="$(basename "$site")"
-dist="$site/dist"
-region="${OSS_REGION:-cn-guangzhou}"
+site="${1:?用法: ./scripts/deploy-oss sites/<path> [--bucket <bucket>]}"
+shift || true
+bucket=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --bucket) bucket="${2:?--bucket 需要值}"; shift 2 ;;
+    *) echo "未知参数：$1" >&2; exit 1 ;;
+  esac
+done
 
-if [ ! -d "$dist" ]; then
-  echo "✖ $dist 不存在，先构建：pnpm build" >&2
+region="${OSS_REGION:-cn-guangzhou}"
+name="$(basename "$site")"
+
+if [ -d "$site/dist" ]; then
+  dist="$site/dist"
+elif [ -d "$site/public" ]; then
+  dist="$site/public"
+else
+  echo "✖ $site 下没有 dist/ 或 public/，没有可上传的产物" >&2
   exit 1
 fi
 
-bucket="$(printf '%s' "$name" | tr '.' '-')"
+if [ -z "$bucket" ]; then
+  # facts 里写了 oss 字段就用它，否则按域名规则推断
+  bucket="$(grep -m1 '^ *oss:' "$site/site.facts.yml" 2>/dev/null | sed 's/.*oss: *//' | tr -d '"'"'"' \r' || true)"
+fi
+if [ -z "$bucket" ]; then
+  bucket="$(printf '%s' "$name" | tr '.' '-')"
+fi
+
 count="$(find "$dist" -type f | wc -l | tr -d ' ')"
+echo "→ ${name}: ${count} 个文件 → oss://${bucket}/"
 
-echo "→ ${name} 共 ${count} 个文件"
 aliyun oss cp --recursive "$dist" "oss://$bucket/" --region "$region" -u >/dev/null
-
-echo "✔ 已上传到 oss://$bucket/"
+echo "✔ 已上传到 oss://${bucket}/"
