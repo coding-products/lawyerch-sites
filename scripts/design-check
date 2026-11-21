@@ -58,7 +58,9 @@ def check_theme_tokens(site: Path, issues: list, warns: list) -> None:
     """检查 theme.ts 里的前景/背景对比度。"""
     theme = site / "src" / "config" / "theme.ts"
     if not theme.exists():
-        warns.append("未找到 src/config/theme.ts，跳过配色检查")
+        # 非 Astro 项目（没有 src/）直接跳过，不刷警告
+        if (site / "src").exists():
+            warns.append("未找到 src/config/theme.ts，跳过配色检查")
         return
 
     text = theme.read_text(encoding="utf-8")
@@ -86,15 +88,26 @@ def check_theme_tokens(site: Path, issues: list, warns: list) -> None:
     # 强调色（lime）按设计只用于深色底或按钮背景，不作为浅底正文色。
     # 这里不做自动判断，避免误报；规则写在 .agents/skills/design-review 里人工把关。
 
-def check_html(site: Path, issues: list, warns: list) -> None:
-    dist = site / "dist"
-    if not dist.exists():
-        issues.append(f"未找到构建产物 {dist}，先跑 pnpm build")
+def resolve_output(site: Path, explicit: Path | None = None) -> Path | None:
+    """构建产物目录。显式指定优先；否则 Astro 站点用 dist/，纯静态站点用 public/。"""
+    if explicit is not None:
+        return explicit if explicit.exists() else None
+    for name in ("dist", "public"):
+        candidate = site / name
+        if candidate.exists() and any(candidate.rglob("*.html")):
+            return candidate
+    return None
+
+
+def check_html(site: Path, issues: list, warns: list, output: Path | None = None) -> None:
+    dist = resolve_output(site, output)
+    if dist is None:
+        issues.append(f"{site} 下既没有 dist/ 也没有 public/ 里的 HTML，先跑 pnpm build")
         return
 
     pages = list(dist.rglob("*.html"))
     if not pages:
-        issues.append("dist 中没有 HTML")
+        issues.append(f"{dist.name}/ 中没有 HTML")
         return
 
     emoji_icon = re.compile(r"<a[^>]*>\s*[\U0001F300-\U0001FAFF\u2600-\u27BF]\s*</a>")
@@ -149,9 +162,9 @@ def check_html(site: Path, issues: list, warns: list) -> None:
     print(f"{OK if not issues else WARN} 扫描 {len(pages)} 个页面，{total_img} 张图片")
 
 
-def check_css(site: Path, issues: list, warns: list) -> None:
-    dist = site / "dist"
-    if not dist.exists():
+def check_css(site: Path, issues: list, warns: list, output: Path | None = None) -> None:
+    dist = resolve_output(site, output)
+    if dist is None:
         return
     css_files = list(dist.rglob("*.css"))
     if not css_files:
@@ -159,23 +172,41 @@ def check_css(site: Path, issues: list, warns: list) -> None:
 
     tiny_font = re.compile(r"font-size\s*:\s*(\d+(?:\.\d+)?)px", re.I)
     tiny_count = 0
+    motion_files: list[str] = []
     for f in css_files:
         css = f.read_text(encoding="utf-8", errors="ignore")
         for m in tiny_font.finditer(css):
             if float(m.group(1)) < 12:
                 tiny_count += 1
+        has_motion = re.search(r"(^|[;{\s])(animation|transition)\s*:", css)
+        if has_motion and "prefers-reduced-motion" not in css:
+            motion_files.append(str(f.relative_to(dist)))
     if tiny_count:
-        warns.append(f"CSS 中有 {tiny_count} 处 font-size < 12px")
+        issues.append(f"CSS 中有 {tiny_count} 处 font-size < 12px（规范硬性规则）")
     else:
         print(f"{OK} 字号检查通过")
+    if motion_files:
+        issues.append(
+            "有动画/过渡但未处理 prefers-reduced-motion："
+            + ", ".join(motion_files[:3])
+        )
 
 
 def main() -> None:
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    as_json = "--json" in sys.argv
+    argv = sys.argv[1:]
+    explicit_output: Path | None = None
+    if "--output" in argv:
+        i = argv.index("--output")
+        if i + 1 >= len(argv):
+            sys.exit("--output 需要一个目录参数")
+        explicit_output = Path(argv[i + 1]).expanduser().resolve()
+        del argv[i : i + 2]
+
+    args = [a for a in argv if not a.startswith("--")]
+    as_json = "--json" in argv
 
     if not args:
-        sys.exit("用法: ./scripts/design-check <站点目录> [--json]")
+        sys.exit("用法: ./scripts/design-check <站点目录> [--output <目录>] [--json]")
 
     site = Path(args[0]).expanduser().resolve()
     if not site.exists():
@@ -186,8 +217,8 @@ def main() -> None:
 
     print(f"== 设计检查：{site.name} ==\n")
     check_theme_tokens(site, issues, warns)
-    check_html(site, issues, warns)
-    check_css(site, issues, warns)
+    check_html(site, issues, warns, explicit_output)
+    check_css(site, issues, warns, explicit_output)
 
     if as_json:
         print(json.dumps({"issues": issues, "warnings": warns}, ensure_ascii=False, indent=2))

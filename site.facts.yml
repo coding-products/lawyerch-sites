@@ -1,5 +1,5 @@
 name: lawyerch-sites
-standard: 2026-11-19.1
+region: cn
 stack: Astro 7 + Tailwind CSS 4 + pnpm workspace + Turborepo
 extensions:
   - content-legal

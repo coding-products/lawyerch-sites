@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+"""
+部署走 ECS + nginx 的站点（`site.facts.yml` 里写 `server:` 的那种）。
+
+用法：
+  ./scripts/deploy-ecs sites/new-ai              # 预演，只打印 rsync 命令
+  ./scripts/deploy-ecs sites/new-ai --yes        # 实际同步
+  ./scripts/deploy-ecs sites/new-ai --target u@host:/path --yes
+  ./scripts/deploy-ecs . --domain new-ai.cn      # 在项目根目录里跑
+
+facts 写法：
+
+  sites:
+    - domain: new-ai.cn
+      path: .
+      server: aliyun-bt:/www/wwwroot/new-ai.cn
+
+`server` 冒号前是 ssh 主机（可以是 ~/.ssh/config 里的别名），冒号后是远端目录。
+源目录优先用 dist/，没有就用 public/。
+
+退出码：0 成功或预演，1 参数/环境错误。
+"""
+from __future__ import annotations
+
+import argparse
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+def find_facts(start: Path) -> Path | None:
+    for p in [start, *start.parents]:
+        candidate = p / "site.facts.yml"
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def load_sites(facts_path: Path) -> list[dict]:
+    text = facts_path.read_text(encoding="utf-8")
+    try:
+        import yaml
+
+        data = yaml.safe_load(text) or {}
+        return data.get("sites") or []
+    except ImportError:
+        pass
+
+    # 没有 pyyaml 时的降级解析：只取 sites 下每条记录的 domain/path/server
+    rows: list[dict] = []
+    current: dict | None = None
+    in_sites = False
+    for raw in text.splitlines():
+        line = raw.rstrip()
+        if re.match(r"^sites:\s*$", line):
+            in_sites = True
+            continue
+        if not in_sites:
+            continue
+        if line and not line.startswith((" ", "-", "\t")):
+            break
+        m = re.match(r"^\s*-\s*domain:\s*(.+)$", line)
+        if m:
+            current = {"domain": m.group(1).strip().strip("'\""), "path": "."}
+            rows.append(current)
+            continue
+        m = re.match(r"^\s+(path|server|oss|cloudflare|netlify|region):\s*(.+)$", line)
+        if m and current is not None:
+            current[m.group(1)] = m.group(2).strip().strip("'\"")
+    return rows
+
+
+def pick_site(sites: list[dict], domain: str | None) -> dict:
+    with_server = [s for s in sites if s.get("server")]
+    if domain:
+        for s in with_server:
+            if s.get("domain") == domain:
+                return s
+        sys.exit(f"facts 里没有 domain={domain} 且带 server 的站点")
+    if len(with_server) == 1:
+        return with_server[0]
+    if not with_server:
+        sys.exit("facts 里没有 server 字段，这个项目不走 ECS 部署")
+    sys.exit("facts 里有多个 server 站点，用 --domain 指定")
+
+
+def resolve_source(project: Path, site: dict) -> Path:
+    base = (project / (site.get("path") or ".")).resolve()
+    for name in ("dist", "public"):
+        candidate = base / name
+        if candidate.is_dir() and any(candidate.rglob("*.html")):
+            return candidate
+    sys.exit(f"{base} 下没有 dist/ 或 public/ 的 HTML，先构建或确认路径")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="rsync 部署到 ECS + nginx 站点")
+    parser.add_argument("project", nargs="?", default=".", help="项目目录，默认当前目录")
+    parser.add_argument("--domain", help="facts 里有多个站点时指定域名")
+    parser.add_argument("--target", help="覆盖 facts 的 server，格式 user@host:/path")
+    parser.add_argument("--yes", action="store_true", help="实际执行（默认只预演）")
+    args = parser.parse_args()
+
+    project = Path(args.project).expanduser().resolve()
+    if not project.is_dir():
+        sys.exit(f"目录不存在：{project}")
+
+    facts_path = find_facts(project)
+    if facts_path is None:
+        sys.exit(f"{project} 及上级目录里没有 site.facts.yml")
+
+    site = pick_site(load_sites(facts_path), args.domain)
+    target = args.target or site.get("server")
+    if not target or ":" not in target:
+        sys.exit(f"server 字段格式不对：{target!r}，应为 host:/path")
+
+    host, remote = target.rsplit(":", 1)
+    source = resolve_source(facts_path.parent, site)
+
+    if not shutil.which("rsync"):
+        sys.exit("未找到 rsync")
+
+    cmd = [
+        "rsync",
+        "-az",
+        "--delete",
+        "--exclude=.git",
+        "--exclude=node_modules",
+        "--exclude=.DS_Store",
+        f"{source}/",
+        f"{host}:{remote}/",
+    ]
+
+    print(f"项目：{site.get('domain') or project.name}")
+    print(f"源目录：{source}")
+    print(f"目标：{host}:{remote}")
+    print(f"命令：{' '.join(cmd)}")
+
+    if not args.yes:
+        print("\n预演完成。确认无误后加 --yes 执行。")
+        return
+
+    result = subprocess.run(cmd)
+    if result.returncode != 0:
+        sys.exit(f"rsync 失败，退出码 {result.returncode}")
+    print("\n同步完成。nginx 静态站点无需重启；若开了缓存，记得刷新。")
+
+
+if __name__ == "__main__":
+    main()
