@@ -33,9 +33,8 @@ const identities = [
 const blocks = [
   {
     id: 'legal-products',
-    label: 'Legal products',
     title: '法律产品',
-    note: '把法律经验做成可复用的工具。面向法律人，也面向做法律产品的开发者。',
+    note: '把法律经验做成可复用的工具，面向法律人和做法律产品的开发者。',
     items: [
       { label: 'skills-for-legal', note: '中国法实务 AI 技能集', href: 'https://github.com/law-products/skills-for-legal' },
       { label: 'doc-anonymizer', note: '本地文档脱敏', href: 'https://github.com/law-products/doc-anonymizer' },
@@ -45,23 +44,14 @@ const blocks = [
   },
   {
     id: 'tech-products',
-    label: 'Tech products',
     title: '技术产品',
     note: '文档处理、桌面应用、Agent 工具链，以及一份持续更新的开发资源索引。',
     items: [
-      { label: 'dev-resources', note: '动效 / 音效 / 图标 / UI', href: 'https://github.com/coding-products/dev-resources' },
-      { label: 'cc-ai-tools', note: '可扩展启动器', href: 'https://github.com/coding-products/cc-ai-tools' },
-      { label: 'cc-md-editor', note: 'Markdown 编辑器', href: 'https://github.com/coding-products/cc-md-editor' },
+      { label: 'dev-resources', note: '动效 / 音效 / 图标 / UI', href: 'https://github.com/lawyerch-dev/dev-resources' },
+      { label: 'cc-ai-tools', note: '可扩展启动器', href: 'https://github.com/lawyerch-dev/cc-ai-tools' },
+      { label: 'cc-md-editor', note: 'Markdown 编辑器', href: 'https://github.com/lawyerch-dev/cc-md-editor' },
     ],
-    all: { label: 'github.com/coding-products', href: 'https://github.com/coding-products' },
-  },
-  {
-    id: 'labour',
-    label: 'Domain site',
-    title: '劳动法',
-    note: '独立的领域站，写劳动争议、用工合规、规章制度与裁员方案。找实务文章或约一次咨询，去那里更直接。',
-    items: [],
-    all: { label: 'labor.lawyerch.cn', href: 'https://labor.lawyerch.cn' },
+    all: { label: 'github.com/lawyerch-dev', href: 'https://github.com/lawyerch-dev' },
   },
 ];
 ---
@@ -74,44 +64,25 @@ const blocks = [
   bodyClass="home-v3"
   homeNav
 >
-  <HomeLattice />
-
   <section class="hv-stage">
-    <div class="hv-id">
-      <div>
-        <h1 class="hv-id-name">陈恒<em>律师</em></h1>
-        <span class="hv-id-latin">Chen Heng · Lawyer</span>
+    <HomeLattice />
 
-        <ul class="hv-id-roles">
-          <li>律师</li>
-          <li>AI 开发者</li>
-          <li>法律内容创作者</li>
-        </ul>
-      </div>
+    <div class="hv-copy">
+      <p class="hv-kicker">Chen Heng · Lawyer</p>
 
-      <div class="hv-id-contact">
-        <dl>
-          <div>
-            <dt>Mail</dt>
-            <dd><a href="mailto:lawyerch@foxmail.com">lawyerch@foxmail.com</a></dd>
-          </div>
-          <div>
-            <dt>GitHub</dt>
-            <dd><a href="https://github.com/coding-products" target="_blank" rel="noopener">coding-products</a></dd>
-          </div>
-          <div>
-            <dt>Base</dt>
-            <dd>广州 · 可远程协作</dd>
-          </div>
-        </dl>
+      <h1 class="hv-headline">
+        把法律经验<em>写进代码</em>，<br />把判断留给人。
+      </h1>
 
-        <div class="hv-id-actions">
-          <a class="hv-btn hv-btn-primary" href="/contact/">发起咨询</a>
-          <a class="hv-btn hv-btn-ghost" href="https://labor.lawyerch.cn" target="_blank" rel="noopener">
-            劳动法站
-          </a>
-        </div>
-      </div>
+      <p class="hv-lede">
+        广州执业律师，专注劳动争议与企业用工合规。白天处理案件与合同，晚上把重复的部分做成工具——文档脱敏、AI 技能、领域站点，都开源放在 GitHub 上。
+      </p>
+
+      <ul class="hv-roles">
+        <li>律师</li>
+        <li>AI 开发者</li>
+        <li>法律内容创作者</li>
+      </ul>
     </div>
 
     <div class="hv-scroll" aria-hidden="true">
@@ -122,6 +93,7 @@ const blocks = [
 
   <div class="hv-body">
     <div class="hv-paper">
+
       <div class="hv-fold">
         {
           identities.map((id) => (
@@ -146,24 +118,19 @@ const blocks = [
         blocks.map((block) => (
           <section class="hv-block" id={block.id}>
             <div class="hv-block-head">
-              <p class="hv-label">{block.label}</p>
               <h2 class="hv-block-title">{block.title}</h2>
               <p class="hv-block-note">{block.note}</p>
             </div>
-
-            {block.items.length > 0 && (
-              <ul class="hv-list">
-                {block.items.map((item) => (
-                  <li>
-                    <a href={item.href} target="_blank" rel="noopener">
-                      <b>{item.label}</b>
-                      <span>{item.note}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-
+            <ul class="hv-list">
+              {block.items.map((item) => (
+                <li>
+                  <a href={item.href} target="_blank" rel="noopener">
+                    <b>{item.label}</b>
+                    <span>{item.note}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
             <a class="hv-block-link" href={block.all.href} target="_blank" rel="noopener">
               {block.all.label}
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -174,9 +141,8 @@ const blocks = [
         ))
       }
 
-      <section class="hv-block hv-block-contact">
+      <section class="hv-block">
         <div class="hv-block-head">
-          <p class="hv-label">Contact</p>
           <h2 class="hv-block-title">聊一聊</h2>
           <p class="hv-block-note">法律问题请走正式委托；工具、开源、合作可以直接发邮件。</p>
         </div>
@@ -196,7 +162,7 @@ const blocks = [
       let raf = 0;
       const update = () => {
         raf = 0;
-        const shift = Math.min(window.scrollY * 0.14, 160);
+        const shift = Math.min(window.scrollY * 0.12, 140);
         lattice.style.setProperty('--hv-shift', `${shift}px`);
       };
       window.addEventListener(

@@ -1,36 +1,57 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import HomeLattice from '~/components/HomeLattice.astro';
 import '~/styles/home.css';
 import siteConfig from '~/config/site';
 import { graph, personSchema, websiteSchema } from '~/lib/jsonld';
 
 const jsonLd = graph([personSchema(siteConfig), websiteSchema(siteConfig)]);
 
-const products = [
+const identities = [
+  {
+    title: 'Lawyer',
+    lines: [
+      'A practising lawyer in Guangzhou, focused on labour disputes and employment compliance.',
+      'From the clauses of an employment contract, to the calculation behind a termination, to a staff handbook that holds up.',
+    ],
+    items: ['Labour arbitration and litigation', 'Employment compliance review', 'Workplace policies and redundancy planning'],
+  },
+  {
+    title: 'AI developer',
+    lines: [
+      'Writing code is a long-standing habit. The repetitive parts of legal work go to tools; the judgement stays human.',
+      'Document processing, desktop apps, agent tooling, and a resource index.',
+    ],
+    items: [
+      'skills-for-legal — Chinese legal AI skills',
+      'doc-anonymizer — local document anonymisation',
+      'dev-resources — motion, icons and component index',
+    ],
+  },
+];
+
+const blocks = [
   {
     id: 'legal-products',
-    label: 'Legal products',
     title: 'Legal products',
-    note: 'Turning legal experience into tools — for lawyers and for developers building legal products.',
+    note: 'Reusable tools built from legal practice — for lawyers and for developers building legal products.',
     items: [
       { label: 'skills-for-legal', note: 'Chinese legal AI skills', href: 'https://github.com/law-products/skills-for-legal' },
       { label: 'doc-anonymizer', note: 'Local document anonymisation', href: 'https://github.com/law-products/doc-anonymizer' },
       { label: 'doc-flip-video', note: 'Document flip videos', href: 'https://github.com/law-products/doc-flip-video' },
-      { label: 'labor.lawyerch.cn', note: 'Labour law site', href: 'https://labor.lawyerch.cn/en/' },
     ],
     all: { label: 'github.com/law-products', href: 'https://github.com/law-products' },
   },
   {
     id: 'tech-products',
-    label: 'Tech products',
     title: 'Tech products',
     note: 'Document processing, desktop apps, agent tooling, and a continuously updated resource index.',
     items: [
-      { label: 'dev-resources', note: 'Motion / sound / icons / UI', href: 'https://github.com/coding-products/dev-resources' },
-      { label: 'cc-ai-tools', note: 'Extensible launcher', href: 'https://github.com/coding-products/cc-ai-tools' },
-      { label: 'cc-md-editor', note: 'Markdown editor', href: 'https://github.com/coding-products/cc-md-editor' },
+      { label: 'dev-resources', note: 'Motion / sound / icons / UI', href: 'https://github.com/lawyerch-dev/dev-resources' },
+      { label: 'cc-ai-tools', note: 'Extensible launcher', href: 'https://github.com/lawyerch-dev/cc-ai-tools' },
+      { label: 'cc-md-editor', note: 'Markdown editor', href: 'https://github.com/lawyerch-dev/cc-md-editor' },
     ],
-    all: { label: 'github.com/coding-products', href: 'https://github.com/coding-products' },
+    all: { label: 'github.com/lawyerch-dev', href: 'https://github.com/lawyerch-dev' },
   },
 ];
 ---
@@ -40,68 +61,93 @@ const products = [
   description="Guangzhou-based lawyer who writes code. Legal tech and AI development: knowledge assets, legal tools, open-source projects."
   appendSiteName={false}
   jsonLd={jsonLd}
-  bodyClass="home-v2"
+  bodyClass="home-v3"
   homeNav
 >
-  <div class="hv-frame">
-    <div class="hv-card">
-      <section class="hv-hero">
-        <p class="hv-label">TL;DR</p>
-        <h1 class="hv-title">Chen Heng, <em>Esq.</em></h1>
-        <p class="hv-lede">
-          A lawyer in Guangzhou who writes code — handing the repetitive parts of legal work to machines
-          and keeping the judgement human.
-        </p>
+  <section class="hv-stage">
+    <HomeLattice />
 
-        <dl class="hv-meta">
-          <div>
-            <dt>Practice</dt>
-            <dd>Labour disputes · Employment compliance</dd>
-          </div>
-          <div>
-            <dt>Two tracks</dt>
-            <dd>Legal tech <span aria-hidden="true">/</span> AI development</dd>
-          </div>
-          <div>
-            <dt>Based in</dt>
-            <dd>Guangzhou · remote-friendly</dd>
-          </div>
-        </dl>
-      </section>
+    <div class="hv-copy">
+      <p class="hv-kicker">陈恒 · Lawyer</p>
+
+      <h1 class="hv-headline">
+        Legal experience, <em>written into code</em>.<br />
+        Judgement stays human.
+      </h1>
+
+      <p class="hv-lede">
+        A lawyer in Guangzhou focused on labour disputes and employment compliance. Days go to cases and
+        contracts; evenings go to turning the repetitive parts into tools — document anonymisation, AI
+        skills and a domain site, all open source on GitHub.
+      </p>
+
+      <ul class="hv-roles">
+        <li>Lawyer</li>
+        <li>AI developer</li>
+        <li>Legal writer</li>
+      </ul>
+    </div>
+
+    <div class="hv-scroll" aria-hidden="true">
+      <span></span>
+      Scroll
+    </div>
+  </section>
+
+  <div class="hv-body">
+    <div class="hv-paper">
+
+      <div class="hv-fold">
+        {
+          identities.map((id) => (
+            <details>
+              <summary>{id.title}</summary>
+              <div class="hv-fold-body">
+                {id.lines.map((line) => (
+                  <p>{line}</p>
+                ))}
+                <ul>
+                  {id.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          ))
+        }
+      </div>
 
       {
-        products.map((section) => (
-          <section class="hv-sec" id={section.id}>
-            <div class="hv-sec-head">
-              <p class="hv-label">{section.label}</p>
-              <h2 class="hv-sec-title">{section.title}</h2>
-              <p class="hv-sec-note">{section.note}</p>
+        blocks.map((block) => (
+          <section class="hv-block" id={block.id}>
+            <div class="hv-block-head">
+              <h2 class="hv-block-title">{block.title}</h2>
+              <p class="hv-block-note">{block.note}</p>
             </div>
-
-            <div class="hv-products">
-              <ul class="hv-list">
-                {section.items.map((item) => (
-                  <li>
-                    <a href={item.href} target="_blank" rel="noopener">
-                      <b>{item.label}</b>
-                      <span>{item.note}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <a class="hv-list-all" href={section.all.href} target="_blank" rel="noopener">
-                {section.all.label}
-              </a>
-            </div>
+            <ul class="hv-list">
+              {block.items.map((item) => (
+                <li>
+                  <a href={item.href} target="_blank" rel="noopener">
+                    <b>{item.label}</b>
+                    <span>{item.note}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a class="hv-block-link" href={block.all.href} target="_blank" rel="noopener">
+              {block.all.label}
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
           </section>
         ))
       }
 
-      <section class="hv-sec">
-        <div class="hv-sec-head">
-          <p class="hv-label">Contact</p>
-          <h2 class="hv-sec-title">Say hello</h2>
-          <p class="hv-sec-note">
+      <section class="hv-block">
+        <div class="hv-block-head">
+          <h2 class="hv-block-title">Say hello</h2>
+          <p class="hv-block-note">
             For legal matters please engage formally. For tools, open source or collaboration, email works.
           </p>
         </div>
@@ -113,4 +159,24 @@ const products = [
       </section>
     </div>
   </div>
+
+  <script>
+    const lattice = document.querySelector<SVGElement>('.hv-lattice svg');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (lattice && !reduce) {
+      let raf = 0;
+      const update = () => {
+        raf = 0;
+        const shift = Math.min(window.scrollY * 0.12, 140);
+        lattice.style.setProperty('--hv-shift', `${shift}px`);
+      };
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!raf) raf = requestAnimationFrame(update);
+        },
+        { passive: true }
+      );
+    }
+  </script>
 </BaseLayout>

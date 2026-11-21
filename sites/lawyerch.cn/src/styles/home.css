@@ -96,7 +96,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  color: #7f93b8;
+  color: var(--swp-slate);
   pointer-events: none;
   opacity: var(--hv-glow, 1);
   overflow: hidden;
@@ -176,9 +176,9 @@
 
 .hv-headline {
   margin: 0;
-  max-width: 22ch;
+  max-width: 26ch;
   font-family: var(--font-serif);
-  font-size: clamp(30px, 3.6vw, 46px);
+  font-size: clamp(28px, 3.1vw, 40px);
   font-weight: 700;
   line-height: 1.52;
   letter-spacing: 0.05em;
@@ -295,68 +295,6 @@
   padding: clamp(48px, 6vw, 88px) clamp(20px, 5vw, 88px) clamp(48px, 6vw, 88px);
   background: var(--swp-mist);
   border-radius: var(--r-lg);
-}
-
-/* --- 三列目录行 ------------------------------------------- */
-
-.hv-rows {
-  display: grid;
-  border-top: 1px solid var(--swp-line);
-  margin-bottom: clamp(48px, 6vw, 80px);
-}
-
-.hv-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) 52px;
-  align-items: center;
-  gap: clamp(16px, 3vw, 40px);
-  padding: clamp(26px, 3.2vw, 40px) 0;
-  border-bottom: 1px solid var(--swp-line);
-  text-decoration: none;
-  transition: padding-left 0.26s var(--ease);
-}
-
-.hv-row:hover {
-  padding-left: 10px;
-}
-
-.hv-row-title {
-  font-family: var(--font-serif);
-  font-size: clamp(26px, 3.2vw, 42px);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.04em;
-  color: var(--swp-ink);
-}
-
-.hv-row:hover .hv-row-title {
-  color: var(--swp-accent-ink);
-}
-
-.hv-row-note {
-  font-size: 14.5px;
-  line-height: 1.8;
-  color: var(--swp-slate);
-}
-
-.hv-row-arrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border: 1px solid var(--swp-line);
-  border-radius: 50%;
-  color: var(--swp-ink);
-  transition: background 0.24s var(--ease), border-color 0.24s var(--ease),
-    color 0.24s var(--ease), transform 0.24s var(--ease);
-}
-
-.hv-row:hover .hv-row-arrow {
-  background: var(--swp-ink);
-  border-color: var(--swp-ink);
-  color: #fff;
-  transform: translateX(4px);
 }
 
 /* --- 折叠身份 --------------------------------------------- */
@@ -538,22 +476,6 @@
 
 /* --- 响应式 ----------------------------------------------- */
 
-@media (max-width: 860px) {
-  .hv-row {
-    grid-template-columns: minmax(0, 1fr) 44px;
-    row-gap: 10px;
-    align-items: start;
-  }
-  .hv-row-note {
-    grid-column: 1 / -1;
-    order: 3;
-  }
-  .hv-row-arrow {
-    width: 44px;
-    height: 44px;
-  }
-}
-
 @media (max-width: 720px) {
   .hv-pill {
     gap: 2px;
@@ -591,8 +513,6 @@
 @media (prefers-reduced-motion: reduce) {
   .hv-lattice svg,
   .hv-list a,
-  .hv-row,
-  .hv-row-arrow,
   .hv-pill-links a {
     transition: none;
   }
