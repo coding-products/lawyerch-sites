@@ -1,0 +1,229 @@
+---
+/**
+ * 首页 · 法律 FDE
+ * 一屏讲清“不是买工具”，一屏讲清六步，细节折叠起来，不默认铺满。
+ */
+const steps = [
+  { no: '01', zh: '诊断', en: 'Diagnose', note: '时间花在哪', noteEn: 'Where time goes', out: 'AI 落地地图 · 优先级清单', outEn: 'AI opportunity map · Priority list' },
+  { no: '02', zh: '选题', en: 'Select', note: '先做哪一个', noteEn: 'What to build first', out: '流程说明书 · 人工复核节点', outEn: 'Workflow spec · Review checkpoints' },
+  { no: '03', zh: '部署', en: 'Deploy', note: '接进现有系统', noteEn: 'Connect to your systems', out: '可用环境 · 知识库 · 权限日志', outEn: 'Environment · Knowledge base · Access logs' },
+  { no: '04', zh: '搭建', en: 'Build', note: '做成能用的工具', noteEn: 'Make it usable', out: '业务 Skills · 模板 · 操作手册', outEn: 'Business skills · Templates · Runbook' },
+  { no: '05', zh: '评测', en: 'Evaluate', note: '用办结案件验收', noteEn: 'Test on closed cases', out: '评测集 · 评测报告 · 上线标准', outEn: 'Test set · Eval report · Go-live criteria' },
+  { no: '06', zh: '带教', en: 'Coach', note: '团队自己会调', noteEn: 'Your team can run it', out: '使用规范 · 培训带教 · 月度复盘', outEn: 'Usage policy · Training · Monthly review' },
+];
+---
+
+<section class="fde" id="fde" aria-labelledby="fde-title">
+  <div class="qc-wrap">
+    <header class="fde__h">
+      <span class="fde__k" data-noi18n><i></i>LEGAL FDE</span>
+      <h2 id="fde-title" data-en="Not another tool.<br><em>Make it run.</em>">不是买工具，<br><em>是把它用起来</em></h2>
+      <p data-en="I work on site with your team, wiring AI into your contracts, policies, cases and workflows.">我进驻现场，和你的团队一起，把 AI 接进合同、制度、案件和流程。</p>
+    </header>
+
+    <div class="vs">
+      <div class="vs__c">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="6" width="20" height="20" rx="3"/><circle cx="16" cy="16" r="3"/></svg>
+        <span data-en="Software">买软件</span>
+        <b data-en="An account">一个账号</b>
+        <i data-en="Features in the cloud">功能在云端</i>
+      </div>
+      <div class="vs__c">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 4h10l5 5v19H9z"/><path d="M19 4v5h5M13 15h7M13 20h7M13 25h4"/></svg>
+        <span data-en="Consulting">请咨询</span>
+        <b data-en="A report">一份报告</b>
+        <i data-en="You implement it">方案归你实施</i>
+      </div>
+      <div class="vs__c is-on">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="8" cy="22" r="3"/><circle cx="16" cy="9" r="3"/><circle cx="25" cy="20" r="3"/><path d="M9.5 19.5 14.5 11M18 11l5 7M11 22h11"/></svg>
+        <span data-en="Legal FDE">法律 FDE</span>
+        <b data-en="A workflow that runs">跑起来的流程</b>
+        <i data-en="Data stays local. Your team can run it.">数据在本地，团队会用</i>
+      </div>
+    </div>
+
+    <p class="who" data-en="For corporate legal teams, SMEs and law firms.">适合 集团法务 / 中小企业 / 律所</p>
+
+    <div class="flow">
+      <div class="flow__h">
+        <span class="fde__k" data-noi18n><i></i>HOW IT RUNS</span>
+        <h3 data-en="Six steps. One workflow at a time.">六步，一次只做一个流程</h3>
+      </div>
+
+      <ol class="steps">
+        {steps.map((s) => (
+          <li>
+            <b>{s.no}</b>
+            <h4 data-en={s.en}>{s.zh}</h4>
+            <p data-en={s.noteEn}>{s.note}</p>
+          </li>
+        ))}
+      </ol>
+
+      <details class="out">
+        <summary data-en="What each step delivers">每一步交付什么</summary>
+        <ul>
+          {steps.map((s) => (
+            <li><b data-en={`${s.no} ${s.en}`}>{s.no} {s.zh}</b><span data-en={s.outEn}>{s.out}</span></li>
+          ))}
+        </ul>
+      </details>
+    </div>
+
+    <div class="cta">
+      <div>
+        <span data-noi18n>NEXT</span>
+        <h3 data-en="Start with a 30-minute diagnosis">先做一次 30 分钟诊断</h3>
+        <p data-en="No report. Find the one thing that takes the most time every day.">不发报告，先找出每天最费时间的那件事。</p>
+      </div>
+      <a class="btn" href="/contact/"><span data-en="Book a time">约个时间</span><i aria-hidden="true">↗</i></a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fde {
+    --f-bg: #0b0b0d;
+    --f-ink: #f2e9d8;
+    --f-dim: rgba(242, 233, 216, .6);
+    --f-line: rgba(242, 233, 216, .13);
+    --f-panel: rgba(244, 231, 206, .03);
+    --f-gold: #d9b36a;
+    --f-red: #b03127;
+    position: relative;
+    padding: clamp(96px, 10vw, 140px) 0 clamp(64px, 8vw, 104px);
+    border-top: 1px solid var(--f-line);
+    background: var(--f-bg);
+    color: var(--f-ink);
+    scroll-margin-top: 88px;
+  }
+  :global(html[data-theme="light"]) .fde {
+    --f-bg: #efede7;
+    --f-ink: #1f2933;
+    --f-dim: rgba(31, 41, 51, .66);
+    --f-line: rgba(31, 41, 51, .14);
+    --f-panel: rgba(255, 255, 255, .6);
+    --f-gold: #8a5f16;
+    --f-red: #991b1b;
+  }
+
+  .fde__h { max-width: 780px; }
+  .fde__k { display: inline-flex; align-items: center; gap: 10px; font-family: var(--qc-mono); font-size: 12px; line-height: 1; letter-spacing: .24em; color: var(--f-gold); }
+  .fde__k i { width: 7px; height: 7px; border-radius: 2px; background: var(--f-red); }
+  .fde h2 {
+    margin: 24px 0 0;
+    font-family: var(--qc-song);
+    font-size: clamp(2.3rem, 4.6vw, 3.7rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: .03em;
+    color: var(--f-ink);
+  }
+  .fde h2 :global(em) { font-style: normal; color: var(--f-gold); }
+  .fde__h > p { margin: 20px 0 0; max-width: 560px; font-size: 16px; line-height: 1.8; color: var(--f-dim); }
+
+  .vs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: clamp(40px, 5vw, 64px); background: var(--f-line); border: 1px solid var(--f-line); }
+  .vs__c { padding: clamp(20px, 2.6vw, 30px); background: var(--f-bg); }
+  .vs__c.is-on { background: var(--f-panel); box-shadow: inset 0 2px 0 var(--f-gold); }
+  .vs__c svg { width: 30px; height: 30px; fill: none; stroke: var(--f-dim); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+  .vs__c.is-on svg { stroke: var(--f-gold); }
+  .vs__c span { display: block; margin-top: 20px; font-family: var(--qc-mono); font-size: 12px; letter-spacing: .16em; color: var(--f-dim); }
+  .vs__c b { display: block; margin-top: 10px; font-family: var(--qc-song); font-size: clamp(1.2rem, 1.8vw, 1.6rem); font-weight: 700; letter-spacing: .05em; color: var(--f-ink); }
+  .vs__c.is-on b { color: var(--f-gold); }
+  .vs__c i { display: block; margin-top: 8px; font-style: normal; font-size: 12.5px; line-height: 1.6; color: var(--f-dim); }
+
+  .who { margin: 18px 0 0; font-size: 13px; letter-spacing: .04em; color: var(--f-dim); }
+
+  .flow { margin-top: clamp(48px, 6vw, 80px); }
+  .flow__h h3 { margin: 14px 0 0; font-family: var(--qc-song); font-size: clamp(1.4rem, 2.2vw, 1.9rem); font-weight: 700; letter-spacing: .06em; color: var(--f-ink); }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: clamp(24px, 3.4vw, 40px) 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--f-line);
+  }
+  .steps li { position: relative; padding: 24px 26px 26px 0; border-right: 1px solid var(--f-line); }
+  .steps li:nth-child(3n) { border-right: 0; }
+  .steps li:nth-child(n + 4) { border-top: 1px solid var(--f-line); }
+  .steps li::before { content: ''; position: absolute; left: 0; top: -3px; width: 5px; height: 5px; border-radius: 50%; background: var(--f-gold); }
+  .steps b { display: block; font-family: var(--qc-num); font-size: 13px; letter-spacing: .1em; color: var(--f-gold); }
+  .steps h4 { margin: 12px 0 0; font-family: var(--qc-song); font-size: 1.35rem; font-weight: 700; letter-spacing: .08em; color: var(--f-ink); }
+  .steps p { margin: 8px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--f-dim); }
+
+  .out { margin-top: 26px; border-top: 1px solid var(--f-line); }
+  .out summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0;
+    font-size: 13px;
+    letter-spacing: .04em;
+    color: var(--f-gold);
+    cursor: pointer;
+    list-style: none;
+  }
+  .out summary::-webkit-details-marker { display: none; }
+  .out summary:hover { color: var(--f-ink); }
+  .out summary:focus-visible { outline: 1px solid var(--f-gold); outline-offset: 4px; }
+  .out summary::after { content: '+'; margin-left: auto; font-family: var(--qc-num); font-size: 16px; transition: transform 300ms var(--ease-o); }
+  .out[open] summary::after { transform: rotate(45deg); }
+  .out ul { margin: 0 0 8px; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
+  .out li { display: flex; gap: 14px; padding: 9px 0; border-top: 1px solid var(--f-line); font-size: 12.5px; line-height: 1.6; }
+  .out li b { flex: none; width: 60px; font-weight: 500; color: var(--f-ink); }
+  .out li span { color: var(--f-dim); }
+
+  .cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    margin-top: clamp(44px, 6vw, 72px);
+    padding: clamp(24px, 3.4vw, 40px);
+    border: 1px solid var(--f-line);
+    background: var(--f-panel);
+    box-shadow: inset 0 2px 0 var(--f-gold);
+  }
+  .cta span { font-family: var(--qc-mono); font-size: 12px; letter-spacing: .2em; color: var(--f-gold); }
+  .cta h3 { margin: 12px 0 0; font-family: var(--qc-song); font-size: clamp(1.4rem, 2.2vw, 1.9rem); font-weight: 700; letter-spacing: .06em; color: var(--f-ink); }
+  .cta p { margin: 10px 0 0; font-size: 13px; line-height: 1.8; color: var(--f-dim); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex: none;
+    padding: 15px 22px;
+    border: 1px solid var(--f-gold);
+    color: var(--f-gold);
+    font-size: 13px;
+    letter-spacing: .06em;
+    text-decoration: none;
+    transition: background-color 300ms ease, color 300ms ease;
+  }
+  .btn i { font-style: normal; transition: transform 400ms var(--ease-o); }
+  .btn:hover { background: var(--f-gold); color: var(--f-bg); }
+  .btn:hover i { transform: translate(2px, -2px); }
+
+  @media (max-width: 860px) {
+    .vs { grid-template-columns: 1fr; }
+    .vs__c { display: grid; grid-template-columns: 42px minmax(0, 1fr); column-gap: 16px; padding: 16px 16px; }
+    .vs__c svg { grid-row: 1 / span 3; width: 26px; height: 26px; align-self: center; }
+    .vs__c span { margin-top: 0; }
+    .vs__c b { margin-top: 6px; }
+    .vs__c i { margin-top: 4px; }
+    .cta { flex-direction: column; align-items: flex-start; }
+  }
+  @media (max-width: 620px) {
+    .fde { padding-top: 96px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps li { display: grid; grid-template-columns: 38px minmax(0, 1fr); column-gap: 12px; border-right: 0; border-bottom: 1px solid var(--f-line); padding: 16px 0; }
+    .steps li:nth-child(n + 4) { border-top: 0; }
+    .steps li:last-child { border-bottom: 0; }
+    .steps b { grid-row: 1; grid-column: 1; }
+    .steps h4 { grid-column: 2; margin: 0; font-size: 1.2rem; }
+    .steps p { grid-column: 2; margin: 5px 0 0; }
+    .out ul { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,68 +1,43 @@
 ---
 import { mqcConfig } from '~/config/mqcConfig';
 
-const { slogan, person, credentials } = mqcConfig;
+const { slogan } = mqcConfig;
 ---
 
 <section class="st" id="st" aria-label="首屏">
-  <!-- 核心 WebGL/Canvas 坐标晶格背景与电流游走动画 -->
+  <!-- 问题场的坐标晶格与电流 -->
   <canvas class="st__v" id="bg-cv" aria-hidden="true"></canvas>
   <div class="st__shade"></div>
 
-  <!-- 第 1 屏标语 -->
+  <!-- 首屏主张：法律问题 × AI 解法 -->
   <div class="st__copy">
-    <div class="qc-wrap st__in">
+    <div class="qc-wrap st__hero">
       <span class="st__eb" data-a style="--d:0" data-noi18n><i></i>{slogan.kicker}</span>
-      <h2 class="st__slo">
-        <span><i style="--d:80" data-en={slogan.line1.en}>{slogan.line1.zh}<br class="mbr" />{slogan.line1Sub.zh}</i></span>
-        <span><i style="--d:200" data-en={slogan.line2.en}>{slogan.line2.zh}<br class="mbr" />{slogan.line2Sub.zh}</i></span>
+      <h2 class="st__title" data-a style="--d:100">
+        <span data-en="Legal problems">法律问题</span><em aria-hidden="true">×</em><span data-en="AI solutions">AI 解法</span>
       </h2>
-      <p class="st__p" data-a style="--d:520" data-en={slogan.desc.en}>{slogan.desc.zh}</p>
-    </div>
-  </div>
-
-  <button type="button" class="st__cue" id="cue" aria-label="向下"><i></i>SCROLL</button>
-
-  <!-- 第 2 屏：白幕 + 鼠标可拖动的立体坐标交互 + 资历折叠 -->
-  <div class="sheet" id="sheet">
-    <canvas class="sheet__cv" id="hx-cv" aria-hidden="true"></canvas>
-    <div class="sheet__in">
-      <div class="qc-wrap ab">
-        <div class="ab__r" data-b style="--d:0">
-          <div class="ab__ph">
-            <img src={person.cutout} alt={`${person.nameZh}律师`} width="1374" height="1500" />
-          </div>
-          <div class="ab__nm">
-            <b data-en={person.nameEn}>{person.nameZh}</b>
-            <span>{person.nameEn} · Lawyer</span>
-          </div>
-
-          <div class="idl" id="idl">
-            {credentials.map((c, i) => (
-              <button type="button" class={`idl__i ${i === 0 ? 'is-on' : ''}`} data-ax={i}>
-                <span class="idl__h">
-                  <b data-en={c.titleEn}>{c.titleZh}</b>
-                  <i class="idl__pm"></i>
-                </span>
-                <span class="idl__d">
-                  <span>
-                    {c.isParagraph ? (
-                      <em class="is-p" data-en={c.paragraph?.en}>{c.paragraph?.zh}</em>
-                    ) : (
-                      c.items?.map((item) => (
-                        <em>
-                          <span class="u">{item.u1}</span>
-                          <span class="u">{item.u2}</span>
-                        </em>
-                      ))
-                    )}
-                  </span>
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+      <div class="st__three" data-a style="--d:380">
+        <span data-en="Legal problems">法律问题</span>
+        <a class="st__cta" id="hero-cta" href="#products" data-en="See how I solve">
+          <span class="st__br" aria-hidden="true">[</span>
+          <span>看我怎么解</span>
+          <span class="st__br" aria-hidden="true">]</span>
+        </a>
+        <span data-en="Verifiable results">可验证的结果</span>
       </div>
     </div>
   </div>
+
+  <!-- 左下伪代码：用普通人能看懂的方式说明我在做什么 -->
+  <pre class="st__code" data-a style="--d:640" data-noi18n aria-label="我在做的事：把法律问题放进「事实 × 规则」的图谱，沿连接找出通往解法的路径，让每一步都有据可查。"><code id="hero-type"></code><span class="st__cur" aria-hidden="true"></span></pre>
+
+  <!-- 底部状态：把倒计时换成“正在解” -->
+  <div class="st__status" data-a style="--d:760">
+    <span class="st__dot" aria-hidden="true"></span>
+    <span data-en="Solving · Labor disputes / Contract review / Legal knowledge base">正在解 · 劳动争议 / 合同审查 / 法律知识库</span>
+  </div>
+
+  <p class="st__note" data-a style="--d:680" data-noi18n>不只回答问题，<br>也把解法做成可复用的工具。</p>
+
+  <button type="button" class="st__cue" id="cue" aria-label="向下"><i></i>SCROLL</button>
 </section>

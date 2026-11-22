@@ -4,24 +4,26 @@
  * ------------------------------------------------------------
  * GateHero 内含：
  *   1. 红色名片（微动水波/扭索纹 Canvas，开门时头像飞入吸顶导航栏）
- *   2. 分段舞台第 1 屏：三维晶格动态生长，金色电流脉冲流动，可交互
- *   3. 分段舞台第 2 屏：白幕滑出，交互式 3D 坐标晶格，立绘与手风琴资历
+ *   2. 首屏：法律问题 × AI 解法图谱（标签节点 + 汇聚电流）
  *
  * 页面其余内容：
- *   4. 全部内容大字列表（鼠标悬浮带旋转小箭头 + 鼠标跟随磁吸预览浮卡）
+ *   3. 法律产品：劳动争议测算 / 合同审查 / 法律知识库
+ *   4. 法律 FDE：服务对比、六步落地流程、交付物与预约诊断
  *   5. 深红联系板块（各平台入口 + vCard 电话/联系人一键保存）
  *
  * 所有数据均提取在 src/config/mqcConfig.ts，方便随时按需定制与增删。
  */
 import MqcLayout from '~/layouts/MqcLayout.astro';
 import GateHero from '~/components/gate/GateHero.astro';
-import ModuleList from '~/components/mqc/ModuleList.astro';
+import LegalProducts from '~/components/mqc/LegalProducts.astro';
+import LegalFde from '~/components/mqc/LegalFde.astro';
 import ContactFooter from '~/components/mqc/ContactFooter.astro';
 ---
 
 <MqcLayout>
   <GateHero>
-    <ModuleList />
+    <LegalProducts />
+    <LegalFde />
     <ContactFooter />
   </GateHero>
 </MqcLayout>

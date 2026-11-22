@@ -30,6 +30,23 @@
   }
 
 
+  // 浅色 / 暗色主题
+  const themeBtn = document.getElementById('theme-toggle');
+  const themeRoot = document.documentElement;
+  function applyTheme(t) {
+    themeRoot.setAttribute('data-theme', t);
+    if (themeBtn) themeBtn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+    window.dispatchEvent(new CustomEvent('qc-theme-change', { detail: t }));
+  }
+  if (themeBtn) {
+    applyTheme(themeRoot.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+    themeBtn.addEventListener('click', function () {
+      const next = themeRoot.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      try { localStorage.setItem('qc-theme', next); } catch (e) {}
+      applyTheme(next);
+    });
+  }
+
   // 锚点平滑滚动（仅在用户未要求减少动画时）
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!prefersReducedMotion) {
@@ -40,7 +57,8 @@
         const target = document.querySelector(targetId);
         if (target) {
           e.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth' });
+          if (window.qcGotoAnchor) window.qcGotoAnchor(target);
+          else target.scrollIntoView({ behavior: 'smooth' });
         }
       });
     });

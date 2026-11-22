@@ -1,0 +1,281 @@
+---
+/**
+ * 首页 · 法律产品
+ * 一屏一个产品：一句问题 + 一个真实界面 + 一个入口，不再堆步骤说明。
+ */
+---
+
+<section class="lp" id="products" aria-labelledby="lp-title">
+  <div class="qc-wrap">
+    <header class="lp__h">
+      <span class="lp__k" data-noi18n><i></i>LEGAL PRODUCTS</span>
+      <h2 id="lp-title" data-en="Three problems.<br><em>Three tools.</em>">三类问题，<br><em>三个工具</em></h2>
+      <p class="lp__lead" data-en="Calculate it. Check it. Trace it.">能算、能查、能核对。</p>
+    </header>
+
+    <article class="pr">
+      <div class="pr__txt">
+        <div class="pr__no"><b>01</b><span>LABOR</span></div>
+        <h3 data-en="Labor Dispute Solver">劳动争议解法库</h3>
+        <p class="pr__q" data-en="Laid off — how much can you claim?">被辞退，<br>能拿多少？</p>
+        <a class="pr__a" href="https://labor.lawyerch.cn/" target="_blank" rel="noopener">
+          <span data-en="Open the tool">进入工具</span><i aria-hidden="true">↗</i>
+        </a>
+      </div>
+
+      <div class="viz viz--calc" aria-hidden="true" data-noi18n>
+        <div class="viz__bar"><i></i><span>labor.lawyerch.cn</span><b>AI 测算</b></div>
+        <div class="viz__body">
+          <div class="calc__rows">
+            <div><span>工龄</span><b>7 年</b></div>
+            <div><span>月平均工资</span><b>¥ 18,000</b></div>
+            <div><span>解除类型</span><b class="is-red">违法解除</b></div>
+          </div>
+          <div class="flow">
+            <i>事实</i><u></u><i>规则 × 3</i><u></u><i>结果</i>
+          </div>
+          <div class="calc__out">
+            <span>补偿区间</span>
+            <b>¥126,000 – ¥252,000</b>
+            <small>2N 区间 · 《劳动合同法》§47 / §87</small>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pr pr--flip">
+      <div class="pr__txt">
+        <div class="pr__no"><b>02</b><span>CONTRACT</span></div>
+        <h3 data-en="Contract Review Workbench">合同审查工作台</h3>
+        <p class="pr__q" data-en="One contract.<br>See the risk first.">一份合同，<br>先看风险。</p>
+        <a class="pr__a" href="/contact/">
+          <span data-en="Talk about your contract flow">聊聊你的合同流程</span><i aria-hidden="true">↗</i>
+        </a>
+      </div>
+
+      <div class="viz viz--doc" aria-hidden="true" data-noi18n>
+        <div class="viz__bar"><i></i><span>采购框架协议.pdf</span><b>AI 初审 12s</b></div>
+        <div class="viz__body">
+          <div class="doc">
+            <span class="doc__ln w1"></span>
+            <span class="doc__ln w2"></span>
+            <div class="doc__clause is-hi"><span>5.2</span><em>付款周期 90 天</em><b>高</b></div>
+            <div class="doc__clause is-hi"><span>8.1</span><em>单方解除权</em><b>高</b></div>
+            <div class="doc__clause is-mid"><span>12.3</span><em>争议解决：境外仲裁</em><b>中</b></div>
+            <span class="doc__ln w3"></span>
+          </div>
+          <div class="doc__sum"><span>3 处高风险</span><span>5 条修改建议</span><span>2 处可谈判</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pr">
+      <div class="pr__txt">
+        <div class="pr__no"><b>03</b><span>KNOWLEDGE</span></div>
+        <h3 data-en="Legal Knowledge Base">法律知识库</h3>
+        <p class="pr__q" data-en="Every answer.<br>Back to the source.">每个结论，<br>点回原文。</p>
+        <a class="pr__a" href="https://github.com/LawyerCH" target="_blank" rel="noopener">
+          <span data-en="See the open-source tools">看看开源工具</span><i aria-hidden="true">↗</i>
+        </a>
+      </div>
+
+      <div class="viz viz--kb" aria-hidden="true" data-noi18n>
+        <div class="viz__bar"><i></i><span>法律知识库</span><b>带出处</b></div>
+        <div class="viz__body">
+          <p class="qa__q">试用期被辞退，有补偿吗？</p>
+          <div class="qa__a">
+            <span class="qa__ln w1"></span>
+            <span class="qa__ln w2"></span>
+            <span class="qa__ln w3"></span>
+          </div>
+          <div class="qa__cite">
+            <span>《劳动合同法》§39</span><span>类案 3 篇</span><span>内部制度 1 条</span>
+          </div>
+          <p class="qa__note">每个结论都能点回原文</p>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<style>
+  .lp {
+    --lp-bg: #08080a;
+    --lp-ink: #f2e9d8;
+    --lp-dim: rgba(242, 233, 216, .62);
+    --lp-line: rgba(242, 233, 216, .14);
+    --lp-panel: rgba(244, 231, 206, .035);
+    --lp-gold: #d9b36a;
+    --lp-red: #c0392b;
+    position: relative;
+    padding: clamp(104px, 11vw, 156px) 0 clamp(48px, 6vw, 80px);
+    background: var(--lp-bg);
+    color: var(--lp-ink);
+    scroll-margin-top: 88px;
+  }
+  :global(html[data-theme="light"]) .lp {
+    --lp-bg: #e9e7e2;
+    --lp-ink: #1f2933;
+    --lp-dim: rgba(31, 41, 51, .66);
+    --lp-line: rgba(31, 41, 51, .14);
+    --lp-panel: rgba(255, 255, 255, .55);
+    --lp-gold: #8a5f16;
+    --lp-red: #991b1b;
+  }
+
+  .lp__h { max-width: 760px; }
+  .lp__k {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--qc-mono);
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: .24em;
+    color: var(--lp-gold);
+  }
+  .lp__k i { width: 7px; height: 7px; background: var(--lp-red); border-radius: 2px; }
+  .lp h2 {
+    margin: 24px 0 0;
+    font-family: var(--qc-song);
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.16;
+    letter-spacing: .03em;
+    color: var(--lp-ink);
+  }
+  .lp h2 :global(em) { font-style: normal; color: var(--lp-gold); }
+  .lp__lead {
+    margin: 20px 0 0;
+    font-size: 16px;
+    line-height: 1.7;
+    letter-spacing: .04em;
+    color: var(--lp-dim);
+  }
+
+  .pr {
+    display: grid;
+    grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+    align-items: center;
+    gap: clamp(32px, 6vw, 108px);
+    margin-top: clamp(56px, 8vw, 104px);
+    padding-top: clamp(48px, 6vw, 76px);
+    border-top: 1px solid var(--lp-line);
+  }
+  .pr--flip .pr__viz { order: -1; }
+  .pr__no { display: flex; align-items: baseline; gap: 14px; font-family: var(--qc-mono); }
+  .pr__no b { font-family: var(--qc-num); font-size: 13px; letter-spacing: .1em; color: var(--lp-gold); }
+  .pr__no span { font-size: 12px; letter-spacing: .2em; color: var(--lp-dim); }
+  .pr h3 {
+    margin: 18px 0 0;
+    font-family: var(--qc-song);
+    font-size: clamp(1.9rem, 3vw, 2.7rem);
+    font-weight: 700;
+    letter-spacing: .05em;
+    line-height: 1.22;
+    color: var(--lp-ink);
+  }
+  .pr__q {
+    margin: 20px 0 0;
+    font-family: var(--qc-song);
+    font-size: clamp(1.25rem, 1.9vw, 1.7rem);
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: .04em;
+    color: var(--lp-ink);
+  }
+  .pr__a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 34px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--lp-line);
+    font-size: 14px;
+    color: var(--lp-ink);
+    text-decoration: none;
+    transition: border-color 300ms ease, color 300ms ease;
+  }
+  .pr__a i { font-style: normal; color: var(--lp-gold); transition: transform 400ms var(--ease-o); }
+  .pr__a:hover { color: var(--lp-gold); border-bottom-color: var(--lp-gold); }
+  .pr__a:hover i { transform: translate(2px, -2px); }
+
+  /* 产品界面示意 */
+  .viz {
+    position: relative;
+    border: 1px solid var(--lp-line);
+    border-radius: 6px;
+    background: var(--lp-panel);
+    font-family: var(--qc-mono);
+    overflow: hidden;
+  }
+  .viz::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(70% 60% at 80% 0%, rgba(217, 179, 106, .08), transparent 70%);
+  }
+  .viz__bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--lp-line);
+    font-size: 12px;
+    letter-spacing: .08em;
+    color: var(--lp-dim);
+  }
+  .viz__bar i { width: 6px; height: 6px; border-radius: 50%; background: var(--lp-gold); opacity: .8; }
+  .viz__bar b { margin-left: auto; font-weight: 500; color: var(--lp-gold); }
+  .viz__body { padding: clamp(18px, 2.6vw, 28px); }
+
+  .calc__rows { display: grid; gap: 1px; background: var(--lp-line); border: 1px solid var(--lp-line); }
+  .calc__rows > div { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; background: var(--lp-bg); font-size: 12px; }
+  .calc__rows span { color: var(--lp-dim); }
+  .calc__rows b { font-weight: 500; color: var(--lp-ink); }
+  .calc__rows .is-red { color: var(--lp-red); }
+  .flow { display: flex; align-items: center; gap: 8px; margin: 20px 0; }
+  .flow i { font-style: normal; font-size: 12px; letter-spacing: .06em; color: var(--lp-dim); white-space: nowrap; }
+  .flow u { flex: 1; height: 1px; background: linear-gradient(90deg, var(--lp-line), var(--lp-gold)); text-decoration: none; }
+  .calc__out { padding: 17px 15px; border: 1px solid var(--lp-line); background: var(--lp-panel); }
+  .calc__out span { display: block; font-size: 12px; letter-spacing: .14em; color: var(--lp-dim); }
+  .calc__out b { display: block; margin-top: 9px; font-family: var(--qc-num); font-size: clamp(1.15rem, 1.9vw, 1.55rem); font-weight: 500; letter-spacing: .02em; color: var(--lp-gold); }
+  .calc__out small { display: block; margin-top: 8px; font-size: 12px; line-height: 1.6; color: var(--lp-dim); }
+
+  .doc { padding: 6px 2px 2px; }
+  .doc__ln { display: block; height: 5px; margin: 8px 0; background: var(--lp-line); }
+  .doc__ln.w1 { width: 62%; } .doc__ln.w2 { width: 88%; } .doc__ln.w3 { width: 74%; }
+  .doc__clause { display: flex; align-items: center; gap: 10px; margin: 11px 0; padding: 10px 11px; border-left: 2px solid var(--lp-line); background: var(--lp-panel); font-size: 12px; }
+  .doc__clause span { color: var(--lp-dim); }
+  .doc__clause em { flex: 1; font-style: normal; color: var(--lp-ink); }
+  .doc__clause b { padding: 2px 7px; font-size: 12px; font-weight: 500; border: 1px solid currentColor; }
+  .doc__clause.is-hi { border-left-color: var(--lp-red); }
+  .doc__clause.is-hi b { color: var(--lp-red); }
+  .doc__clause.is-mid { border-left-color: var(--lp-gold); }
+  .doc__clause.is-mid b { color: var(--lp-gold); }
+  .doc__sum { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--lp-line); font-size: 12px; color: var(--lp-dim); }
+  .doc__sum span::before { content: '·'; margin-right: 6px; color: var(--lp-gold); }
+
+  .qa__q { margin: 0; padding: 13px 14px; border: 1px solid var(--lp-line); font-size: 13px; line-height: 1.6; color: var(--lp-ink); }
+  .qa__q::before { content: '问'; margin-right: 9px; font-size: 12px; color: var(--lp-gold); }
+  .qa__a { padding: 18px 2px 4px; }
+  .qa__ln { display: block; height: 5px; margin: 8px 0; background: var(--lp-line); }
+  .qa__ln.w1 { width: 92%; } .qa__ln.w2 { width: 84%; } .qa__ln.w3 { width: 58%; }
+  .qa__cite { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .qa__cite span { padding: 4px 8px; border: 1px solid var(--lp-line); font-size: 12px; color: var(--lp-gold); }
+  .qa__note { margin: 16px 0 0; font-size: 12px; color: var(--lp-dim); }
+  .qa__note::before { content: '✓'; margin-right: 6px; color: var(--lp-gold); }
+
+  @media (max-width: 900px) {
+    .pr { grid-template-columns: 1fr; gap: 30px; }
+    .pr--flip .pr__viz { order: 0; }
+    .pr__q { margin-top: 16px; }
+    .pr__a { margin-top: 24px; }
+  }
+  @media (max-width: 599px) {
+    .lp { padding-top: 96px; }
+    .lp__lead { font-size: 15px; }
+    .viz__body { padding: 15px; }
+  }
+</style>

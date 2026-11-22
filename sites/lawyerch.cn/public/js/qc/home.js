@@ -16,6 +16,36 @@
   var DUR = reduce ? 50 : 1200;
   var freeExitAt = 0; // 退出自由滚动后的惯性滚动静默期
 
+  // hero 左下伪代码：进入首屏后逐字打出，循环“打出 → 停留 → 退回”
+  var heroType = document.getElementById('hero-type');
+  var heroTyped = false;
+  function startHeroType() {
+    if (!heroType || heroTyped) return;
+    heroTyped = true;
+    var text = '/**\n * 我在做的事\n * 把法律问题放进「事实 × 规则」的图谱\n * 沿连接找出通往解法的路径\n * 让每一步都有据可查\n */';
+    if (reduce) { heroType.textContent = text; return; }
+    var i = 0, hold = 3600;
+    function type() {
+      heroType.textContent = text.slice(0, i);
+      if (i < text.length) {
+        i++;
+        setTimeout(type, 22 + Math.random() * 22);
+      } else {
+        setTimeout(erase, hold);
+      }
+    }
+    function erase() {
+      if (i > 0) {
+        i--;
+        heroType.textContent = text.slice(0, i);
+        setTimeout(erase, 8 + Math.random() * 8);
+      } else {
+        setTimeout(type, 500);
+      }
+    }
+    type();
+  }
+
   function setStageClass() {
     root.classList.remove('st-0', 'st-1', 'st-2');
     root.classList.add('st-' + stage);
@@ -112,8 +142,7 @@
 
     flyLogo(prev, n);
     setStageClass();
-
-    if (n === 2 && window.qcLattice) window.qcLattice.build();
+    if (n === 1) setTimeout(startHeroType, 900);
 
     setTimeout(function () {
       busy = false;
@@ -188,63 +217,30 @@
   var gateLatch = document.getElementById('gate-latch');
   if (gateLatch) gateLatch.addEventListener('click', function () { go(1); });
   var cueBtn = document.getElementById('cue');
-  if (cueBtn) cueBtn.addEventListener('click', function () { go(stage + 1); });
+  if (cueBtn) cueBtn.addEventListener('click', function () {
+    window.qcGotoAnchor(document.getElementById('products'));
+  });
+  var heroCta = document.getElementById('hero-cta');
+  if (heroCta) heroCta.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.qcGotoAnchor(document.getElementById('products'));
+  });
+
+  // 顶部导航锚点：首屏内点击时先解锁滚动，再滚到目标
+  window.qcGotoAnchor = function (target) {
+    if (!target) return;
+    if (root.classList.contains('st-free')) {
+      target.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    go(2);
+    setTimeout(function () { target.scrollIntoView({ behavior: 'smooth' }); }, 1400);
+  };
 
   if (stage === 2) {
     setTimeout(function () {
       var t = location.hash && document.querySelector(location.hash);
       if (t) t.scrollIntoView();
-      if (window.qcLattice) window.qcLattice.build();
     }, 50);
   }
-
-  /* ================= 模块列表入场与预览浮卡 ================= */
-  var rows = document.querySelectorAll('.mr');
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (en) {
-        if (en.isIntersecting) {
-          var i = [].indexOf.call(rows, en.target);
-          setTimeout(function () { en.target.classList.add('is-in'); }, i * 70);
-          io.unobserve(en.target);
-        }
-      });
-    }, { threshold: 0.2 });
-    rows.forEach(function (r) { io.observe(r); });
-  } else {
-    rows.forEach(function (r) { r.classList.add('is-in'); });
-  }
-
-  var pv = document.getElementById('pv');
-  var imgs = pv ? pv.querySelectorAll('img') : [];
-  var px = 0, py = 0, tx = 0, ty2 = 0, vx = 0, pvOn = false, raf = 0;
-
-  function pvLoop() {
-    var nx = px + (tx - px) * 0.16;
-    var ny = py + (ty2 - py) * 0.16;
-    vx = nx - px; px = nx; py = ny;
-    pv.style.setProperty('--x', px.toFixed(1) + 'px');
-    pv.style.setProperty('--y', py.toFixed(1) + 'px');
-    pv.style.setProperty('--r', Math.max(-8, Math.min(8, vx * 0.5)).toFixed(2) + 'deg');
-    raf = pvOn || Math.abs(tx - px) > 0.5 ? requestAnimationFrame(pvLoop) : 0;
-  }
-
-  rows.forEach(function (r) {
-    r.addEventListener('mouseenter', function (e) {
-      var k = +r.getAttribute('data-pv');
-      imgs.forEach(function (im, i) { im.classList.toggle('is-on', i === k); });
-      if (!pvOn) { px = tx = e.clientX + 170; py = ty2 = e.clientY; }
-      pvOn = true;
-      pv.classList.add('is-on');
-      if (!raf) raf = requestAnimationFrame(pvLoop);
-    });
-    r.addEventListener('mousemove', function (e) {
-      tx = e.clientX + 170;
-      ty2 = e.clientY;
-    });
-    r.addEventListener('mouseleave', function () {
-      pvOn = false;
-      pv.classList.remove('is-on');
-    });
-  });
 })();

@@ -14,6 +14,7 @@ const { person, roles, nav } = mqcConfig;
           <span class="qc-nav__wordmark-text">{person.nameZh}律师</span>
           <span class="qc-nav__wm-en" data-noi18n>{person.nameEn}</span>
         </span>
+        <span class="qc-nav__tag" data-noi18n>LAW × AI</span>
       </a>
       <button type="button" class="qc-nav__toggle" aria-label="打开菜单" aria-expanded="false">
         <i></i><i></i>
@@ -30,6 +31,14 @@ const { person, roles, nav } = mqcConfig;
       </div>
       <button type="button" class="qc-lang" data-noi18n aria-label="切换语言 / Switch language">
         <span data-l="zh">中</span><i></i><span data-l="en">EN</span>
+      </button>
+      <button type="button" class="qc-theme" id="theme-toggle" data-noi18n aria-label="切换浅色 / 暗色主题" aria-pressed="true">
+        <svg class="qc-theme__i qc-theme__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+        <svg class="qc-theme__i qc-theme__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5 8.6 8.6 0 1 0 20.5 14.6Z"/>
+        </svg>
       </button>
     </div>
   </nav>
@@ -124,4 +133,323 @@ const { person, roles, nav } = mqcConfig;
     </div>
     <span>向下滑动 / 点击开启</span>
   </div>
+
+  <!-- 保存名片为图片：复制到剪贴板 + 下载 -->
+  <button type="button" class="gate-save" id="save-card" aria-label="保存名片为图片">
+    <svg class="gate-save__ic" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 3v11"></path>
+      <path d="m8 10 4 4 4-4"></path>
+      <path d="M4 16.5v1.5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5"></path>
+    </svg>
+    <span class="gate-save__t">保存名片</span>
+  </button>
 </div>
+
+<script>
+  const btn = document.getElementById('save-card') as HTMLButtonElement | null;
+  const label = btn?.querySelector<HTMLElement>('.gate-save__t') ?? null;
+
+  function roundRect(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+
+  function drawIcon(c: CanvasRenderingContext2D, kind: 'phone' | 'mail' | 'github', x: number, y: number) {
+    c.save();
+    c.translate(x, y);
+    c.strokeStyle = 'rgba(255,255,255,.72)';
+    c.fillStyle = 'rgba(255,255,255,.72)';
+    c.lineWidth = 1.7;
+    c.lineCap = 'round';
+    c.lineJoin = 'round';
+    if (kind === 'github') {
+      c.scale(20 / 16, 20 / 16);
+      c.fill(new Path2D('M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z'));
+    } else if (kind === 'phone') {
+      c.scale(20 / 24, 20 / 24);
+      c.stroke(new Path2D('M8.2 4.3 9.9 8 8.2 9.9c.9 2 2.4 3.6 4.5 4.5l1.9-1.7 3.7 1.7v3.2c0 1.1-.9 1.9-2 1.8C9.9 19 5 14.1 4.4 7.7c-.1-1.1.7-2 1.8-2h2z'));
+    } else {
+      c.scale(20 / 24, 20 / 24);
+      c.beginPath();
+      if (typeof c.roundRect === 'function') c.roundRect(3.2, 5.4, 17.6, 13.2, 2.6);
+      else c.rect(3.2, 5.4, 17.6, 13.2);
+      c.stroke();
+      c.beginPath();
+      c.moveTo(3.9, 7.3);
+      c.lineTo(11, 12.3);
+      c.quadraticCurveTo(12, 13, 13, 12.3);
+      c.lineTo(20.1, 7.3);
+      c.stroke();
+    }
+    c.restore();
+  }
+
+  function loadImage(src: string) {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  if (btn && label) {
+    const original = label.textContent || '保存名片';
+    let busy = false;
+
+    btn.addEventListener('click', async () => {
+      if (busy) return;
+      const card = document.querySelector<HTMLElement>('.gate-card-frame');
+      if (!card) return;
+
+      busy = true;
+      btn.disabled = true;
+      label.textContent = '生成中…';
+
+      // 在用户手势内发起剪贴板写入，Safari 也允许图片稍后填充
+      let resolveBlob!: (blob: Blob) => void;
+      let rejectBlob!: (err: unknown) => void;
+      const blobForClipboard = new Promise<Blob>((resolve, reject) => {
+        resolveBlob = resolve;
+        rejectBlob = reject;
+      });
+      let clipWrite: Promise<void> | null = null;
+      let clipboardOk = true;
+      try {
+        const CI = (window as any).ClipboardItem;
+        if (navigator.clipboard && CI) {
+          clipWrite = navigator.clipboard.write([new CI({ 'image/png': blobForClipboard })]).catch(() => {
+            clipboardOk = false;
+          });
+        }
+      } catch {
+        clipWrite = null;
+      }
+
+      try {
+        const nameEl = card.querySelector<HTMLElement>('.card__name');
+        const enEl = card.querySelector<HTMLElement>('.card__en');
+        const roleEl = card.querySelector<HTMLElement>('.card__tt li');
+        const telA = card.querySelector<HTMLAnchorElement>('#vc-tel-a');
+        const mailA = card.querySelector<HTMLAnchorElement>('a[href^="mailto:"]');
+        const ghA = Array.from(card.querySelectorAll<HTMLAnchorElement>('.vc a')).find((a) => /github/i.test(a.getAttribute('href') || ''));
+        const avSrc = card.querySelector<HTMLImageElement>('#av')?.getAttribute('src') || '';
+        const qrSrc = card.querySelector<HTMLImageElement>('.qr img')?.getAttribute('src') || '';
+        const year = card.querySelector('.gate-year')?.textContent?.trim() || String(new Date().getFullYear());
+        const roleList = Array.from(card.querySelectorAll('.card__tt li')).map((li) => li.textContent?.trim() || '').filter(Boolean);
+
+        const song = nameEl ? getComputedStyle(nameEl).fontFamily : 'serif';
+        const num = enEl ? getComputedStyle(enEl).fontFamily : 'sans-serif';
+        const sans = roleEl ? getComputedStyle(roleEl).fontFamily : num;
+
+        if (document.fonts?.ready) await document.fonts.ready;
+        const [av, qrImg] = await Promise.all([loadImage(avSrc), loadImage(qrSrc)]);
+
+        const W = 1376;
+        const H = 836;
+        const S = 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = W * S;
+        canvas.height = H * S;
+        const c = canvas.getContext('2d');
+        if (!c) throw new Error('canvas unavailable');
+        c.scale(S, S);
+
+        c.save();
+        roundRect(c, 0, 0, W, H, 18);
+        c.clip();
+
+        const base = c.createLinearGradient(0, 0, W, H);
+        base.addColorStop(0, '#881818');
+        base.addColorStop(.5, '#991b1b');
+        base.addColorStop(1, '#9c1d1d');
+        c.fillStyle = base;
+        c.fillRect(0, 0, W, H);
+
+        const light = c.createRadialGradient(W / 2, -H * .12, 0, W / 2, -H * .12, W * .8);
+        light.addColorStop(0, 'rgba(255,242,226,.14)');
+        light.addColorStop(1, 'rgba(255,242,226,0)');
+        c.fillStyle = light;
+        c.fillRect(0, 0, W, H);
+        const dark = c.createRadialGradient(W * .88, H * 1.15, 0, W * .88, H * 1.15, W * .7);
+        dark.addColorStop(0, 'rgba(0,0,0,.24)');
+        dark.addColorStop(1, 'rgba(0,0,0,0)');
+        c.fillStyle = dark;
+        c.fillRect(0, 0, W, H);
+
+        // 磨砂颗粒
+        const noise = document.createElement('canvas');
+        noise.width = 160;
+        noise.height = 160;
+        const nctx = noise.getContext('2d');
+        if (nctx) {
+          const data = nctx.createImageData(160, 160);
+          for (let i = 0; i < data.data.length; i += 4) {
+            const v = Math.random() < .5 ? 255 : 0;
+            data.data[i] = data.data[i + 1] = data.data[i + 2] = v;
+            data.data[i + 3] = Math.random() * 18;
+          }
+          nctx.putImageData(data, 0, 0);
+          const pattern = c.createPattern(noise, 'repeat');
+          if (pattern) {
+            c.globalAlpha = .5;
+            c.fillStyle = pattern;
+            c.fillRect(0, 0, W, H);
+            c.globalAlpha = 1;
+          }
+        }
+
+        // 年份水印
+        c.save();
+        c.translate(W / 2, H / 2);
+        c.rotate(-18 * Math.PI / 180);
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.font = `700 260px ${song}`;
+        c.fillStyle = 'rgba(244,231,206,.075)';
+        c.fillText(year, 0, 0);
+        c.restore();
+
+        // 中缝
+        c.strokeStyle = 'rgba(255,255,255,.16)';
+        c.lineWidth = 1;
+        c.beginPath();
+        c.moveTo(W / 2, 0);
+        c.lineTo(W / 2, H);
+        c.stroke();
+
+        // 发丝线
+        const line = c.createLinearGradient(255, 0, 645, 0);
+        line.addColorStop(0, 'rgba(255,255,255,.26)');
+        line.addColorStop(1, 'rgba(255,255,255,0)');
+        c.fillStyle = line;
+        c.fillRect(255, 535, 390, 1);
+
+        // 头像
+        const ax = 255;
+        const ay = 232;
+        const ad = 220;
+        c.beginPath();
+        c.arc(ax + ad / 2, ay + ad / 2, ad / 2, 0, Math.PI * 2);
+        c.fillStyle = '#f7f0e4';
+        c.fill();
+        c.save();
+        c.beginPath();
+        c.arc(ax + ad / 2, ay + ad / 2, ad / 2, 0, Math.PI * 2);
+        c.clip();
+        const cover = Math.max(ad / av.width, ad / av.height);
+        const sw = ad / cover;
+        const sh = ad / cover;
+        c.drawImage(av, (av.width - sw) / 2, (av.height - sh) / 2, sw, sh, ax, ay, ad, ad);
+        c.restore();
+        c.beginPath();
+        c.arc(ax + ad / 2, ay + ad / 2, ad / 2 + 2, 0, Math.PI * 2);
+        c.strokeStyle = 'rgba(247,240,228,.5)';
+        c.lineWidth = 2;
+        c.stroke();
+
+        // 姓名
+        c.fillStyle = '#fff';
+        c.textBaseline = 'alphabetic';
+        c.font = `700 64px ${song}`;
+        c.fillText(nameEl?.textContent?.trim() || '陈恒', 511, 415);
+
+        // 英文名
+        c.font = `500 14px ${num}`;
+        c.fillStyle = 'rgba(255,255,255,.78)';
+        if ('letterSpacing' in c) (c as any).letterSpacing = '4px';
+        c.fillText((enEl?.textContent?.trim() || '').toUpperCase(), 513, 447);
+        if ('letterSpacing' in c) (c as any).letterSpacing = '0px';
+
+        // 头衔
+        c.font = `500 16px ${sans}`;
+        c.fillStyle = 'rgba(255,255,255,.92)';
+        c.fillText(roleList.map((r) => '· ' + r).join('    '), 255, 574);
+
+        // 联系方式
+        const rows = [
+          { icon: 'phone' as const, text: telA?.textContent?.trim() || '' },
+          { icon: 'mail' as const, text: mailA?.textContent?.trim() || '' },
+          { icon: 'github' as const, text: ghA?.textContent?.trim() || '' },
+        ];
+        c.font = `400 18px ${num}`;
+        c.fillStyle = '#fff';
+        c.textBaseline = 'middle';
+        rows.forEach((row, i) => {
+          const y = 390 + i * 47;
+          drawIcon(c, row.icon, 766, y - 10);
+          c.fillText(row.text, 805, y);
+        });
+
+        // 二维码
+        const qx = 1048;
+        const qy = 380;
+        const qd = 160;
+        c.fillStyle = '#fff';
+        roundRect(c, qx, qy, qd, qd, 6);
+        c.fill();
+        c.drawImage(qrImg, qx + 10, qy + 10, qd - 20, qd - 20);
+        c.strokeStyle = 'rgba(244,231,206,.65)';
+        c.lineWidth = 1.5;
+        const b = 14;
+        [
+          [qx - 8, qy - 8, 1, 1],
+          [qx + qd + 8, qy - 8, -1, 1],
+          [qx - 8, qy + qd + 8, 1, -1],
+          [qx + qd + 8, qy + qd + 8, -1, -1],
+        ].forEach(([x, y, dx, dy]) => {
+          c.beginPath();
+          c.moveTo(x, y + dy * b);
+          c.lineTo(x, y);
+          c.lineTo(x + dx * b, y);
+          c.stroke();
+        });
+
+        c.restore();
+
+        roundRect(c, .5, .5, W - 1, H - 1, 18);
+        c.strokeStyle = 'rgba(255,255,255,.18)';
+        c.lineWidth = 1;
+        c.stroke();
+
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) throw new Error('empty image');
+        resolveBlob(blob);
+
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.download = `陈恒-名片-${new Date().getFullYear()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+        let copied = false;
+        if (clipWrite) {
+          try {
+            await clipWrite;
+            copied = clipboardOk;
+          } catch {
+            copied = false;
+          }
+        }
+
+        label.textContent = copied ? '已复制并下载' : '已下载';
+      } catch (err) {
+        rejectBlob(err);
+        console.error(err);
+        label.textContent = '保存失败';
+      } finally {
+        busy = false;
+        btn.disabled = false;
+        setTimeout(() => { label.textContent = original; }, 2200);
+      }
+    });
+  }
+</script>
