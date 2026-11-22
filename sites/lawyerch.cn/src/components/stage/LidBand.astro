@@ -1,0 +1,259 @@
+---
+/**
+ * 红色名片带 + 白色导航条。
+ * 整块 sticky 在顶部，滚动后名片部分收起，只留导航。
+ * 内容全部来自 config/stage.ts 的 lid / nav。
+ */
+import stage from '~/config/stage';
+import SocialIcon from './SocialIcon.astro';
+import LidTexture from './LidTexture.astro';
+
+const { lid, nav, navGithub } = stage;
+
+/** 组装 vCard 文本（CRLF 分隔，RFC 6350） */
+function buildVcard(): string {
+  const v = lid.vcard;
+  const lines = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    `N:${v.familyName};${v.givenName};;;`,
+    `FN:${v.familyName}${v.givenName}`,
+  ];
+  if (v.org) lines.push(`ORG:${v.org}`);
+  if (v.title) lines.push(`TITLE:${v.title}`);
+  if (v.tel) lines.push(`TEL;TYPE=CELL:${v.tel}`);
+  if (v.email) lines.push(`EMAIL;TYPE=WORK:${v.email}`);
+  if (v.url) lines.push(`URL:${v.url}`);
+  if (v.city) lines.push(`ADR;TYPE=WORK:;;;${v.city};;;`);
+  lines.push('END:VCARD');
+  return lines.join('\r\n');
+}
+
+const vcardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(buildVcard())}`;
+const vcardName = `${lid.vcard.filename}.vcf`;
+
+interface Props {
+  /** 当前页在 nav 里的 href，用来高亮 */
+  current?: string;
+}
+
+const { current = '/' } = Astro.props;
+---
+
+<header class="rp-lid" id="rp-lid">
+  <div class="rp-lid__body">
+    <LidTexture />
+    <div class="rp-wrap">
+      <button class="rp-lang" type="button" aria-label="切换语言 / Switch language" aria-pressed="false">
+        <span data-on>{lid.lang.zh}</span>
+        <i></i>
+        <span>{lid.lang.en}</span>
+      </button>
+
+      <div class="rp-card">
+        <!-- 左：头像 + 姓名 + 身份 -->
+        <div>
+          <div class="rp-who">
+            {
+              lid.avatar.src ? (
+                <img class="rp-av" src={lid.avatar.src} alt={lid.avatar.alt} width="160" height="160" />
+              ) : (
+                <span class="rp-av rp-av--empty" aria-hidden="true">
+                  {lid.avatar.fallback}
+                </span>
+              )
+            }
+            <h1 class="rp-name">
+              {lid.nameZh}
+              <span class="rp-name-en">{lid.nameEn}</span>
+            </h1>
+          </div>
+
+          {lid.roles.length > 0 && (
+            <ul class="rp-roles">
+              {lid.roles.map((role) => (
+                <li>{role}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <!-- 中：联系方式 + 行动 -->
+        <div class="rp-vc">
+          <dl class="rp-vc__dl">
+            {lid.contacts.map((row) => (
+              <div class="rp-vc__row">
+                <dt>{row.label}</dt>
+                <dd>
+                  {row.href ? <a href={row.href}>{row.value}</a> : <span>{row.value}</span>}
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          {lid.actions.length > 0 && (
+            <div class="rp-vc__act">
+              {lid.actions.map((action) =>
+                action.kind === 'vcard' ? (
+                  <a
+                    class:list={['rp-btn', { 'rp-btn--main': action.primary }]}
+                    href={vcardHref}
+                    download={vcardName}
+                    type="text/vcard"
+                  >
+                    {action.label}
+                  </a>
+                ) : action.href ? (
+                  <a class:list={['rp-btn', { 'rp-btn--main': action.primary }]} href={action.href}>
+                    {action.label}
+                  </a>
+                ) : (
+                  <button class:list={['rp-btn', { 'rp-btn--main': action.primary }]} type="button">
+                    {action.label}
+                  </button>
+                )
+              )}
+            </div>
+          )}
+        </div>
+
+        <!-- 右：二维码 -->
+        <figure class="rp-qr">
+          <div class="rp-qr__box">
+            {
+              lid.qr.src ? (
+                <img src={lid.qr.src} alt={lid.qr.alt} width="262" height="262" />
+              ) : (
+                <span class="rp-qr__empty">
+                  <span>QR</span>
+                  <span>{lid.qr.alt}</span>
+                </span>
+              )
+            }
+          </div>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+  <div class="rp-bar">
+    <div class="rp-wrap rp-bar__in">
+      <a class="rp-brand" href="/">
+        {
+          lid.avatar.src ? (
+            <img class="rp-brand__logo" src={lid.avatar.src} alt="" width="88" height="88" />
+          ) : (
+            <span class="rp-brand__logo rp-av--empty" aria-hidden="true">
+              {lid.avatar.fallback}
+            </span>
+          )
+        }
+        <span class="rp-brand__text">{stage.brand.logoText || stage.brand.nameZh}</span>
+      </a>
+
+      <ul class="rp-links" id="rp-links">
+        {nav.map((item) => (
+          <li>
+            <a href={item.href} aria-current={item.href === current ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <div class="rp-bar__end">
+        <button
+          class="rp-burger"
+          type="button"
+          aria-expanded="false"
+          aria-controls="rp-links"
+          aria-label="打开菜单"
+        >
+          <span></span><span></span><span></span>
+        </button>
+        {navGithub && (
+          <a class="rp-bar__icon" href={navGithub} target="_blank" rel="noopener" aria-label="GitHub">
+            <SocialIcon name="github" size={20} />
+          </a>
+        )}
+        <span class="rp-bar__lang">
+          <span data-on>{lid.lang.zh}</span>
+          <span aria-hidden="true">/</span>
+          <span>{lid.lang.en}</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  /**
+   * 名片带随滚动线性卷起：滚到名片带自身高度时完全收起，只剩导航条。
+   * 手机上不插值（高度由内容决定），滚过 80px 直接收起，避免空白。
+   */
+  const lid = document.getElementById('rp-lid');
+  const body = lid?.querySelector<HTMLElement>('.rp-lid__body');
+
+  if (lid && body) {
+    const heroIn = document.querySelector<HTMLElement>('.rp-st__in');
+    const cue = document.querySelector<HTMLElement>('.rp-cue');
+
+    let raf = 0;
+    let base = 0;
+
+    /** 名片带自身高度：桌面是 54svh，手机由内容撑开 */
+    const measure = () => {
+      const prev = body.style.transform;
+      body.style.transform = '';
+      base = body.getBoundingClientRect().height;
+      body.style.transform = prev;
+    };
+
+    /**
+     * 名片区随滚动向上移走，而不是被压扁。
+     * 同时首屏文案从下方浮现，接住视线。
+     */
+    const apply = () => {
+      raf = 0;
+      const p = Math.min(1, Math.max(0, window.scrollY / Math.max(1, base)));
+
+      body.style.transform = `translate3d(0, ${-p * base}px, 0)`;
+      body.style.opacity = String(Math.max(0, 1 - p * 1.7));
+      lid.classList.toggle('is-shrunk', p > 0.98);
+
+      if (heroIn) {
+        const e = Math.min(1, p * 1.5);
+        heroIn.style.opacity = String(0.1 + e * 0.9);
+        heroIn.style.transform = `translate3d(0, ${(1 - e) * 36}px, 0)`;
+      }
+      if (cue) {
+        cue.style.opacity = String(p);
+      }
+    };
+
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(apply);
+    };
+
+    const remeasure = () => {
+      measure();
+      apply();
+    };
+
+    measure();
+    apply();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', remeasure);
+  }
+
+  /* 手机端菜单 */
+  const burger = document.querySelector<HTMLButtonElement>('.rp-burger');
+  const links = document.getElementById('rp-links');
+
+  burger?.addEventListener('click', () => {
+    const open = links?.classList.toggle('is-open') ?? false;
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
+    burger.classList.toggle('is-open', open);
+  });
+</script>

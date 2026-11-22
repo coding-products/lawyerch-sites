@@ -1,0 +1,40 @@
+---
+/**
+ * 首屏：浅灰底 + 等距线框建筑群 + 两句大标语。
+ * 线框由 IsoField（Canvas 2D）实时绘制，四层网格 + 高光。
+ */
+import stage from '~/config/stage';
+import IsoField from './IsoField.astro';
+
+const { hero } = stage;
+---
+
+<section class="rp-st" id="top">
+  <IsoField density={1} sparks={3} />
+
+  <div class="rp-st__shade" aria-hidden="true"></div>
+
+  <div class="rp-st__in rp-wrap">
+    <p class="rp-eb"><i></i>{hero.kicker}</p>
+
+    <h2 class="rp-slo">
+      {hero.lines.map((line) => <span>{line}</span>)}
+    </h2>
+
+    {hero.lede && <p class="rp-st__p">{hero.lede}</p>}
+  </div>
+
+  {hero.cue && (
+    <button class="rp-cue" type="button" aria-label="向下滚动">
+      <i></i>
+      {hero.cue}
+    </button>
+  )}
+</section>
+
+<script>
+  const cue = document.querySelector<HTMLButtonElement>('.rp-cue');
+  cue?.addEventListener('click', () => {
+    document.querySelector('.rp-sheet')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+</script>

@@ -1,177 +1,27 @@
 ---
-import BaseLayout from '~/layouts/BaseLayout.astro';
-import HomeLattice from '~/components/HomeLattice.astro';
-import '~/styles/home.css';
-import siteConfig from '~/config/site';
-import { graph, personSchema, websiteSchema } from '~/lib/jsonld';
-
-const jsonLd = graph([personSchema(siteConfig), websiteSchema(siteConfig)]);
-
-const identities = [
-  {
-    title: '律师',
-    lines: [
-      '广州执业律师，专注劳动争议与企业用工合规。',
-      '从一份劳动合同的条款，到一次解除的补偿测算，再到一套员工手册的落地。',
-    ],
-    items: ['劳动争议仲裁与诉讼', '企业用工合规审查', '规章制度与裁员方案'],
-  },
-  {
-    title: 'AI 开发者',
-    lines: [
-      '写代码是长期爱好。把法律工作里重复的部分交给工具，把判断留给人。',
-      '做文档处理、桌面应用、Agent 工具链，也维护一份开发资源索引。',
-    ],
-    items: [
-      'skills-for-legal：中国法实务 AI 技能集',
-      'doc-anonymizer：本地文档脱敏',
-      'dev-resources：动效 / 图标 / 组件索引',
-    ],
-  },
-];
-
-const blocks = [
-  {
-    id: 'legal-products',
-    title: '法律产品',
-    note: '把法律经验做成可复用的工具，面向法律人和做法律产品的开发者。',
-    items: [
-      { label: 'skills-for-legal', note: '中国法实务 AI 技能集', href: 'https://github.com/law-products/skills-for-legal' },
-      { label: 'doc-anonymizer', note: '本地文档脱敏', href: 'https://github.com/law-products/doc-anonymizer' },
-      { label: 'doc-flip-video', note: '文档翻页视频', href: 'https://github.com/law-products/doc-flip-video' },
-    ],
-    all: { label: 'github.com/law-products', href: 'https://github.com/law-products' },
-  },
-  {
-    id: 'tech-products',
-    title: '技术产品',
-    note: '文档处理、桌面应用、Agent 工具链，以及一份持续更新的开发资源索引。',
-    items: [
-      { label: 'dev-resources', note: '动效 / 音效 / 图标 / UI', href: 'https://github.com/lawyerch-dev/dev-resources' },
-      { label: 'cc-ai-tools', note: '可扩展启动器', href: 'https://github.com/lawyerch-dev/cc-ai-tools' },
-      { label: 'cc-md-editor', note: 'Markdown 编辑器', href: 'https://github.com/lawyerch-dev/cc-md-editor' },
-    ],
-    all: { label: 'github.com/lawyerch-dev', href: 'https://github.com/lawyerch-dev' },
-  },
-];
+/**
+ * 首页 · 首屏体验由 GateHero 组件承载
+ * ------------------------------------------------------------
+ * GateHero 内含：
+ *   1. 红色名片（微动水波/扭索纹 Canvas，开门时头像飞入吸顶导航栏）
+ *   2. 分段舞台第 1 屏：三维晶格动态生长，金色电流脉冲流动，可交互
+ *   3. 分段舞台第 2 屏：白幕滑出，交互式 3D 坐标晶格，立绘与手风琴资历
+ *
+ * 页面其余内容：
+ *   4. 全部内容大字列表（鼠标悬浮带旋转小箭头 + 鼠标跟随磁吸预览浮卡）
+ *   5. 深红联系板块（各平台入口 + vCard 电话/联系人一键保存）
+ *
+ * 所有数据均提取在 src/config/mqcConfig.ts，方便随时按需定制与增删。
+ */
+import MqcLayout from '~/layouts/MqcLayout.astro';
+import GateHero from '~/components/gate/GateHero.astro';
+import ModuleList from '~/components/mqc/ModuleList.astro';
+import ContactFooter from '~/components/mqc/ContactFooter.astro';
 ---
 
-<BaseLayout
-  title="陈恒律师 — 执业律师 · AI 独立开发者"
-  description="广州执业律师，用代码做法律工具。法律科技与 AI 开发两条线：知识资产、法律工具、开源项目。"
-  appendSiteName={false}
-  jsonLd={jsonLd}
-  bodyClass="home-v3"
-  homeNav
->
-  <section class="hv-stage">
-    <HomeLattice />
-
-    <div class="hv-copy">
-      <p class="hv-kicker">Chen Heng · Lawyer</p>
-
-      <h1 class="hv-headline">
-        把法律经验<em>写进代码</em>，<br />把判断留给人。
-      </h1>
-
-      <p class="hv-lede">
-        广州执业律师，专注劳动争议与企业用工合规。白天处理案件与合同，晚上把重复的部分做成工具——文档脱敏、AI 技能、领域站点，都开源放在 GitHub 上。
-      </p>
-
-      <ul class="hv-roles">
-        <li>律师</li>
-        <li>AI 开发者</li>
-        <li>法律内容创作者</li>
-      </ul>
-    </div>
-
-    <div class="hv-scroll" aria-hidden="true">
-      <span></span>
-      Scroll
-    </div>
-  </section>
-
-  <div class="hv-body">
-    <div class="hv-paper">
-
-      <div class="hv-fold">
-        {
-          identities.map((id) => (
-            <details>
-              <summary>{id.title}</summary>
-              <div class="hv-fold-body">
-                {id.lines.map((line) => (
-                  <p>{line}</p>
-                ))}
-                <ul>
-                  {id.items.map((item) => (
-                    <li>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </details>
-          ))
-        }
-      </div>
-
-      {
-        blocks.map((block) => (
-          <section class="hv-block" id={block.id}>
-            <div class="hv-block-head">
-              <h2 class="hv-block-title">{block.title}</h2>
-              <p class="hv-block-note">{block.note}</p>
-            </div>
-            <ul class="hv-list">
-              {block.items.map((item) => (
-                <li>
-                  <a href={item.href} target="_blank" rel="noopener">
-                    <b>{item.label}</b>
-                    <span>{item.note}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <a class="hv-block-link" href={block.all.href} target="_blank" rel="noopener">
-              {block.all.label}
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
-                <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </a>
-          </section>
-        ))
-      }
-
-      <section class="hv-block">
-        <div class="hv-block-head">
-          <h2 class="hv-block-title">聊一聊</h2>
-          <p class="hv-block-note">法律问题请走正式委托；工具、开源、合作可以直接发邮件。</p>
-        </div>
-        <ul class="hv-contact-links">
-          <li><a href="mailto:lawyerch@foxmail.com">lawyerch@foxmail.com</a></li>
-          <li><a href="/contact/">联系表单</a></li>
-          <li><a href="https://labor.lawyerch.cn/contact/" target="_blank" rel="noopener">劳动法咨询</a></li>
-        </ul>
-      </section>
-    </div>
-  </div>
-
-  <script>
-    const lattice = document.querySelector<SVGElement>('.hv-lattice svg');
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (lattice && !reduce) {
-      let raf = 0;
-      const update = () => {
-        raf = 0;
-        const shift = Math.min(window.scrollY * 0.12, 140);
-        lattice.style.setProperty('--hv-shift', `${shift}px`);
-      };
-      window.addEventListener(
-        'scroll',
-        () => {
-          if (!raf) raf = requestAnimationFrame(update);
-        },
-        { passive: true }
-      );
-    }
-  </script>
-</BaseLayout>
+<MqcLayout>
+  <GateHero>
+    <ModuleList />
+    <ContactFooter />
+  </GateHero>
+</MqcLayout>

@@ -1,0 +1,52 @@
+---
+/**
+ * 深红联系区：4 列社交 + 页脚备案信息。
+ */
+import stage from '~/config/stage';
+import SocialIcon from './SocialIcon.astro';
+
+const { contact, lid } = stage;
+---
+
+<footer class="rp-ct" id="contact">
+  <div class="rp-wrap">
+    <div class="rp-ct__head">
+      <h2>{contact.title}</h2>
+      {contact.note && <p>{contact.note}</p>}
+    </div>
+
+    {contact.items.length > 0 && (
+      <div class="rp-ct__grid">
+        {contact.items.map((item) => (
+          <a class="rp-ct__a" href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel="noopener">
+            <span class="rp-ct__ico">
+              <SocialIcon name={item.icon} size={20} />
+            </span>
+            <span class="rp-ct__t">
+              <b>{item.label}</b>
+              <span>{item.handle}</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    )}
+
+    <div class="rp-ct__foot">
+      <p class="rp-ct__legal">
+        <span>{contact.legal.copyright}</span>
+        {contact.legal.icp && (
+          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">
+            {contact.legal.icp}
+          </a>
+        )}
+        {contact.legal.police && <span>{contact.legal.police}</span>}
+      </p>
+
+      <span class="rp-bar__lang">
+        <span data-on>{lid.lang.zh}</span>
+        <span aria-hidden="true">/</span>
+        <span>{lid.lang.en}</span>
+      </span>
+    </div>
+  </div>
+</footer>

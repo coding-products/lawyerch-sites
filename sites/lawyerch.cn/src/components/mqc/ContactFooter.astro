@@ -1,0 +1,54 @@
+---
+import { mqcConfig } from '~/config/mqcConfig';
+
+const { socials, icp } = mqcConfig;
+---
+
+<footer class="ct" id="contact" aria-label="联系与关注">
+  <div class="qc-wrap">
+    <div class="ct__h">
+      <h2 data-en="Contact & Follow">联系与关注</h2>
+      <span>Contact · Social</span>
+    </div>
+
+    <div class="sn">
+      {socials.map((s) => (
+        <a class="sn__i" href={s.href} target={s.href.startsWith('http') ? '_blank' : undefined} rel="noopener">
+          {s.iconImg ? (
+            <img src={s.iconImg} alt="" width="52" height="52" />
+          ) : s.isSvgMail ? (
+            <svg class="ic" viewBox="0 0 46 46" aria-hidden="true">
+              <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="10" width="38" height="26" rx="4" />
+                <path d="M5.5 12.5L23 25.5l17.5-13" />
+              </g>
+            </svg>
+          ) : s.isSvgCalendar ? (
+            <svg class="ic" viewBox="0 0 46 46" aria-hidden="true">
+              <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="9" width="34" height="31" rx="4" />
+                <path d="M6 18h34M15 5v7M31 5v7" />
+              </g>
+              <rect x="27" y="27" width="6" height="6" rx="1.5" fill="#fff" />
+            </svg>
+          ) : null}
+          <b>{s.name}</b>
+          <small>{s.handle}</small>
+        </a>
+      ))}
+    </div>
+
+    <p class="ct__icp">
+      {icp.copyright}　
+      {icp.beian && <a href={icp.beianUrl} target="_blank" rel="noopener">{icp.beian}</a>}
+      <button type="button" class="lang is-foot" data-noi18n aria-label="切换语言 / Switch language">
+        <span data-l="zh">中</span><i></i><span data-l="en">EN</span>
+      </button>
+    </p>
+  </div>
+</footer>
+
+<span class="avfly" id="avfly" aria-hidden="true">
+  <img class="avfly__c" src={mqcConfig.person.avatar} alt="" width="640" height="640" />
+  <img class="avfly__l" src={mqcConfig.person.avatar} alt="" width="640" height="640" />
+</span>

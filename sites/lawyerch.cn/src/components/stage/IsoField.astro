@@ -1,0 +1,508 @@
+---
+/**
+ * 首屏背景：三维线框街区（Three.js）。
+ * ------------------------------------------------------------
+ * 原站是 WebGL 画的 3D 结构——所有线朝一个消失点汇聚，
+ * 地面上有横贯的深色长线（街道），两侧立着密集的线框立方体，
+ * 节点上撒着 ✳ 标记，几道金色光斑沿着线跑。
+ *
+ * 这版用 Three.js 真 3D 搭：
+ *   - PerspectiveCamera，所有线天然汇聚到消失点
+ *   - 地面断线网格 + 随机立方体 + 贯穿街道线，全部合进一个 LineSegments
+ *   - 用顶点色做深浅与距离衰减，替代逐段透明度
+ *   - 相机随滚动推进，背景始终留在视口里（fixed），下一屏用白底盖住
+ *   - prefers-reduced-motion 下不做推进，光斑也静止
+ */
+interface Props {
+  /** 立方体数量 */
+  blocks?: number;
+  /** 光斑数量 */
+  sparks?: number;
+  /** 街道线数量 */
+  roads?: number;
+}
+
+const { blocks = 210, sparks = 5, roads = 7 } = Astro.props;
+---
+
+<canvas
+  class="rp-canvas rp-canvas--iso"
+  data-iso3d
+  data-blocks={blocks}
+  data-sparks={sparks}
+  data-roads={roads}
+  aria-hidden="true"></canvas>
+
+<script>
+  import * as THREE from 'three';
+
+  const canvases = document.querySelectorAll<HTMLCanvasElement>('[data-iso3d]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function hash(a: number, b: number, c: number): number {
+    let x = Math.imul(a + 374761393, 668265263) ^ Math.imul(b + 1274126177, 468258671) ^ Math.imul(c + 2147483647, 374761393);
+    x = (x ^ (x >>> 15)) * 1274126177;
+    return ((x ^ (x >>> 16)) >>> 0) / 4294967295;
+  }
+
+  /** 生成一个径向渐变的光点贴图 */
+  function makeGlowTexture(): THREE.Texture {
+    const size = 64;
+    const c = document.createElement('canvas');
+    c.width = size;
+    c.height = size;
+    const ctx = c.getContext('2d')!;
+    const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(0.25, 'rgba(255,246,214,0.85)');
+    g.addColorStop(0.6, 'rgba(201,162,39,0.28)');
+    g.addColorStop(1, 'rgba(201,162,39,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+    const tex = new THREE.CanvasTexture(c);
+    tex.needsUpdate = true;
+    return tex;
+  }
+
+  function setup(cv: HTMLCanvasElement) {
+    const nBlocks = Number(cv.dataset.blocks ?? 130);
+    const nSparks = Number(cv.dataset.sparks ?? 5);
+    const nRoads = Number(cv.dataset.roads ?? 6);
+    const isSmall = window.matchMedia('(max-width: 860px)').matches;
+    // 手机上减一半体块，3D 渲染要留给主线程
+    const blockCount = isSmall ? Math.round(nBlocks * 0.45) : nBlocks;
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas: cv,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'low-power',
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+    const scene = new THREE.Scene();
+    // 深度雾：远处的线自然淡掉，这是原站那种「雾里看街区」观感的来源
+    scene.fog = new THREE.FogExp2(new THREE.Color('#e9e9e6'), 0.0142);
+    const camera = new THREE.PerspectiveCamera(44, 1, 0.5, 320);
+    const CAM_BASE = new THREE.Vector3(0, 13, 26);
+    camera.position.copy(CAM_BASE);
+    camera.lookAt(0, 0, -30);
+
+    const GRID = 1.05;
+    const SPAN = 30;
+
+    /* ---------- 几何收集 ---------- */
+
+    const positions: number[] = [];
+    const colors: number[] = [];
+
+    const INK = new THREE.Color('#1c222a');
+
+    /** 加一段线，颜色按亮度标定 */
+    function seg(
+      ax: number, ay: number, az: number,
+      bx: number, by: number, bz: number,
+      alpha: number
+    ) {
+      positions.push(ax, ay, az, bx, by, bz);
+      const c = INK.clone().multiplyScalar(alpha);
+      colors.push(c.r, c.g, c.b, c.r, c.g, c.b);
+    }
+
+    /* 1. 地面断线网格 */
+    for (let i = -SPAN; i <= SPAN; i++) {
+      for (let j = -SPAN; j <= SPAN; j++) {
+        const x0 = i * GRID;
+        const z0 = j * GRID;
+        const x1 = x0 + GRID;
+        const z1 = z0 + GRID;
+
+        if (hash(i, j, 21) > 0.12) {
+          seg(x0, 0, z0, x1, 0, z0, 0.035 + hash(i, j, 22) * 0.085);
+        }
+        if (hash(i, j, 31) > 0.12) {
+          seg(x0, 0, z0, x0, 0, z1, 0.035 + hash(i, j, 32) * 0.085);
+        }
+      }
+    }
+
+    /* 2. 立方体 */
+    interface Cube { x: number; z: number; h: number; a: number; }
+    const cubes: Cube[] = [];
+    for (let i = 0; i < blockCount; i++) {
+      const gx = Math.round((hash(i, 1, 1) - 0.5) * 36);
+      const gz = Math.round((hash(i, 2, 1) - 0.5) * 48);
+      const h = (0.45 + hash(i, 3, 1) * 3.2) * GRID;
+      const a = 0.085 + hash(i, 4, 1) * 0.2;
+      cubes.push({ x: gx * GRID, z: gz * GRID, h, a });
+
+      const { x, z } = cubes[cubes.length - 1];
+      const x1 = x + GRID;
+      const z1 = z + GRID;
+
+      // 顶面四条边
+      seg(x, h, z, x1, h, z, a);
+      seg(x1, h, z, x1, h, z1, a);
+      seg(x1, h, z1, x, h, z1, a);
+      seg(x, h, z1, x, h, z, a);
+      // 竖棱
+      seg(x, 0, z, x, h, z, a * 0.8);
+      seg(x1, 0, z, x1, h, z, a * 0.8);
+      seg(x1, 0, z1, x1, h, z1, a * 0.8);
+      seg(x, 0, z1, x, h, z1, a * 0.8);
+      // 底面两条，形成悬空
+      seg(x, 0, z, x1, 0, z, a * 0.5);
+      seg(x1, 0, z, x1, 0, z1, a * 0.5);
+    }
+
+    /* 3. 贯穿街道线：多条偏移线叠出粗度（WebGL 的 linewidth 大多无效） */
+    interface Road { axis: 0 | 1; at: number; from: number; to: number; }
+    const roads: Road[] = [];
+    for (let i = 0; i < nRoads; i++) {
+      const axis: 0 | 1 = i % 2 === 0 ? 1 : 0;
+      const at = Math.round((hash(i, 12, 1) - 0.5) * 24) * GRID;
+      const road: Road = { axis, at, from: -34 * GRID, to: 20 * GRID };
+      roads.push(road);
+
+      const steps = 90;
+      const offsets = [-0.035, -0.012, 0.012, 0.035];
+      for (const off of offsets) {
+        for (let s = 0; s < steps; s++) {
+          const t0 = road.from + ((road.to - road.from) * s) / steps;
+          const t1 = road.from + ((road.to - road.from) * (s + 1)) / steps;
+          const a =
+            road.axis === 0
+              ? [road.at + off, 0.012, t0, road.at + off, 0.012, t1]
+              : [t0, 0.012, road.at + off, t1, 0.012, road.at + off];
+          seg(a[0], a[1], a[2], a[3], a[4], a[5], 0.17);
+        }
+      }
+    }
+
+    /* 4. ✳ 节点标记 */
+    for (let i = -SPAN; i <= SPAN; i += 3) {
+      for (let j = -SPAN; j <= SPAN; j += 3) {
+        if (hash(i, j, 41) < 0.34) continue;
+        const x = i * GRID;
+        const z = j * GRID;
+        const s = 0.42;
+        seg(x - s, 0.02, z, x + s, 0.02, z, 0.22);
+        seg(x, 0.02, z - s, x, 0.02, z + s, 0.22);
+      }
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+    const lines = new THREE.LineSegments(
+      geo,
+      new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 1 })
+    );
+    scene.add(lines);
+
+    /* 5. 消失点：圆环 + 红色射线 */
+    const ringPts: number[] = [];
+    const ringR = 2.4;
+    for (let i = 0; i <= 48; i++) {
+      const a = (i / 48) * Math.PI * 2;
+      ringPts.push(Math.cos(a) * ringR, 0.02, Math.sin(a) * ringR - 26);
+    }
+    const ringGeo = new THREE.BufferGeometry();
+    ringGeo.setAttribute('position', new THREE.Float32BufferAttribute(ringPts, 3));
+    const ring = new THREE.Line(
+      ringGeo,
+      new THREE.LineBasicMaterial({ color: '#991b1b', transparent: true, opacity: 0.5 })
+    );
+    scene.add(ring);
+
+    const vp = new THREE.Vector3(0, 0.02, -26);
+    const rayGeo = new THREE.BufferGeometry();
+    rayGeo.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(
+        [
+          vp.x, vp.y, vp.z, vp.x + 46, vp.y, vp.z + 30,
+          vp.x, vp.y, vp.z, vp.x - 30, vp.y, vp.z - 22,
+        ],
+        3
+      )
+    );
+    const rays = new THREE.LineSegments(
+      rayGeo,
+      new THREE.LineBasicMaterial({ color: '#991b1b', transparent: true, opacity: 0.45 })
+    );
+    scene.add(rays);
+
+    /* ---------- 6. 流动的光点 ----------
+       每个光点沿一条 3D 折线跑（街道 / 立方体顶边 / 竖棱 / 网格折线），
+       走到尽头换一条新路径，于是整张网上像有电流在随机穿梭。 */
+
+    const N_SPARK = isSmall ? 20 : 46;
+    const TAIL = 14;
+
+    interface Spark {
+      pts: THREE.Vector3[];
+      s: number;
+      speed: number;
+      hue: number;
+      trail: THREE.Vector3[];
+    }
+
+    const rng = (i: number, salt: number) => hash(i, salt, 777);
+
+    /** 按等距采样一条折线 */
+    function resample(pts: THREE.Vector3[], n: number): THREE.Vector3[] {
+      const out: THREE.Vector3[] = [];
+      let seg = 0;
+      for (let k = 0; k < n; k++) {
+        const target = (k / (n - 1)) * (pts.length - 1);
+        while (seg < pts.length - 2 && seg + 1 < target) seg++;
+        const t = target - seg;
+        const a = pts[seg];
+        const b = pts[Math.min(seg + 1, pts.length - 1)];
+        out.push(new THREE.Vector3(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t));
+      }
+      return out;
+    }
+
+    /** 随机生成一条光点会走的路径 */
+    function makePath(seed: number): THREE.Vector3[] {
+      const kind = Math.floor(rng(seed, 1) * 4);
+
+      // 街道直路
+      if (kind === 0) {
+        const road = roads[Math.floor(rng(seed, 2) * roads.length)];
+        const len = (8 + rng(seed, 3) * 22) * GRID;
+        const t0 = road.from + rng(seed, 4) * (road.to - road.from - len);
+        const pts: THREE.Vector3[] = [];
+        for (let k = 0; k <= 8; k++) {
+          const t = t0 + (len * k) / 8;
+          pts.push(
+            road.axis === 0
+              ? new THREE.Vector3(road.at, 0.34, t)
+              : new THREE.Vector3(t, 0.34, road.at)
+          );
+        }
+        return pts;
+      }
+
+      // 立方体顶边（绕一圈）
+      if (kind === 1) {
+        const c = cubes[Math.floor(rng(seed, 5) * cubes.length)];
+        if (!c) return [new THREE.Vector3(0, 0.06, 0)];
+        const corners = [
+          new THREE.Vector3(c.x, c.h, c.z),
+          new THREE.Vector3(c.x + GRID, c.h, c.z),
+          new THREE.Vector3(c.x + GRID, c.h, c.z + GRID),
+          new THREE.Vector3(c.x, c.h, c.z + GRID),
+        ];
+        const start = Math.floor(rng(seed, 6) * 4);
+        const pts: THREE.Vector3[] = [];
+        for (let k = 0; k <= 6; k++) {
+          const idx = (start + k) % 4;
+          const next = (start + k + 1) % 4;
+          const f = k / 6;
+          pts.push(corners[idx].clone().lerp(corners[next], f));
+        }
+        return pts;
+      }
+
+      // 立方体竖棱（上下）
+      if (kind === 2) {
+        const c = cubes[Math.floor(rng(seed, 7) * cubes.length)];
+        if (!c) return [new THREE.Vector3(0, 0.06, 0)];
+        const edge = Math.floor(rng(seed, 8) * 4);
+        const cx = edge === 0 || edge === 3 ? c.x : c.x + GRID;
+        const cz = edge < 2 ? c.z : c.z + GRID;
+        const pts: THREE.Vector3[] = [];
+        for (let k = 0; k <= 6; k++) {
+          pts.push(new THREE.Vector3(cx, (c.h * k) / 6, cz));
+        }
+        return pts;
+      }
+
+      // 地面网格折线：几段拐弯
+      const gx = Math.round((rng(seed, 9) - 0.5) * 26) * GRID;
+      const gz = Math.round((rng(seed, 10) - 0.5) * 34) * GRID;
+      const pts: THREE.Vector3[] = [new THREE.Vector3(gx, 0.3, gz)];
+      let cx = gx;
+      let cz = gz;
+      for (let k = 0; k < 4; k++) {
+        const horiz = rng(seed, 11 + k) > 0.5;
+        const step = (rng(seed, 15 + k) - 0.5) * 10 * GRID;
+        if (horiz) cx += step;
+        else cz += step;
+        pts.push(new THREE.Vector3(cx, 0.3, cz));
+      }
+      return pts;
+    }
+
+    const sparks: Spark[] = [];
+    for (let k = 0; k < N_SPARK; k++) {
+      const pts = resample(makePath(k), 24);
+      sparks.push({
+        pts,
+        s: rng(k, 21),
+        speed: 0.05 + rng(k, 22) * 0.11,
+        hue: rng(k, 23),
+        trail: [],
+      });
+    }
+
+    // 拖尾：每帧重建
+    const trailPos = new Float32Array(N_SPARK * (TAIL - 1) * 6);
+    const trailCol = new Float32Array(N_SPARK * (TAIL - 1) * 6);
+    const trailGeo = new THREE.BufferGeometry();
+    trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPos, 3));
+    trailGeo.setAttribute('color', new THREE.BufferAttribute(trailCol, 3));
+    const trailObj = new THREE.LineSegments(
+      trailGeo,
+      new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 1 })
+    );
+    scene.add(trailObj);
+
+    // 光点核心
+    const dotPos = new Float32Array(N_SPARK * 3);
+    const dotCol = new Float32Array(N_SPARK * 3);
+    const dotGeo = new THREE.BufferGeometry();
+    dotGeo.setAttribute('position', new THREE.BufferAttribute(dotPos, 3));
+    dotGeo.setAttribute('color', new THREE.BufferAttribute(dotCol, 3));
+    const dotTex = makeGlowTexture();
+    const dots = new THREE.Points(
+      dotGeo,
+      new THREE.PointsMaterial({
+        size: 2.9,
+        sizeAttenuation: true,
+        map: dotTex,
+        transparent: true,
+        depthWrite: false,
+        vertexColors: true,
+      })
+    );
+    scene.add(dots);
+
+    const GOLD = new THREE.Color('#c9a227');
+    const HOT = new THREE.Color('#fff3c4');
+    const COOL = new THREE.Color('#991b1b');
+
+    function updateSparks(dt: number) {
+      for (let k = 0; k < sparks.length; k++) {
+        const sp = sparks[k];
+        sp.s += sp.speed * dt;
+        if (sp.s >= 1) {
+          // 走到尽头，换一条新路径继续跑
+          sp.pts = resample(makePath(k + Math.floor(sp.s * 97) + 1000), 24);
+          sp.s = 0;
+          sp.trail.length = 0;
+        }
+
+        // 当前位置
+        const f = sp.s * (sp.pts.length - 1);
+        const i0 = Math.min(sp.pts.length - 2, Math.floor(f));
+        const frac = f - i0;
+        const cur = sp.pts[i0].clone().lerp(sp.pts[i0 + 1], frac);
+
+        sp.trail.unshift(cur);
+        if (sp.trail.length > TAIL) sp.trail.pop();
+
+        // 拖尾线段
+        for (let s = 0; s < TAIL - 1; s++) {
+          const o = (k * (TAIL - 1) + s) * 6;
+          const a = sp.trail[Math.min(s, sp.trail.length - 1)];
+          const b = sp.trail[Math.min(s + 1, sp.trail.length - 1)];
+          trailPos[o] = a.x;
+          trailPos[o + 1] = a.y;
+          trailPos[o + 2] = a.z;
+          trailPos[o + 3] = b.x;
+          trailPos[o + 4] = b.y;
+          trailPos[o + 5] = b.z;
+
+          const fade = 1 - s / (TAIL - 1);
+          const c = GOLD.clone().lerp(HOT, fade * fade);
+          if (sp.hue > 0.82) c.lerp(COOL, 0.45);
+          c.multiplyScalar(fade * fade * 1.25);
+          trailCol[o] = c.r;
+          trailCol[o + 1] = c.g;
+          trailCol[o + 2] = c.b;
+          trailCol[o + 3] = c.r;
+          trailCol[o + 4] = c.g;
+          trailCol[o + 5] = c.b;
+        }
+
+        // 光点核心
+        const o = k * 3;
+        dotPos[o] = cur.x;
+        dotPos[o + 1] = cur.y;
+        dotPos[o + 2] = cur.z;
+        const cc = GOLD.clone().lerp(HOT, 0.82).multiplyScalar(1.15);
+        dotCol[o] = cc.r;
+        dotCol[o + 1] = cc.g;
+        dotCol[o + 2] = cc.b;
+      }
+      trailGeo.attributes.position.needsUpdate = true;
+      trailGeo.attributes.color.needsUpdate = true;
+      dotGeo.attributes.position.needsUpdate = true;
+      dotGeo.attributes.color.needsUpdate = true;
+    }
+
+    /* ---------- 尺寸与滚动 ---------- */
+
+    function resize() {
+      const rect = cv.getBoundingClientRect();
+      const w = Math.max(1, rect.width);
+      const h = Math.max(1, rect.height);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+
+    let scrollProgress = 0;
+
+    function onScroll() {
+      if (reduce) return;
+      const max = window.innerHeight * 1.1;
+      scrollProgress = Math.min(1, Math.max(0, window.scrollY / max));
+      // 相机朝消失点推进，同时微微抬高
+      camera.position.z = CAM_BASE.z - scrollProgress * 20;
+      camera.position.y = CAM_BASE.y + scrollProgress * 2.6;
+      camera.lookAt(0, 0, -30);
+    }
+
+    resize();
+    onScroll();
+    window.addEventListener('resize', () => {
+      resize();
+      onScroll();
+    });
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    /* ---------- 渲染循环 ---------- */
+
+    let raf = 0;
+    const clock = new THREE.Clock();
+    let last = 0;
+
+    function loop() {
+      const t = clock.getElapsedTime() * 1000;
+      const dt = Math.min(0.05, (t - last) / 1000);
+      last = t;
+      updateSparks(dt);
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(loop);
+    }
+
+    if (!reduce) {
+      raf = requestAnimationFrame(loop);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelAnimationFrame(raf);
+        else raf = requestAnimationFrame(loop);
+      });
+    } else {
+      updateSparks(0);
+      renderer.render(scene, camera);
+    }
+  }
+
+  canvases.forEach(setup);
+</script>
