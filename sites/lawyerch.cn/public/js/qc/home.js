@@ -146,7 +146,8 @@
 
     setTimeout(function () {
       busy = false;
-      if (stage === 2) root.classList.add('st-free');
+      // 首屏（hero）出现后立即解锁滚动，第一次滚轮就生效，不再吞掉一次手势
+      if (stage >= 1) root.classList.add('st-free');
     }, DUR + 60);
   }
 

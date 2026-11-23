@@ -107,11 +107,24 @@
     --lp-panel: rgba(244, 231, 206, .035);
     --lp-gold: #d9b36a;
     --lp-red: #c0392b;
+    --lp-fade: rgba(8, 8, 10, 0);
     position: relative;
+    z-index: 2;
     padding: clamp(104px, 11vw, 156px) 0 clamp(48px, 6vw, 80px);
     background: var(--lp-bg);
     color: var(--lp-ink);
     scroll-margin-top: 88px;
+  }
+  .lp::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    z-index: -1;
+    height: clamp(40px, 6vw, 88px);
+    background: linear-gradient(to bottom, var(--lp-fade), var(--lp-bg));
+    pointer-events: none;
   }
   :global(html[data-theme="light"]) .lp {
     --lp-bg: #e9e7e2;
@@ -121,6 +134,7 @@
     --lp-panel: rgba(255, 255, 255, .55);
     --lp-gold: #8a5f16;
     --lp-red: #991b1b;
+    --lp-fade: rgba(233, 231, 226, 0);
   }
 
   .lp__h { max-width: 760px; }

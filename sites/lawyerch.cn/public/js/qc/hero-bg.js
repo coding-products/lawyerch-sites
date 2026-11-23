@@ -301,8 +301,11 @@
   }
 
   // ---------- 循环 ----------
-  var T = 0, last = 0, running = false;
-  function paused() { return root.classList.contains('st-free') || document.hidden; }
+  var T = 0, last = 0, running = false, inView = true;
+  var coverEl = document.getElementById('products');
+  function covered() { return coverEl ? coverEl.getBoundingClientRect().top <= 2 : false; }
+  // 只按“是否还在屏幕里”暂停：翻页过程中 hero 仍可见时继续流动
+  function paused() { return document.hidden || !inView || covered(); }
   function frame(now) {
     if (!running) return;
     var dt = Math.max(0, Math.min(.05, (now - last) / 1000 || .016)); last = now;
@@ -324,7 +327,13 @@
   window.addEventListener('resize', function () { resize(); if (!running) draw(T); });
   window.addEventListener('qc-theme-change', function () { resize(); if (!running) draw(T); });
   document.addEventListener('visibilitychange', start);
-  new MutationObserver(start).observe(root, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('scroll', function () { if (!paused()) start(); }, { passive: true });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) {
+      inView = es[0].isIntersecting;
+      if (inView) start();
+    }, { threshold: 0 }).observe(cv);
+  }
 
   function init() {
     resize();

@@ -648,6 +648,7 @@ const cardVariant = mqcConfig.cardVariant;
     /* ---------- 3D 舞台：法律问题 × AI 解法 ---------- */
     .st {
       position: relative;
+      z-index: 0;
       height: 100svh;
       min-height: 620px;
       overflow: hidden;
@@ -836,7 +837,7 @@ const cardVariant = mqcConfig.cardVariant;
       transform: translateY(18px);
       transition: opacity 700ms ease, transform 900ms var(--ease-o);
     }
-    .st-1 [data-a] {
+    .st-1 [data-a], .st-2 [data-a] {
       opacity: 1;
       transform: none;
       transition-delay: calc(var(--d, 0) * 1ms + 420ms);
@@ -942,7 +943,7 @@ const cardVariant = mqcConfig.cardVariant;
     .st-2 .st__cue { opacity: 0; pointer-events: none; }
 
     /* ---------- 深红联系模块 ---------- */
-    .ct { position: relative; overflow: hidden; background: var(--qc-red); color: #fff; padding-block: clamp(64px, 7vw, 96px) 24px; }
+    .ct { position: relative; z-index: 2; overflow: hidden; background: var(--qc-red); color: #fff; padding-block: clamp(64px, 7vw, 96px) 24px; }
     .ct a { color: #fff; text-decoration: none; }
     .ct__h { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; }
     .ct__h h2 { margin: 0; font-family: var(--qc-song); font-size: clamp(1.7rem, 2.4vw, 2.3rem); font-weight: 700; letter-spacing: .14em; color: #fff; }
