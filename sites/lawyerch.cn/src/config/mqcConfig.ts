@@ -47,7 +47,6 @@ export const mqcConfig = {
     { zh: '首页', en: 'Home', href: 'index.html', current: true },
     { zh: '法律产品', en: 'Legal Products', href: '#products' },
     { zh: '服务流程', en: 'How I Work', href: '#fde' },
-    { zh: '劳动法站', en: 'Labor Law', href: 'https://labor.lawyerch.cn/' },
     { zh: '关于', en: 'About', href: '/about/' },
     { zh: '联系', en: 'Contact', href: '/contact/' },
   ],

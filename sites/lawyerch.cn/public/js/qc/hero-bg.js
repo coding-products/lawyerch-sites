@@ -11,6 +11,24 @@
   var mobile = Math.min(window.innerWidth, window.innerHeight) < 700;
   function lightTheme() { return root.getAttribute('data-theme') === 'light'; }
 
+  // 标题里的 ×：把图谱当作“穿过它的一条线”，在 × 周围留出干净的节点位
+  var hubEl = document.querySelector('.st__title em');
+  var hub = { x: -1, y: -1, r: 32 };
+  function measureHub() {
+    if (!hubEl) return;
+    var er = hubEl.getBoundingClientRect(), cr = cv.getBoundingClientRect();
+    if (!er.width) return;
+    hub.x = er.left - cr.left + er.width / 2;
+    hub.y = er.top - cr.top + er.height / 2;
+    // 去掉入场位移（st-0 时标题带 translateY），只取稳定后的版面位置
+    var tf = getComputedStyle(hubEl).transform;
+    if (tf && tf !== 'none' && window.DOMMatrixReadOnly) {
+      var tm = new DOMMatrixReadOnly(tf);
+      hub.x -= tm.e; hub.y -= tm.f;
+    }
+    hub.r = Math.max(20, er.height * .36);
+  }
+
   var seed = 23;
   function rnd() { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
   function ri(a, b) { return a + Math.floor(rnd() * (b - a + 1)); }
@@ -51,6 +69,7 @@
     PADL = Math.max(34, W * .035);
     PADR = W - Math.max(34, W * .035);
     makeBg();
+    measureHub();
   }
 
   // ---------- 光斑贴图 ----------
@@ -274,13 +293,16 @@
       }
     }
 
-    // 标签
+    // 标签：方法链五步常显，其余节点标签按登场节奏淡入后隐去
     if (labelsOn) {
       ctx.lineJoin = 'round'; ctx.lineWidth = 3;
       ctx.strokeStyle = L ? 'rgba(242,240,235,.94)' : 'rgba(7,7,9,.9)';
       ctx.textBaseline = 'middle';
       for (i = 0; i < NODES.length; i++) {
         var d = NODES[i]; if (d.focus || !d.t) continue;
+        var labA = d.step ? 1 : G.label;
+        if (labA <= .01) continue;
+        ctx.globalAlpha = labA;
         var lx = sx(d), ly = sy(d);
         ctx.font = d.hub
           ? '600 ' + Math.max(11.5, Math.round(12.5 * SC)) + 'px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif'
@@ -297,6 +319,21 @@
         else { ctx.textAlign = 'center'; ctx.strokeText(d.t, lx, ly + oy2); ctx.fillText(d.t, lx, ly + oy2); }
       }
     }
+    // × 作为图谱节点：在它周围擦出一块干净的圆形，
+    // 连线与电流到边缘淡出、从另一侧再接上，看起来是“穿过 ×”而不是撞在字上
+    if (hub.x > 0) {
+      ctx.globalAlpha = 1;
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      var hg = ctx.createRadialGradient(hub.x, hub.y, hub.r * .4, hub.x, hub.y, hub.r);
+      hg.addColorStop(0, 'rgba(0,0,0,1)');
+      hg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = hg;
+      ctx.beginPath(); ctx.arc(hub.x, hub.y, hub.r, 0, 6.2832); ctx.fill();
+      ctx.restore();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
     ctx.globalAlpha = 1;
   }
 
@@ -306,10 +343,42 @@
   function covered() { return coverEl ? coverEl.getBoundingClientRect().top <= 2 : false; }
   // 只按“是否还在屏幕里”暂停：翻页过程中 hero 仍可见时继续流动
   function paused() { return document.hidden || !inView || covered(); }
+
+  // ---------- 登场节奏：先字后图 ----------
+  // 进入首屏时画布很淡，标题先立住；随后图谱淡入，节点标签短暂出现后隐去，
+  // 只留连接线与流动的电流，避免文字与标题抢焦点。
+  var G = { start: -1, master: reduce ? 1 : .16, label: reduce ? 1 : 0 };
+  cv.style.opacity = G.master.toFixed(3);
+
+  function seqTick() {
+    if (G.start < 0) return;
+    var e = T - G.start, m = .16, lb = 0;
+    if (e > .5) m += .84 * ease((e - .5) / 1.1);
+    if (e > 1.8) lb = ease((e - 1.8) / .5);
+    if (e > 4.4) lb = 1 - ease((e - 4.4) / 1);
+    G.master = m;
+    G.label = lb > 0 ? lb : 0;
+    cv.style.opacity = m.toFixed(3);
+  }
+
+  var seqStarted = false;
+  function enterHero() {
+    if (seqStarted) return;
+    seqStarted = true;
+    if (location.hash && location.hash !== '#top') return; // 直接落在内容锚点：不播登场
+    if (reduce) return;
+    G.start = T + .5; // 留半秒让标题先落定
+  }
+  if (root.classList.contains('st-1') || root.classList.contains('st-2')) enterHero();
+  else new MutationObserver(function () {
+    if (root.classList.contains('st-1') || root.classList.contains('st-2')) enterHero();
+  }).observe(root, { attributes: true, attributeFilter: ['class'] });
+
   function frame(now) {
     if (!running) return;
     var dt = Math.max(0, Math.min(.05, (now - last) / 1000 || .016)); last = now;
     T += dt;
+    seqTick();
     var bx = Math.sin(T * .19) * 7 + tX, by = Math.cos(T * .15) * 5 + tY;
     swayX += (bx - swayX) * .05; swayY += (by - swayY) * .05;
     if (T > nextSpawn) { nextSpawn = T + .12 + rnd() * .26; spawn(); }
@@ -346,4 +415,7 @@
     start();
   }
   init();
+  // 标题字号/断点/语言切换后 × 的位置会变，定时重新量一次
+  if (!reduce) setInterval(measureHub, 1000);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureHub);
 })();

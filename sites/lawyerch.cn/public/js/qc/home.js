@@ -15,6 +15,7 @@
   var busy = false;
   var DUR = reduce ? 50 : 1200;
   var freeExitAt = 0; // 退出自由滚动后的惯性滚动静默期
+  var cardScrollY = 0; // 从页面中部打开名片时记录的阅读位置
 
   // hero 左下伪代码：进入首屏后逐字打出，循环“打出 → 停留 → 退回”
   var heroType = document.getElementById('hero-type');
@@ -69,9 +70,14 @@
 
     var ra = av.getBoundingClientRect();
     var rn = navLogo.getBoundingClientRect();
-    // 开门时导航栏还在屏幕上方，终点要按它滑下来之后的实际位置算
-    if (fromCard && header && !root.classList.contains('st-1') && !root.classList.contains('st-2')) {
-      rn = { left: rn.left, top: rn.top + header.offsetHeight, width: rn.width, height: rn.height };
+    // 开门时导航栏还在屏幕上方（translateY -140%），终点要按它滑下来后的位置算：
+    // 直接用当前 transform 的竖向位移反推，避免只补 offsetHeight 造成的偏上
+    if (fromCard && header) {
+      var ht = getComputedStyle(header).transform;
+      if (ht && ht !== 'none' && window.DOMMatrixReadOnly) {
+        var hm = new DOMMatrixReadOnly(ht);
+        rn = { left: rn.left, top: rn.top - hm.f, width: rn.width, height: rn.height };
+      }
     }
     // 关门时名片那扇门还停在屏幕外，终点要把门的位移补回来
     if (toCard) {
@@ -142,6 +148,17 @@
 
     flyLogo(prev, n);
     setStageClass();
+    if (n === 0) {
+      // 打开名片：记住当前阅读位置并锁住滚动，关门后回到原处
+      cardScrollY = window.scrollY;
+      root.classList.remove('st-free');
+      freeExitAt = Date.now() + DUR;
+    }
+    if (n === 1 && prev === 0 && cardScrollY > 0) {
+      // 从名片回到页面：恢复打开前的滚动位置，而不是回到首屏
+      root.classList.add('st-free');
+      window.scrollTo(0, cardScrollY);
+    }
     if (n === 1) setTimeout(startHeroType, 900);
 
     setTimeout(function () {
@@ -173,6 +190,7 @@
   // 滚动条拖动保护
   window.addEventListener('scroll', function () {
     if (root.classList.contains('st-free') || window.scrollY <= 0) return;
+    if (stage === 0) return; // 名片打开时保留原阅读位置，不回顶
     window.scrollTo(0, 0);
     // 刚退出自由滚动时，剩余惯性不应被当成“向前翻页”
     if (busy || Date.now() < freeExitAt) return;
@@ -236,6 +254,12 @@
     }
     go(2);
     setTimeout(function () { target.scrollIntoView({ behavior: 'smooth' }); }, 1400);
+  };
+
+  // 供页面按钮调用：从任意位置打开名片页（门扇合上、头像飞回名片）
+  window.qcOpenCard = function () {
+    if (stage === 0) return;
+    go(0);
   };
 
   if (stage === 2) {
