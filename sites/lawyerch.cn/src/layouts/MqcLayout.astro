@@ -974,8 +974,10 @@ const cardVariant = mqcConfig.cardVariant;
     a.sn__i:hover img, a.sn__i:hover svg.ic { transform: translateY(-3px); }
     .sn__i b { grid-row: 1; align-self: start; margin: -1px 0 0; font-family: var(--qc-song); font-size: 1.12rem; font-weight: 700; letter-spacing: .12em; line-height: 1; }
     .sn__i small { grid-row: 2; align-self: end; margin: 0; font-size: 13px; line-height: 1; padding-bottom: 1px; letter-spacing: .02em; color: rgba(255, 255, 255, .82); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .ct__icp { margin: 26px 0 0; font-size: 12px; letter-spacing: .04em; color: rgba(255, 255, 255, .55); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
-    .ct__icp a { color: rgba(255, 255, 255, .55); }
+    .ct__icp { margin: 26px 0 0; font-size: 12px; letter-spacing: .04em; color: #fff; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .ct__icp a { color: #fff; }
+    /* 深红底上的选中态：奶油底 + 深红字，替代默认灰块 */
+    .ct ::selection { background: rgba(244, 231, 206, .92); color: #7c1414; }
 
     /* 移动端响应式处理 */
     @media (max-width: 1099px) {

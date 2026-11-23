@@ -45,10 +45,12 @@ export const mqcConfig = {
   // 导航栏
   nav: [
     { zh: '首页', en: 'Home', href: 'index.html', current: true },
-    { zh: '法律产品', en: 'Legal Products', href: '#products' },
-    { zh: '服务流程', en: 'How I Work', href: '#fde' },
-    { zh: '关于', en: 'About', href: '/about/' },
-    { zh: '联系', en: 'Contact', href: '/contact/' },
+    // 法律产品 / 服务流程两段暂不展示，恢复时一并打开
+    // { zh: '法律产品', en: 'Legal Products', href: '#products' },
+    // { zh: '服务流程', en: 'How I Work', href: '#fde' },
+    // 关于 / 联系 先去掉，后续再补站内页面
+    // { zh: '关于', en: 'About', href: '/about/' },
+    // { zh: '联系', en: 'Contact', href: '/contact/' },
   ],
 
   // 第1屏标语
