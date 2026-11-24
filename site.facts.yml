@@ -1,6 +1,6 @@
 name: lawyerch-sites
 region: cn
-stack: Astro 7 + Tailwind CSS 4 + pnpm workspace + Turborepo
+stack: Astro 7 + pnpm workspace + Turborepo（手写 CSS，无 Tailwind）
 extensions:
   - content-legal
 

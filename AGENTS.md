@@ -1,6 +1,6 @@
 # lawyerch-sites
 
-本站点遵循通用规范 [`.agents/standard.md`](.agents/standard.md)（version 2026-11-20.6）。
+本站点遵循通用规范 [`.agents/standard.md`](.agents/standard.md)（version 2026-11-24.1）。
 
 > 本文件由 `scripts/sync-standard` 生成，不要手改。
 > 站点信息改 `site.facts.yml`，规范改工作区的 `.agents/standards/site-standard.md`。
@@ -8,7 +8,7 @@
 
 ## 技术栈
 
-Astro 7 + Tailwind CSS 4 + pnpm workspace + Turborepo
+Astro 7 + pnpm workspace + Turborepo（手写 CSS，无 Tailwind）
 
 分类：`cn`（国内站点，必须备案）。规则见 `.agents/standard.md` 的「站点分类」。
 

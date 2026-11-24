@@ -1454,27 +1454,6 @@ html[lang="en"] .pa7-tab span { letter-spacing: .06em; font-size: 16px; text-ind
   html[lang="en"] .ch-nav__link { padding: 0 7px; font-size: 13.5px; letter-spacing: 0; }
 }
 
-/* 深红「联系与关注」（联系页，带白线装置）：左侧八个入口压紧成两排，右侧白线装置 */
-.ct.is-hub .ct__main { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); column-gap: clamp(32px, 5vw, 80px); align-items: center; }
-.ct.is-hub .sn { grid-template-columns: repeat(4, minmax(0, max-content)); column-gap: clamp(22px, 2.6vw, 40px); }
-.ct.is-hub .sn__i { grid-template-columns: 34px minmax(0, auto); column-gap: 12px; padding: 20px 0; }
-.ct.is-hub .sn__i img, .ct.is-hub .sn__i svg.ic { width: 34px; height: 34px; }
-.ct.is-hub .sn__i b { font-size: 1.02rem; letter-spacing: .08em; }
-.ct.is-hub .sn__i small { margin-top: 4px; font-size: 12px; }
-.ct.is-hub .sn__i:only-child, .ct.is-hub .sn__i b:last-child { align-self: center; grid-row: 1 / 3; }
-.ct.is-hub .qe-map { position: relative; width: 100%; }
-.ct.is-hub .qe-map.is-line { aspect-ratio: 16 / 11 !important; }
-@media (max-width: 1099px) { .ct.is-hub .ct__main { grid-template-columns: 1fr; row-gap: 24px; } .ct.is-hub .qe-map { max-width: 520px; } }
-@media (max-width: 760px) { .ct.is-hub .sn { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 420px) { .ct.is-hub .sn { grid-template-columns: 1fr; } }
-.ct.is-hub .ct__main { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
-.ct.is-hub .sn { grid-template-columns: repeat(4, auto); justify-content: space-between; column-gap: 20px; row-gap: 0; padding-top: 8px; }
-.ct.is-hub .sn__i { border-bottom: 0; padding: 18px 0; }
-.ct.is-hub .sn__i b { white-space: nowrap; }
-.ct.is-hub .sn__i small { overflow: visible; text-overflow: clip; white-space: nowrap; font-size: 12px; letter-spacing: 0; }
-@media (max-width: 760px) { .ct.is-hub .sn { grid-template-columns: repeat(2, minmax(0, 1fr)); justify-content: stretch; } }
-@media (max-width: 420px) { .ct.is-hub .sn { grid-template-columns: 1fr; } }
-
 /* 存入通讯录的小卡（js/chenheng/vcard.js） */
 .vk { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; visibility: hidden; }
 .vk.is-on { visibility: visible; }
@@ -1501,24 +1480,3 @@ html[lang="en"] .vk__t { font-family: 'CH Latin Display', sans-serif; font-weigh
 .vk__b:hover { background: #E5E7EB; color: var(--ch-ink); }
 .vk__b.is-main { background: var(--ch-red); color: #fff; } .vk__b.is-main:hover { background: #7F1616; color: #fff; }
 .vk__b:focus-visible, .vk__x:focus-visible { outline: 2px solid var(--ch-red); outline-offset: 3px; }
-/* v38：联系页深红块，八个入口放大、铺满左栏并靠近右侧动图，入口之间留足距离 */
-.ct.is-hub .ct__main { grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); column-gap: 28px; }
-.ct.is-hub .sn { grid-template-columns: repeat(4, minmax(170px, 1fr)); justify-content: stretch; column-gap: 26px; row-gap: 6px; }
-.ct.is-hub .sn__i { grid-template-columns: 40px minmax(0, 1fr); column-gap: 14px; padding: 22px 0; }
-.ct.is-hub .sn__i img, .ct.is-hub .sn__i svg.ic { width: 40px; height: 40px; }
-.ct.is-hub .sn__i b { font-size: 1.1rem; }
-.ct.is-hub .sn__i small { font-size: 12px; }
-.ct.is-hub .qe-map.is-line { aspect-ratio: 4 / 3 !important; }
-@media (max-width: 1239px) { .ct.is-hub .sn { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.ct.is-hub .ct__main { grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr); column-gap: 36px; }
-.ct.is-hub .sn { grid-template-columns: minmax(0, 1.45fr) repeat(3, minmax(0, 1fr)); column-gap: 30px; }
-@media (max-width: 1239px) { .ct.is-hub .ct__main { grid-template-columns: 1fr; } .ct.is-hub .sn { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-/* v39：联系页八个入口与首页同一手感：每格下有细线，悬停时顶端白线从左画过、图标轻轻上浮；图标与文字上下对齐 */
-.ct.is-hub .sn { row-gap: 0; }
-.ct.is-hub .sn__i { grid-template-columns: 46px minmax(0, 1fr); grid-template-rows: 23px 23px; align-items: stretch; column-gap: 14px; padding: 22px 0; border-bottom: 1px solid rgba(255, 255, 255, .22); }
-.ct.is-hub .sn__i img, .ct.is-hub .sn__i svg.ic { grid-row: 1 / 3; width: 46px; height: 46px; }
-.ct.is-hub .sn__i b { grid-row: 1; align-self: start; margin: -1px 0 0; line-height: 1; }
-.ct.is-hub .sn__i small { grid-row: 2; align-self: end; margin: 0; line-height: 1; }
-.ct.is-hub .sn__i b:last-child { grid-row: 1 / 3; align-self: center; margin: 0; }
-.ct.is-hub .sn { column-gap: 0; }
-.ct.is-hub .sn__i { padding-right: 22px; }
