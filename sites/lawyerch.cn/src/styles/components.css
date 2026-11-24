@@ -167,7 +167,7 @@
   pointer-events: none;
   transform: translateY(12px);
   transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
-  box-shadow: 0 16px 34px -20px rgba(0, 0, 0, 0.9);
+  box-shadow: var(--elev-1);
 }
 .totop.on { opacity: 1; pointer-events: auto; transform: none; }
 

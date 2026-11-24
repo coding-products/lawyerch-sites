@@ -31,11 +31,12 @@
   --pad: clamp(20px, calc((100vw - 1320px) / 2), 300px);
   --shell: 1920px;
 
-  /* Radii */
-  --r-sm: 10px;
-  --r-md: 18px;
-  --r-lg: 26px;
+  /* Radii —— 只有两种：卡片圆角与胶囊，圆用 50%，直角用 0 */
+  --r-card: 10px;
   --r-pill: 999px;
+
+  /* Elevation —— 全站一套阴影，深色底靠描边区分层级 */
+  --elev-1: 0 18px 40px -28px rgba(16, 17, 16, 0.45);
 
   /* Rhythm */
   --sec: clamp(64px, 7vw, 110px);

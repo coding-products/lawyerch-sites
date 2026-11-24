@@ -87,8 +87,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       position: relative;
       background: rgba(12, 12, 14, .86);
       border: 1px solid rgba(244, 231, 206, .16);
-      border-radius: 999px;
-      box-shadow: 0 18px 50px rgba(0, 0, 0, .38);
+      border-radius: var(--r-pill);
+      box-shadow: var(--elev-1);
       -webkit-backdrop-filter: blur(16px) saturate(1.1);
       backdrop-filter: blur(16px) saturate(1.1);
     }
@@ -104,7 +104,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       margin-left: 10px;
       padding: 0 9px;
       border: 1px solid rgba(244, 231, 206, .22);
-      border-radius: 999px;
+      border-radius: var(--r-pill);
       font: 500 10px/1 var(--ch-num);
       letter-spacing: .14em;
       color: rgba(244, 231, 206, .6);
@@ -125,7 +125,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       padding: 0 12px;
       border: 0;
       border-bottom-color: transparent;
-      border-radius: 999px;
+      border-radius: var(--r-pill);
       font-size: .88rem;
       letter-spacing: .06em;
       color: rgba(244, 231, 206, .62);
@@ -145,7 +145,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       width: auto !important;
       height: 2px !important;
       margin: 0 !important;
-      border-radius: 1px;
+      border-radius: var(--r-card);
       background: #d9b36a !important;
       opacity: 0;
       transform: none;
@@ -202,8 +202,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
         padding: 8px 16px 14px;
         background: rgba(12, 12, 14, .96);
         border: 1px solid rgba(244, 231, 206, .14);
-        border-radius: 18px;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, .5);
+        border-radius: var(--r-card);
+        box-shadow: var(--elev-1);
         max-height: calc(100svh - 96px);
       }
       .gate-header .ch-nav__link {
@@ -310,7 +310,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       height: 34px;
       padding: 0 13px;
       border: 1px solid rgba(255, 255, 255, .26);
-      border-radius: 999px;
+      border-radius: var(--r-pill);
       background: rgba(38, 7, 7, .2);
       color: rgba(255, 255, 255, .82);
       font: 500 12px/1 var(--ch-num);
@@ -474,7 +474,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       width: 6px;
       height: 6px;
       margin-top: -3px;
-      border-radius: 2px;
+      border-radius: var(--r-card);
       background: rgba(255, 255, 255, .8);
     }
 
@@ -496,7 +496,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       height: 42px;
       padding: 0 22px;
       border: 1px solid rgba(255, 255, 255, .42);
-      border-radius: 999px;
+      border-radius: var(--r-pill);
       background: transparent;
       color: #fff;
       font: 500 15.5px/1 var(--ch-sans);
@@ -516,10 +516,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       width: var(--qr);
       height: var(--qr);
       padding: 7px;
-      border-radius: 12px;
+      border-radius: var(--r-card);
       background: #fff;
     }
-    .qr__box img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: 5px; }
+    .qr__box img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: var(--r-card); }
     .qr__box::before {
       content: ''; position: absolute; inset: -8px; pointer-events: none;
       background: linear-gradient(#fff, #fff) 0 0 / 14px 1px, linear-gradient(#fff, #fff) 0 0 / 1px 14px,
@@ -560,7 +560,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       align-items: center;
       gap: 10px;
       padding: 10px 22px;
-      border-radius: 999px;
+      border-radius: var(--r-pill);
       background: rgba(20, 20, 20, 0.45);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.25);
@@ -568,7 +568,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       font: 500 13.5px/1 var(--ch-sans);
       letter-spacing: .12em;
       cursor: pointer;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      box-shadow: var(--elev-1);
       transition: transform 300ms var(--ease-o), background 300ms ease, opacity 240ms ease;
     }
     .gate-seam__badge:hover {
@@ -719,7 +719,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       color: rgba(244, 231, 206, .78);
       text-shadow: 0 1px 10px rgba(6, 6, 8, .9), 0 0 22px rgba(6, 6, 8, .7);
     }
-    .st__eb i { width: 8px; height: 8px; border-radius: 2px; background: var(--ch-red); }
+    .st__eb i { width: 8px; height: 8px; border-radius: var(--r-card); background: var(--ch-red); }
     .st__title {
       margin: 0;
       display: grid;
@@ -767,7 +767,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       font: 500 clamp(15px, 1.2vw, 18px)/1 var(--ch-num);
       letter-spacing: .16em;
       text-decoration: none;
-      border-radius: 2px;
+      border-radius: var(--r-card);
       transition: color 200ms ease, background 200ms ease;
     }
     .st__cta:hover { color: #fff3d8; background: rgba(217, 179, 106, .08); }
@@ -783,7 +783,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       padding: 14px 16px;
       box-sizing: border-box;
       border: 1px solid rgba(244, 231, 206, .12);
-      border-radius: 10px;
+      border-radius: var(--r-card);
       background: rgba(12, 12, 14, .5);
       -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
@@ -799,7 +799,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       height: 12px;
       margin-left: 2px;
       vertical-align: -1px;
-      border-radius: 1px;
+      border-radius: var(--r-card);
       background: #d9b36a;
       animation: st-blink 1s steps(1) infinite;
     }
@@ -880,7 +880,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
     html[data-theme="light"] .st__cta {
       color: #543605;
       background: rgba(255, 255, 255, .72);
-      border-radius: 3px;
+      border-radius: var(--r-card);
       box-shadow: inset 0 0 0 1px rgba(120, 86, 30, .3), 0 8px 22px -14px rgba(60, 44, 20, .5);
     }
     html[data-theme="light"] .st__cta:hover { color: #332004; background: #fff; box-shadow: inset 0 0 0 1px rgba(120, 86, 30, .6), 0 10px 26px -14px rgba(60, 44, 20, .6); }
@@ -941,7 +941,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       position: relative;
       width: 22px;
       height: 34px;
-      border-radius: 12px;
+      border-radius: var(--r-card);
       box-shadow: inset 0 0 0 1.2px rgba(255, 255, 255, .85);
     }
     .st__cue i::after {
@@ -952,7 +952,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
       width: 2px;
       height: 7px;
       margin-left: -1px;
-      border-radius: 2px;
+      border-radius: var(--r-card);
       background: #fff;
       animation: cue 1.8s ease-in-out infinite;
     }
@@ -1087,7 +1087,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
     .st-1 .gate-gl, .st-2 .gate-gl { opacity: 0; transition: opacity 240ms ease; }
 
     /* ---------- editorial：编辑档案 ---------- */
-    html[data-card="editorial"] .card__av { border-radius: 4px; box-shadow: 0 0 0 1px rgba(244, 231, 206, .4); }
+    html[data-card="editorial"] .card__av { border-radius: var(--r-card); box-shadow: 0 0 0 1px rgba(244, 231, 206, .4); }
     html[data-card="editorial"] .card__who { align-items: flex-end; }
     html[data-card="editorial"] .card__tt { counter-reset: role; gap: 14px 26px; border-top-color: rgba(244, 231, 206, .26); }
     html[data-card="editorial"] .card__tt li { counter-increment: role; padding-left: 28px; }
@@ -1100,7 +1100,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
     html[data-card="editorial"] .vc { gap: 0; }
     html[data-card="editorial"] .vc__r { padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, .14); grid-template-columns: 28px minmax(0, 1fr); }
     html[data-card="editorial"] .vc__r:first-child { border-top: 1px solid rgba(255, 255, 255, .14); }
-    html[data-card="editorial"] .qr__box { --qr: 100px; border-radius: 8px; }
+    html[data-card="editorial"] .qr__box { --qr: 100px; border-radius: var(--r-card); }
     html[data-card="editorial"] .qr__box::before { inset: -6px; opacity: .38; }
     html[data-card="editorial"] .vc__btn:not(.is-main) {
       border: 0; height: auto; padding: 0 2px;
@@ -1146,19 +1146,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
 
     /* ---------- floating：实体悬浮卡 ---------- */
     html[data-card="floating"] .gate-card-frame::after {
-      content: ''; position: absolute; inset: 32px; border-radius: 18px; pointer-events: none;
-      box-shadow: 0 42px 90px -28px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .06);
+      content: ''; position: absolute; inset: 32px; border-radius: var(--r-card); pointer-events: none;
+      box-shadow: var(--elev-1), 0 0 0 1px rgba(255, 255, 255, .06);
       transition: opacity 240ms ease;
     }
     html[data-card="floating"].st-1 .gate-card-frame::after,
     html[data-card="floating"].st-2 .gate-card-frame::after { opacity: 0; }
     html[data-card="floating"] .gate-door { top: 32px; bottom: 32px; width: calc(50% - 32px); }
-    html[data-card="floating"] .gate-door--left { left: 32px; border-radius: 18px 0 0 18px; }
-    html[data-card="floating"] .gate-door--right { right: 32px; border-radius: 0 18px 18px 0; }
+    html[data-card="floating"] .gate-door--left { left: 32px; border-radius: var(--r-card) 0 0 var(--r-card); }
+    html[data-card="floating"] .gate-door--right { right: 32px; border-radius: 0 var(--r-card) var(--r-card) 0; }
     html[data-card="floating"].st-1 .gate-door--left, html[data-card="floating"].st-2 .gate-door--left { transform: translateX(calc(-100% - 32px)); }
     html[data-card="floating"].st-1 .gate-door--right, html[data-card="floating"].st-2 .gate-door--right { transform: translateX(calc(100% + 32px)); }
     html[data-card="floating"] .gate-half { width: 100%; max-width: 620px; margin-inline: auto; }
-    html[data-card="floating"] .gate-gl { inset: 32px; width: auto; height: auto; border-radius: 18px; }
+    html[data-card="floating"] .gate-gl { inset: 32px; width: auto; height: auto; border-radius: var(--r-card); }
     html[data-card="floating"] .gate-seam__line { top: 32px; bottom: 32px; }
     html[data-card="floating"] .gate-lang { top: 44px; right: 44px; }
     html[data-card="floating"] .gate-seam__badge { bottom: 44px; }
@@ -1173,13 +1173,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
 
     @media (max-width: 1099px) {
       html[data-card="minimal"] .card__tt li + li { border-left: 0; padding-left: 0; }
-      html[data-card="floating"] .gate-card-frame::after { inset: 20px; border-radius: 16px; }
+      html[data-card="floating"] .gate-card-frame::after { inset: 20px; border-radius: var(--r-card); }
       html[data-card="floating"] .gate-door { top: auto; bottom: auto; left: 20px; right: 20px; width: auto; height: calc(50% - 20px); }
-      html[data-card="floating"] .gate-door--left { top: 20px; border-radius: 16px 16px 0 0; }
-      html[data-card="floating"] .gate-door--right { bottom: 20px; border-radius: 0 0 16px 16px; }
+      html[data-card="floating"] .gate-door--left { top: 20px; border-radius: var(--r-card) var(--r-card) 0 0; }
+      html[data-card="floating"] .gate-door--right { bottom: 20px; border-radius: 0 0 var(--r-card) var(--r-card); }
       html[data-card="floating"].st-1 .gate-door--left, html[data-card="floating"].st-2 .gate-door--left { transform: translateY(calc(-100% - 20px)); }
       html[data-card="floating"].st-1 .gate-door--right, html[data-card="floating"].st-2 .gate-door--right { transform: translateY(calc(100% + 20px)); }
-      html[data-card="floating"] .gate-gl { inset: 20px; border-radius: 16px; }
+      html[data-card="floating"] .gate-gl { inset: 20px; border-radius: var(--r-card); }
       html[data-card="floating"] .gate-seam__line { top: 50%; bottom: auto; left: 20px; right: 20px; width: auto; height: 1px; }
       html[data-card="floating"] .gate-lang { top: 32px; right: 32px; }
       html[data-card="floating"] .gate-seam__badge { bottom: 32px; }
@@ -1187,13 +1187,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lawyerch.cn
     }
 
     @media (max-width: 599px) {
-      html[data-card="floating"] .gate-card-frame::after { inset: 12px; border-radius: 12px; }
+      html[data-card="floating"] .gate-card-frame::after { inset: 12px; border-radius: var(--r-card); }
       html[data-card="floating"] .gate-door { left: 12px; right: 12px; height: calc(50% - 12px); }
-      html[data-card="floating"] .gate-door--left { top: 12px; border-radius: 12px 12px 0 0; }
-      html[data-card="floating"] .gate-door--right { bottom: 12px; border-radius: 0 0 12px 12px; }
+      html[data-card="floating"] .gate-door--left { top: 12px; border-radius: var(--r-card) var(--r-card) 0 0; }
+      html[data-card="floating"] .gate-door--right { bottom: 12px; border-radius: 0 0 var(--r-card) var(--r-card); }
       html[data-card="floating"].st-1 .gate-door--left, html[data-card="floating"].st-2 .gate-door--left { transform: translateY(calc(-100% - 12px)); }
       html[data-card="floating"].st-1 .gate-door--right, html[data-card="floating"].st-2 .gate-door--right { transform: translateY(calc(100% + 12px)); }
-      html[data-card="floating"] .gate-gl { inset: 12px; border-radius: 12px; }
+      html[data-card="floating"] .gate-gl { inset: 12px; border-radius: var(--r-card); }
       html[data-card="floating"] .gate-seam__line { left: 12px; right: 12px; }
       html[data-card="floating"] .gate-lang { top: 24px; right: 24px; }
       html[data-card="floating"] .gate-save { right: 24px; bottom: 64px; }

@@ -57,24 +57,24 @@
   font-size: 0.88em;
   background: var(--swp-mist);
   padding: 0.18em 0.42em;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-card);
 }
 .prose pre {
   background: var(--swp-ink);
   color: var(--swp-mist);
   padding: 20px 22px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-card);
   overflow-x: auto;
   font-size: 14px;
   line-height: 1.65;
 }
 .prose pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
-.prose img { border-radius: var(--r-md); }
+.prose img { border-radius: var(--r-card); }
 .prose hr { border: 0; border-top: 1px solid var(--swp-line); margin: 2.4em 0; }
 
 /* ---- Case study ------------------------------------------- */
 .case-media {
-  border-radius: var(--r-lg);
+  border-radius: var(--r-card);
   overflow: hidden;
   background: var(--swp-mist);
   aspect-ratio: 16 / 10;
@@ -95,7 +95,7 @@
   position: sticky;
   top: 106px;
   background: var(--swp-mist);
-  border-radius: var(--r-lg);
+  border-radius: var(--r-card);
   padding: clamp(24px, 2.4vw, 30px);
 }
 .case-fact b {
@@ -121,7 +121,7 @@
   padding: clamp(26px, 3vw, 38px);
   background: var(--swp-ink);
   color: #fff;
-  border-radius: var(--r-lg);
+  border-radius: var(--r-card);
 }
 .result b {
   display: block;
@@ -143,7 +143,7 @@
 .article-head { max-width: 68ch; }
 .article-head h1 { margin: 18px 0 20px; }
 .article-media {
-  border-radius: var(--r-lg);
+  border-radius: var(--r-card);
   overflow: hidden;
   aspect-ratio: 16 / 9;
   background: var(--swp-mist);
@@ -174,7 +174,7 @@
 .nextprev a {
   display: block;
   padding: clamp(22px, 2.4vw, 30px);
-  border-radius: var(--r-md);
+  border-radius: var(--r-card);
   background: var(--swp-mist);
   transition: background 0.35s var(--ease), transform 0.35s var(--ease);
 }
@@ -215,7 +215,7 @@
   color: var(--swp-ink);
   background: var(--swp-shell);
   border: 1.5px solid var(--swp-line);
-  border-radius: var(--r-sm);
+  border-radius: var(--r-card);
   padding: 13px 15px;
   width: 100%;
   transition: border-color 0.25s var(--ease), background 0.25s var(--ease);
@@ -237,7 +237,7 @@
   color: var(--swp-slate);
   background: var(--swp-mist);
   border-left: 3px solid var(--swp-lime);
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  border-radius: 0 var(--r-card) var(--r-card) 0;
   padding: 14px 16px;
 }
 .form-note code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
@@ -249,7 +249,7 @@
   gap: 14px;
   align-items: flex-start;
   padding: 20px 22px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-card);
   background: var(--swp-mist);
   transition: background 0.3s var(--ease);
 }
@@ -283,7 +283,7 @@ a.contact-card:hover span { color: var(--swp-graphite); }
   gap: 13px;
   align-items: flex-start;
   padding: 22px 24px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-card);
   background: var(--swp-mist);
   font-size: 15px;
   line-height: 1.6;
@@ -319,7 +319,7 @@ a.contact-card:hover span { color: var(--swp-graphite); }
 /* ---- Empty state ------------------------------------------- */
 .empty {
   padding: clamp(36px, 5vw, 64px);
-  border-radius: var(--r-lg);
+  border-radius: var(--r-card);
   background: var(--swp-mist);
   text-align: center;
   color: var(--swp-slate);

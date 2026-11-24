@@ -13,8 +13,17 @@
   var ctx = cv.getContext('2d'), W = 0, H = 0, DPR = 1, root = document.documentElement;
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   function size() {
-    var r = cv.getBoundingClientRect(); DPR = Math.min(2, window.devicePixelRatio || 1);
-    W = r.width; H = r.height; cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    /* 量容器而不是画布自身：画布在 data-card="floating" 下是 width:auto，
+       按自身尺寸反推会形成自反馈，窗口一改尺寸就被拉到画布上限，整张名片变白。 */
+    var host = cv.offsetParent || cv.parentElement;
+    var box = host.getBoundingClientRect();
+    var cs = getComputedStyle(cv);
+    var padX = (parseFloat(cs.left) || 0) + (parseFloat(cs.right) || 0);
+    var padY = (parseFloat(cs.top) || 0) + (parseFloat(cs.bottom) || 0);
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = Math.min(4096, Math.max(1, box.width - padX));
+    H = Math.min(4096, Math.max(1, box.height - padY));
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
   }
   function band(y0, amp, k, n, ph, alpha, x0, x1) {
     ctx.strokeStyle = 'rgba(255,255,255,' + alpha + ')';
