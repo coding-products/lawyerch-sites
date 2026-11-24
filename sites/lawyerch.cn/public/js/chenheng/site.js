@@ -1,10 +1,10 @@
-/* 奇川风站点基础脚本：移动端菜单 + reduced-motion */
+/* 站点基础脚本：移动端菜单 + reduced-motion */
 (function () {
   'use strict';
 
   // 移动端菜单切换
-  const toggle = document.querySelector('.qc-nav__toggle');
-  const links = document.querySelector('.qc-nav__links');
+  const toggle = document.querySelector('.ch-nav__toggle');
+  const links = document.querySelector('.ch-nav__links');
 
   if (toggle && links) {
     toggle.addEventListener('click', function () {
@@ -30,13 +30,14 @@
   }
 
 
-  // 浅色 / 暗色主题（未手动选择时，按本地时间自动适配）
+  // 浅色 / 暗色主题：默认按本地时间自动适配（7:00–19:00 浅色，其余暗色）。
+  // 手动切换只记在 sessionStorage，仅本次会话有效，下次访问重新跟随时间。
   const themeBtn = document.getElementById('theme-toggle');
   const themeRoot = document.documentElement;
   function applyTheme(t) {
     themeRoot.setAttribute('data-theme', t);
     if (themeBtn) themeBtn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
-    window.dispatchEvent(new CustomEvent('qc-theme-change', { detail: t }));
+    window.dispatchEvent(new CustomEvent('ch-theme-change', { detail: t }));
   }
   function autoTheme() {
     const h = new Date().getHours();
@@ -44,7 +45,7 @@
   }
   function manualTheme() {
     try {
-      const v = localStorage.getItem('qc-theme');
+      const v = sessionStorage.getItem('ch-theme');
       return (v === 'light' || v === 'dark') ? v : null;
     } catch (e) { return null; }
   }
@@ -53,22 +54,23 @@
     const t = autoTheme();
     if (themeRoot.getAttribute('data-theme') !== t) applyTheme(t);
   }
+  try { localStorage.removeItem('ch-theme'); } catch (e) {}
+  applyTheme(manualTheme() || autoTheme());
   if (themeBtn) {
-    applyTheme(manualTheme() || autoTheme());
     themeBtn.addEventListener('click', function () {
       const next = themeRoot.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-      try { localStorage.setItem('qc-theme', next); } catch (e) {}
+      try { sessionStorage.setItem('ch-theme', next); } catch (e) {}
       applyTheme(next);
     });
-    // 页面一直开着时也跟着时间走：回到页面、每 10 分钟各检查一次
-    document.addEventListener('visibilitychange', function () {
-      if (!document.hidden) followTime();
-    });
-    setInterval(followTime, 600000);
   }
+  // 页面一直开着时也跟着时间走：回到页面、每 10 分钟各检查一次
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) followTime();
+  });
+  setInterval(followTime, 600000);
 
   // 导航跟随阅读位置：黄线出现在当前区块对应的栏目下方
-  const navLinks = Array.prototype.slice.call(document.querySelectorAll('.qc-nav__links > a'));
+  const navLinks = Array.prototype.slice.call(document.querySelectorAll('.ch-nav__links > a'));
   const secProducts = document.getElementById('products');
   const secFde = document.getElementById('fde');
   if (navLinks.length && (secProducts || secFde)) {
@@ -104,7 +106,7 @@
         const target = document.querySelector(targetId);
         if (target) {
           e.preventDefault();
-          if (window.qcGotoAnchor) window.qcGotoAnchor(target);
+          if (window.chGotoAnchor) window.chGotoAnchor(target);
           else target.scrollIntoView({ behavior: 'smooth' });
         }
       });

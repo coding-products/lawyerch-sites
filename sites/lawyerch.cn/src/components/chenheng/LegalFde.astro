@@ -14,7 +14,7 @@ const steps = [
 ---
 
 <section class="fde" id="fde" aria-labelledby="fde-title">
-  <div class="qc-wrap">
+  <div class="ch-wrap">
     <header class="fde__h">
       <span class="fde__k" data-noi18n><i></i>LEGAL FDE</span>
       <h2 id="fde-title" data-en="Not another tool.<br><em>Make it run.</em>">不是买工具，<br><em>是把它用起来</em></h2>
@@ -109,11 +109,11 @@ const steps = [
   }
 
   .fde__h { max-width: 780px; }
-  .fde__k { display: inline-flex; align-items: center; gap: 10px; font-family: var(--qc-mono); font-size: 12px; line-height: 1; letter-spacing: .24em; color: var(--f-gold); }
+  .fde__k { display: inline-flex; align-items: center; gap: 10px; font-family: var(--ch-mono); font-size: 12px; line-height: 1; letter-spacing: .24em; color: var(--f-gold); }
   .fde__k i { width: 7px; height: 7px; border-radius: 2px; background: var(--f-red); }
   .fde h2 {
     margin: 24px 0 0;
-    font-family: var(--qc-song);
+    font-family: var(--ch-song);
     font-size: clamp(2.3rem, 4.6vw, 3.7rem);
     font-weight: 700;
     line-height: 1.2;
@@ -128,15 +128,15 @@ const steps = [
   .vs__c.is-on { background: var(--f-panel); box-shadow: inset 0 2px 0 var(--f-gold); }
   .vs__c svg { width: 30px; height: 30px; fill: none; stroke: var(--f-dim); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
   .vs__c.is-on svg { stroke: var(--f-gold); }
-  .vs__c span { display: block; margin-top: 20px; font-family: var(--qc-mono); font-size: 12px; letter-spacing: .16em; color: var(--f-dim); }
-  .vs__c b { display: block; margin-top: 10px; font-family: var(--qc-song); font-size: clamp(1.2rem, 1.8vw, 1.6rem); font-weight: 700; letter-spacing: .05em; color: var(--f-ink); }
+  .vs__c span { display: block; margin-top: 20px; font-family: var(--ch-mono); font-size: 12px; letter-spacing: .16em; color: var(--f-dim); }
+  .vs__c b { display: block; margin-top: 10px; font-family: var(--ch-song); font-size: clamp(1.2rem, 1.8vw, 1.6rem); font-weight: 700; letter-spacing: .05em; color: var(--f-ink); }
   .vs__c.is-on b { color: var(--f-gold); }
   .vs__c i { display: block; margin-top: 8px; font-style: normal; font-size: 12.5px; line-height: 1.6; color: var(--f-dim); }
 
   .who { margin: 18px 0 0; font-size: 13px; letter-spacing: .04em; color: var(--f-dim); }
 
   .flow { margin-top: clamp(48px, 6vw, 80px); }
-  .flow__h h3 { margin: 14px 0 0; font-family: var(--qc-song); font-size: clamp(1.4rem, 2.2vw, 1.9rem); font-weight: 700; letter-spacing: .06em; color: var(--f-ink); }
+  .flow__h h3 { margin: 14px 0 0; font-family: var(--ch-song); font-size: clamp(1.4rem, 2.2vw, 1.9rem); font-weight: 700; letter-spacing: .06em; color: var(--f-ink); }
 
   .steps {
     display: grid;
@@ -150,8 +150,8 @@ const steps = [
   .steps li:nth-child(3n) { border-right: 0; }
   .steps li:nth-child(n + 4) { border-top: 1px solid var(--f-line); }
   .steps li::before { content: ''; position: absolute; left: 0; top: -3px; width: 5px; height: 5px; border-radius: 50%; background: var(--f-gold); }
-  .steps b { display: block; font-family: var(--qc-num); font-size: 13px; letter-spacing: .1em; color: var(--f-gold); }
-  .steps h4 { margin: 12px 0 0; font-family: var(--qc-song); font-size: 1.35rem; font-weight: 700; letter-spacing: .08em; color: var(--f-ink); }
+  .steps b { display: block; font-family: var(--ch-num); font-size: 13px; letter-spacing: .1em; color: var(--f-gold); }
+  .steps h4 { margin: 12px 0 0; font-family: var(--ch-song); font-size: 1.35rem; font-weight: 700; letter-spacing: .08em; color: var(--f-ink); }
   .steps p { margin: 8px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--f-dim); }
 
   .out { margin-top: 26px; border-top: 1px solid var(--f-line); }
@@ -169,7 +169,7 @@ const steps = [
   .out summary::-webkit-details-marker { display: none; }
   .out summary:hover { color: var(--f-ink); }
   .out summary:focus-visible { outline: 1px solid var(--f-gold); outline-offset: 4px; }
-  .out summary::after { content: '+'; margin-left: auto; font-family: var(--qc-num); font-size: 16px; transition: transform 300ms var(--ease-o); }
+  .out summary::after { content: '+'; margin-left: auto; font-family: var(--ch-num); font-size: 16px; transition: transform 300ms var(--ease-o); }
   .out[open] summary::after { transform: rotate(45deg); }
   .out ul { margin: 0 0 8px; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
   .out li { display: flex; gap: 14px; padding: 9px 0; border-top: 1px solid var(--f-line); font-size: 12.5px; line-height: 1.6; }
@@ -187,8 +187,8 @@ const steps = [
     background: var(--f-panel);
     box-shadow: inset 0 2px 0 var(--f-gold);
   }
-  .cta span { font-family: var(--qc-mono); font-size: 12px; letter-spacing: .2em; color: var(--f-gold); }
-  .cta h3 { margin: 12px 0 0; font-family: var(--qc-song); font-size: clamp(1.4rem, 2.2vw, 1.9rem); font-weight: 700; letter-spacing: .06em; color: var(--f-ink); }
+  .cta span { font-family: var(--ch-mono); font-size: 12px; letter-spacing: .2em; color: var(--f-gold); }
+  .cta h3 { margin: 12px 0 0; font-family: var(--ch-song); font-size: clamp(1.4rem, 2.2vw, 1.9rem); font-weight: 700; letter-spacing: .06em; color: var(--f-ink); }
   .cta p { margin: 10px 0 0; font-size: 13px; line-height: 1.8; color: var(--f-dim); }
   .btn {
     display: inline-flex;

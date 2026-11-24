@@ -1,6 +1,6 @@
 /**
  * ============================================================
- *  首页配置（全真对齐 miaoqichuan.com 结构与字段）
+ *  首页配置（名片、导航、社交与文案字段集中在此）
  * ============================================================
  *
  * 后续修改文案、电话、链接、身份、条目只需改动此文件。
@@ -8,7 +8,7 @@
 
 export type CardVariant = 'editorial' | 'goldline' | 'floating' | 'minimal';
 
-export const mqcConfig = {
+export const chenhengConfig = {
   // 名片视觉方案，改这一处即可切换：
   //   editorial 编辑档案 / goldline 金线名片 / floating 实体悬浮卡 / minimal 极简信息卡
   // 预览：在地址后加 ?card=editorial|goldline|floating|minimal
@@ -22,11 +22,11 @@ export const mqcConfig = {
     titleEn: 'Lawyer · Legal AI Engineer · Legal AI Content Creator',
     family: '陈',
     given: '恒',
-    avatar: '/images/qc/avatar-chenheng.webp', // 名片头像（640×640，真人照片）
-    cutout: '/images/qc/home-cutout.webp',     // 后续换成您自己的立绘照片
-    personalLogo: '/images/qc/qc-personal-logo.png',
-    wordmarkLogo: '/images/qc/qc-wordmark-logo.png',
-    qr: '/images/qc/wechat-qr.png',
+    avatar: '/images/chenheng/avatar-chenheng.webp', // 名片头像（640×640，真人照片）
+    cutout: '/images/chenheng/home-cutout.webp',     // 后续换成您自己的立绘照片
+    personalLogo: '/images/chenheng/personal-logo.png',
+    wordmarkLogo: '/images/chenheng/wordmark-logo.png',
+    qr: '/images/chenheng/wechat-qr.png',
     tel: '+86 180 0000 0000',                 // 您的电话
     telFormatted: '+86 180 0000 0000',
     mail: 'lawyerch@foxmail.com',
@@ -72,13 +72,13 @@ export const mqcConfig = {
       name: 'GitHub',
       handle: '@LawyerCH',
       href: 'https://github.com/LawyerCH',
-      iconImg: '/images/qc/social/gh-w.png',
+      iconImg: '/images/chenheng/social/gh-w.png',
     },
     {
       name: '劳动法站',
       handle: 'labor.lawyerch.cn',
       href: 'https://labor.lawyerch.cn/',
-      iconImg: '/images/qc/social/skillhub-w.png',
+      iconImg: '/images/chenheng/social/skillhub-w.png',
     },
     {
       name: '邮箱',

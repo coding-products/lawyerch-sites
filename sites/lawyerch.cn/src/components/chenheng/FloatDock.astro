@@ -41,7 +41,7 @@
     border-radius: 2px;
     background: rgba(12, 12, 14, .82);
     color: rgba(244, 231, 206, .86);
-    font: 500 12px/1 var(--qc-sans);
+    font: 500 12px/1 var(--ch-sans);
     letter-spacing: .06em;
     cursor: pointer;
     -webkit-backdrop-filter: blur(14px) saturate(1.1);
@@ -87,7 +87,7 @@
 
     topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     contactBtn.addEventListener('click', () => {
-      const openCard = (window as Window & { qcOpenCard?: () => void }).qcOpenCard;
+      const openCard = (window as Window & { chOpenCard?: () => void }).chOpenCard;
       if (openCard) openCard();
       else window.location.href = '/contact/';
     });

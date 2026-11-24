@@ -13,17 +13,17 @@
  *
  * 当前 3、4 两段先隐藏（后续方案未定），恢复时把下面注释的引入与使用一起打开。
  *
- * 所有数据均提取在 src/config/mqcConfig.ts，方便随时按需定制与增删。
+ * 所有数据均提取在 src/config/chenheng.ts，方便随时按需定制与增删。
  */
-import MqcLayout from '~/layouts/MqcLayout.astro';
+import ChenhengLayout from '~/layouts/ChenhengLayout.astro';
 import GateHero from '~/components/gate/GateHero.astro';
-// import LegalProducts from '~/components/mqc/LegalProducts.astro';
-// import LegalFde from '~/components/mqc/LegalFde.astro';
-import ContactFooter from '~/components/mqc/ContactFooter.astro';
-import FloatDock from '~/components/mqc/FloatDock.astro';
+// import LegalProducts from '~/components/chenheng/LegalProducts.astro';
+// import LegalFde from '~/components/chenheng/LegalFde.astro';
+import ContactFooter from '~/components/chenheng/ContactFooter.astro';
+import FloatDock from '~/components/chenheng/FloatDock.astro';
 ---
 
-<MqcLayout>
+<ChenhengLayout>
   <GateHero>
     {/* 法律产品 / 服务流程两段暂不展示 */}
     {/* <LegalProducts /> */}
@@ -31,4 +31,4 @@ import FloatDock from '~/components/mqc/FloatDock.astro';
     <ContactFooter />
     <FloatDock />
   </GateHero>
-</MqcLayout>
+</ChenhengLayout>

@@ -3,7 +3,7 @@
    文字单元 = 含中文、且内部只有行内元素的最大元素（或块元素里散落的中文文本节点）。 */
 (function () {
   'use strict';
-  var KEY = 'qc-lang', CJK = /[㐀-鿿！-～　-〿]/;
+  var KEY = 'ch-lang', CJK = /[㐀-鿿！-～　-〿]/;
   var INLINE = { A:1, B:1, STRONG:1, I:1, EM:1, SPAN:1, BR:1, SMALL:1, SUP:1, SUB:1, CODE:1, MARK:1, U:1, S:1, ABBR:1, TIME:1, Q:1, CITE:1, LABEL:1, IMG:1, WBR:1 };
   var SKIP = { SCRIPT:1, STYLE:1, NOSCRIPT:1, CANVAS:1, TEMPLATE:1, IFRAME:1, VIDEO:1 };
   var ATTRS = ['title', 'alt', 'aria-label', 'placeholder'];
@@ -13,11 +13,11 @@
   var lang = 'zh';
   try { if (localStorage.getItem(KEY) === 'en') lang = 'en'; } catch (e) {}
   try { var q = /[?&]lang=(en|zh)\b/.exec(location.search); if (q) lang = q[1]; } catch (e) {}
-  window.qcLang = lang;
+  window.chLang = lang;
   root.lang = lang === 'en' ? 'en' : 'zh-CN';
 
-  var D = window.QC_I18N = window.QC_I18N || { units: {}, attrs: {}, meta: {} };
-  window.qcI18nAdd = function (d) {
+  var D = window.CH_I18N = window.CH_I18N || { units: {}, attrs: {}, meta: {} };
+  window.chI18nAdd = function (d) {
     var k;
     for (k in d.units || {}) D.units[k] = d.units[k];
     for (k in d.attrs || {}) D.attrs[k] = d.attrs[k];
@@ -69,7 +69,7 @@
       else if (c.nodeType === 1) walk(c, fn);
     }
   }
-  window.qcI18nCollect = function (rootEl) {
+  window.chI18nCollect = function (rootEl) {
     var units = {}, attrs = {};
     walk(rootEl || document.body, function (kind, n, at) {
       if (kind === 'unit') units[norm(n.innerHTML)] = '';
@@ -87,14 +87,14 @@
   };
 
   /* 原文保存在节点上，切回中文时还原 */
-  var ZH = '__qcZh';
+  var ZH = '__chZh';
   function toEn(rootEl) {
     walk(rootEl, function (kind, n, at) {
       var k, v;
       if (kind === 'data') {
-        if (n.__qcEn) return;                       // 已是英文，不再重复写（否则会和 MutationObserver 互相触发）
+        if (n.__chEn) return;                       // 已是英文，不再重复写（否则会和 MutationObserver 互相触发）
         if (n.getAttribute('data-zh') === null) n.setAttribute('data-zh', n.innerHTML);
-        n.innerHTML = n.getAttribute('data-en'); n.__qcEn = true;
+        n.innerHTML = n.getAttribute('data-en'); n.__chEn = true;
       } else if (kind === 'unit') {
         k = norm(n.innerHTML); v = D.units[k];
         if (v) { n[ZH] = n.innerHTML; n.innerHTML = v; n.setAttribute('data-i18n', ''); }
@@ -112,7 +112,7 @@
         }
       } else if (kind === 'attr') {
         k = norm(n.getAttribute(at)); v = D.attrs[k];
-        if (v) { n['__qcZh_' + at] = n.getAttribute(at); n.setAttribute(at, v); }
+        if (v) { n['__chZh_' + at] = n.getAttribute(at); n.setAttribute(at, v); }
       }
     });
   }
@@ -122,14 +122,14 @@
     if (!rootEl || !rootEl.nodeType) return;
     var it = document.createTreeWalker(rootEl, 5, null), n;
     if (rootEl[ZH] !== undefined) touched.push(rootEl);
-    while ((n = it.nextNode())) if (n[ZH] !== undefined || n.__qcZh_title || n.__qcZh_alt || n['__qcZh_aria-label'] || n.__qcZh_placeholder || (n.nodeType === 1 && n.getAttribute('data-zh') !== null)) touched.push(n);
+    while ((n = it.nextNode())) if (n[ZH] !== undefined || n.__chZh_title || n.__chZh_alt || n['__chZh_aria-label'] || n.__chZh_placeholder || (n.nodeType === 1 && n.getAttribute('data-zh') !== null)) touched.push(n);
   }
   function toZh() {
     touched.forEach(function (n) {
       if (n.nodeType === 3) { if (n[ZH] !== undefined) { n.nodeValue = n[ZH]; delete n[ZH]; } return; }
-      if (n.getAttribute('data-zh') !== null && n.hasAttribute('data-en')) { n.innerHTML = n.getAttribute('data-zh'); n.__qcEn = false; }
+      if (n.getAttribute('data-zh') !== null && n.hasAttribute('data-en')) { n.innerHTML = n.getAttribute('data-zh'); n.__chEn = false; }
       else if (n[ZH] !== undefined) { n.innerHTML = n[ZH]; delete n[ZH]; n.removeAttribute('data-i18n'); }
-      ATTRS.forEach(function (a) { if (n['__qcZh_' + a]) { n.setAttribute(a, n['__qcZh_' + a]); delete n['__qcZh_' + a]; } });
+      ATTRS.forEach(function (a) { if (n['__chZh_' + a]) { n.setAttribute(a, n['__chZh_' + a]); delete n['__chZh_' + a]; } });
     });
     touched = [];
     /* 页内还有自己生成的英文？刷新一次最稳 */
@@ -145,14 +145,14 @@
     } else { document.title = titleZh; if (md) md.content = descZh; }
   }
   function syncButtons() {
-    var bs = document.querySelectorAll('.qc-lang, .lang');
+    var bs = document.querySelectorAll('.ch-lang, .lang');
     for (var i = 0; i < bs.length; i++) {
       bs[i].setAttribute('aria-pressed', lang === 'en' ? 'true' : 'false');
       bs[i].setAttribute('data-cur', lang);
     }
   }
   function apply(l, first) {
-    lang = l; window.qcLang = l;
+    lang = l; window.chLang = l;
     root.lang = l === 'en' ? 'en' : 'zh-CN';
     try { localStorage.setItem(KEY, l); } catch (e) {}
     syncButtons();
@@ -160,7 +160,7 @@
       load(function () {
         toEn(document.body); remember(document.body); setMeta(true);
         if (mo) mo.takeRecords();
-        root.classList.remove('qc-i18n-wait');
+        root.classList.remove('ch-i18n-wait');
         if (!mo && window.MutationObserver) {
           mo = new MutationObserver(function (ms) {
             if (lang !== 'en') return;
@@ -176,25 +176,25 @@
           });
           mo.observe(document.body, { childList: true, subtree: true });
         }
-        if (!first) document.dispatchEvent(new CustomEvent('qc:lang', { detail: l }));
+        if (!first) document.dispatchEvent(new CustomEvent('ch:lang', { detail: l }));
       });
     } else {
       toZh(); setMeta(false);
       if (mo) mo.takeRecords();
-      root.classList.remove('qc-i18n-wait');
-      if (!first) document.dispatchEvent(new CustomEvent('qc:lang', { detail: l }));
+      root.classList.remove('ch-i18n-wait');
+      if (!first) document.dispatchEvent(new CustomEvent('ch:lang', { detail: l }));
     }
   }
-  window.qcSetLang = function (l) { apply(l, false); };
+  window.chSetLang = function (l) { apply(l, false); };
 
   if (lang === 'en') {
-    root.classList.add('qc-i18n-wait');
+    root.classList.add('ch-i18n-wait');
     load(function () {});
-    setTimeout(function () { root.classList.remove('qc-i18n-wait'); }, 1800);
+    setTimeout(function () { root.classList.remove('ch-i18n-wait'); }, 1800);
   }
   function ready() {
     document.addEventListener('click', function (e) {
-      var b = e.target.closest && e.target.closest('.qc-lang, .lang');
+      var b = e.target.closest && e.target.closest('.ch-lang, .lang');
       if (!b) return;
       e.preventDefault();
       apply(lang === 'en' ? 'zh' : 'en', false);

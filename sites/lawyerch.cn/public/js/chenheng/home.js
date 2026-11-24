@@ -237,16 +237,16 @@
   if (gateLatch) gateLatch.addEventListener('click', function () { go(1); });
   var cueBtn = document.getElementById('cue');
   if (cueBtn) cueBtn.addEventListener('click', function () {
-    window.qcGotoAnchor(document.getElementById('products'));
+    window.chGotoAnchor(document.getElementById('products'));
   });
   var heroCta = document.getElementById('hero-cta');
   if (heroCta) heroCta.addEventListener('click', function (e) {
     e.preventDefault();
-    window.qcGotoAnchor(document.getElementById('products'));
+    window.chGotoAnchor(document.getElementById('products'));
   });
 
   // 顶部导航锚点：首屏内点击时先解锁滚动，再滚到目标
-  window.qcGotoAnchor = function (target) {
+  window.chGotoAnchor = function (target) {
     if (!target) return;
     if (root.classList.contains('st-free')) {
       target.scrollIntoView({ behavior: 'smooth' });
@@ -257,7 +257,7 @@
   };
 
   // 供页面按钮调用：从任意位置打开名片页（门扇合上、头像飞回名片）
-  window.qcOpenCard = function () {
+  window.chOpenCard = function () {
     if (stage === 0) return;
     go(0);
   };

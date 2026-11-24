@@ -394,7 +394,7 @@
     tY = (e.clientY / window.innerHeight - .5) * 10;
   }, { passive: true });
   window.addEventListener('resize', function () { resize(); if (!running) draw(T); });
-  window.addEventListener('qc-theme-change', function () { resize(); if (!running) draw(T); });
+  window.addEventListener('ch-theme-change', function () { resize(); if (!running) draw(T); });
   document.addEventListener('visibilitychange', start);
   window.addEventListener('scroll', function () { if (!paused()) start(); }, { passive: true });
   if ('IntersectionObserver' in window) {

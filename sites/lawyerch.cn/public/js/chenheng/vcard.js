@@ -6,7 +6,7 @@
   var d = btn.dataset;
   var touch = window.matchMedia && matchMedia('(hover: none) and (pointer: coarse)').matches;
 
-  function T(zh, en) { return window.qcLang === 'en' ? en : zh; }
+  function T(zh, en) { return window.chLang === 'en' ? en : zh; }
   function name() { return T(d.vcfName || '', d.vcfNameEn || d.vcfName || ''); }
   function title() { return T(d.vcfTitle || '', d.vcfTitleEn || d.vcfTitle || ''); }
 

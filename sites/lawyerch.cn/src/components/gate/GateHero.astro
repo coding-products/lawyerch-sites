@@ -7,20 +7,20 @@
  *   - hero 首屏：HeroStage
  *   - 交互脚本：vcard / hero-bg / home-card / home
  *
- * 用法（需放在 MqcLayout 内，后续内容走默认插槽）：
+ * 用法（需放在 ChenhengLayout 内，后续内容走默认插槽）：
  *   <GateHero>
  *     <LegalProducts />
  *     <LegalFde />
  *     <ContactFooter />
  *   </GateHero>
  */
-import LidCard from '~/components/mqc/LidCard.astro';
-import HeroStage from '~/components/mqc/HeroStage.astro';
+import LidCard from '~/components/chenheng/LidCard.astro';
+import HeroStage from '~/components/chenheng/HeroStage.astro';
 ---
 <LidCard />
 <HeroStage />
 <slot />
 
-<script is:inline defer src="/js/qc/hero-bg.js"></script>
-<script is:inline defer src="/js/qc/home-card.js"></script>
-<script is:inline defer src="/js/qc/home.js"></script>
+<script is:inline defer src="/js/chenheng/hero-bg.js"></script>
+<script is:inline defer src="/js/chenheng/home-card.js"></script>
+<script is:inline defer src="/js/chenheng/home.js"></script>
