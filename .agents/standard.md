@@ -1,5 +1,5 @@
 ---
-version: 2026-11-24.1
+version: 2026-11-24.2
 applies-to: 所有站点项目
 ---
 
@@ -249,14 +249,14 @@ cd <工作区根>
 
 | 自动检查 | 说明 |
 |---|---|
-| 对比度 | 读 `src/config/theme.ts` 的前景/背景色 |
+| 对比度 | `src/config/theme.ts` 的前景/背景色，加上 `src/` 下 CSS 与 astro 里 `:root` / `[data-theme]` 块中的自定义颜色变量（`--*-ink`、`--*-note` 等对 `--*-bg`/`--*-paper`） |
 | 字号 | CSS 中 `font-size` < 12px 直接报错 |
 | 动效降级 | 有 `animation`/`transition` 但没写 `prefers-reduced-motion` 报错 |
 | 触控目标 | `button`/`input`/`select`/`.btn`/`.icon-button` 的显式 `height` 或 `min-height` < 44px 报错 |
 | 图片尺寸 | 缺 `width`/`height`/`aspect-ratio` 超过 20% 报错 |
 | emoji 图标、多个 h1、缺 viewport/description | 报错 |
 
-圆角与阴影的取值数量会打印出来（规范建议圆角 ≤2 种、阴影 1 套），但不自动判错，需要人工确认。对比度一项只读 `src/config/theme.ts`，用其它 token 体系的站点要做一次人工核对，不要把「通过」当成覆盖了全部页面。自动检查之外还要看：动效节奏（全站 2–3 处、200–400ms）、真实内容、一屏一节。这些靠 `design-review` 技能，不要假装脚本能覆盖。
+圆角与阴影的取值数量会打印出来（规范建议圆角 ≤2 种、阴影 1 套），但不自动判错，需要人工确认。对比度按变量名判断：`--*-ink/text/fg` 按正文 4.5 卡，`--*-note/muted/sub/faint` 按次级 3.0 卡（3.0–4.5 之间提醒）。名字不合这套约定的色板不会被检查，看到「自定义色板 0 组」就说明这站没被覆盖，要人工核对。自动检查之外还要看：动效节奏（全站 2–3 处、200–400ms）、真实内容、一屏一节。这些靠 `design-review` 技能，不要假装脚本能覆盖。
 
 ### 硬性规则
 

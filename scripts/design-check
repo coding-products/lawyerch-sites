@@ -88,6 +88,78 @@ def check_theme_tokens(site: Path, issues: list, warns: list) -> None:
     # 强调色（lime）按设计只用于深色底或按钮背景，不作为浅底正文色。
     # 这里不做自动判断，避免误报；规则写在 .agents/skills/design-review 里人工把关。
 
+
+# 自定义色板：背景类变量名与前景类变量名
+BG_TOKEN = re.compile(r"(bg|background|surface|paper|mist|shell|canvas|ground)", re.I)
+FG_TOKEN = re.compile(r"^(?:ch-|swp-|s-)?(ink|text|fg|note|muted|sub|faint|gray|grey)\w*$", re.I)
+STRONG_FG = re.compile(r"^(?:ch-|swp-|s-)?(ink|text|fg)$", re.I)
+
+
+def check_css_tokens(site: Path, issues: list, warns: list) -> None:
+    """检查 src 下 CSS / astro 里的自定义颜色变量块。
+
+    theme.ts 只是其中一套色板；首页这类手写 token（--ch-*）此前完全没被覆盖。
+    规则：同一个主题块（:root 或 [data-theme=…]）里，前景变量与背景变量逐一算对比度；
+    正文级前景（ink / text / fg）低于 4.5 判错，次级前景低于 3.0 判错、低于 4.5 提醒。
+    """
+    src = site / "src"
+    if not src.exists():
+        return
+
+    decl = re.compile(r"--([\w-]+)\s*:\s*(#[0-9a-fA-F]{3,8})\b")
+    blocks = 0
+    pairs = 0
+    seen: set[str] = set()
+
+    for f in sorted(p for p in src.rglob("*") if p.suffix in (".css", ".astro")):
+        text = f.read_text(encoding="utf-8", errors="ignore")
+        for m in re.finditer(r"([^{}]+)\{([^{}]*)\}", text):
+            selector, body = m.group(1).strip(), m.group(2)
+            if ":root" not in selector and "data-theme" not in selector:
+                continue
+            colors = {
+                name: value for name, value in decl.findall(body) if len(value) in (4, 7)
+            }
+            if len(colors) < 2:
+                continue
+            blocks += 1
+            bg_name, bg = next(
+                ((k, v) for k, v in colors.items() if BG_TOKEN.search(k)), (None, None)
+            )
+            if bg is None:
+                continue
+            for name, color in colors.items():
+                if not FG_TOKEN.match(name):
+                    continue
+                ratio = contrast_ratio(color, bg)
+                if ratio is None:
+                    continue
+                pairs += 1
+                rel = f.relative_to(site)
+                head = f"{rel} `{selector[:40]}` 中 --{name} {color} 在 --{bg_name} {bg} 上为 {ratio:.2f}:1"
+                if STRONG_FG.match(name):
+                    if ratio < CONTRAST_BODY:
+                        if head not in seen:
+                            seen.add(head)
+                            issues.append(f"对比度不足：{head}，需 ≥ {CONTRAST_BODY}")
+                    elif ratio < CONTRAST_BODY + 0.5:
+                        if head not in seen:
+                            seen.add(head)
+                            warns.append(f"对比度偏低：{head}（勉强达标）")
+                else:
+                    if ratio < CONTRAST_LARGE:
+                        if head not in seen:
+                            seen.add(head)
+                            issues.append(f"对比度不足：{head}，次级文字需 ≥ {CONTRAST_LARGE}")
+                    elif ratio < CONTRAST_BODY:
+                        if head not in seen:
+                            seen.add(head)
+                            warns.append(f"对比度偏低：{head}（低于正文标准）")
+
+    if pairs:
+        print(f"{OK} 自定义色板对比度：{blocks} 个主题块，{pairs} 组前景/背景")
+
+
 def resolve_output(site: Path, explicit: Path | None = None) -> Path | None:
     """构建产物目录。显式指定优先；否则 Astro 站点用 dist/，纯静态站点用 public/。"""
     if explicit is not None:
@@ -278,6 +350,7 @@ def main() -> None:
 
     print(f"== 设计检查：{site.name} ==\n")
     check_theme_tokens(site, issues, warns)
+    check_css_tokens(site, issues, warns)
     check_html(site, issues, warns, explicit_output)
     check_css(site, issues, warns, explicit_output)
     dist = resolve_output(site, explicit_output)
